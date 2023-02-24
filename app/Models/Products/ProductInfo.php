@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\Comment;
 
 class ProductInfo extends Model
 {
@@ -43,5 +44,10 @@ class ProductInfo extends Model
     public function default_product()
     {
         return $this->belongsTo(Product::class, 'default_product_id');
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
     }
 }

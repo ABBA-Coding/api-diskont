@@ -20,6 +20,7 @@ use App\Http\Controllers\{
     CategoryController,
     BrandController,
     PostController,
+    CommentController,
 };
 use App\Http\Controllers\Faqs\{
     FaqCategoryController,
@@ -70,4 +71,6 @@ Route::prefix('admin')->group(function() {
 
     Route::apiResource('products', ProductController::class);
     Route::apiResource('products_infos', ProductInfoController::class);
+
+    Route::apiResource('comments', CommentController::class);
 });
