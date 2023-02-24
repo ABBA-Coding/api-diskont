@@ -25,6 +25,10 @@ use App\Http\Controllers\Faqs\{
     FaqCategoryController,
     FaqController,
 };
+use App\Http\Controllers\Products\{
+    ProductController,
+    ProductInfoController,
+};
 
 /*
 |--------------------------------------------------------------------------
@@ -63,4 +67,7 @@ Route::prefix('admin')->group(function() {
 
     Route::get('faqs_categories', [FaqCategoryController::class, 'index']);
     Route::apiResource('faqs_categories', FaqCategoryController::class);
+
+    Route::apiResource('products', ProductController::class);
+    Route::apiResource('products_infos', ProductInfoController::class);
 });

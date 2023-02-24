@@ -4,6 +4,7 @@ namespace App\Models\Characteristics;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Products\Product;
 
 class CharacteristicOption extends Model
 {
@@ -22,5 +23,10 @@ class CharacteristicOption extends Model
     public function characteristic()
     {
         return $this->belongsTo(Characteristic::class);
+    }
+
+    public function products()
+    {
+        return $this->belongsToMany(Product::class);
     }
 }

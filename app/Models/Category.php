@@ -39,6 +39,11 @@ class Category extends Model
         return $this->belongsToMany(Characteristics\CharacteristicGroup::class);
     }
 
+    public function product_info()
+    {
+        return $this->hasMany(ProductInfo::class);
+    }
+
 
 
 

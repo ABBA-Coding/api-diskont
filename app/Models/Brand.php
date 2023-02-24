@@ -14,6 +14,26 @@ class Brand extends Model
         'logo'
     ];
 
+    public function product_infos()
+    {
+        return $this->hasMany(Products\ProductInfo::class);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     protected $appends = [
         'sm_logo',
         'md_logo',
