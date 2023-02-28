@@ -16,12 +16,13 @@ class Product extends Model
         'c_id',
         'model',
         'price',
-        'status'
+        'status',
+        'is_popular',
     ];
 
     public function info()
     {
-        return $this->belongsTo(ProductInfo::class, 'info_id');
+        return $this->belongsTo(ProductInfo::class, 'info_id')->select('id', 'name', 'desc', 'brand_id', 'category_id', 'default_product_id');
     }
 
     public function images()

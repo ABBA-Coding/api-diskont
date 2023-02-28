@@ -38,7 +38,7 @@ class ProductInfo extends Model
 
     public function category()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Category::class)->select('id', 'name', 'parent_id', 'is_popular', 'desc', 'icon', 'img', 'position');
     }
 
     public function default_product()
@@ -49,5 +49,16 @@ class ProductInfo extends Model
     public function comments()
     {
         return $this->hasMany(Comment::class);
+    }
+
+
+    protected $appends = [
+        'stars'
+    ];
+
+    public function getStarsAttribute()
+    {
+        if($this->comments->count() == 0) return null;
+        return round($this->comments->sum('stars') / $this->comments->count());
     }
 }

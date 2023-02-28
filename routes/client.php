@@ -2,6 +2,11 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\web\{
+    CategoryController,
+    ProductController,
+    BrandController,
+};
 
 
 
@@ -19,3 +24,7 @@ Route::prefix('auth')->group(function () {
         return response(\Illuminate\Support\Facades\Cache::get($phone_number));
     });
 });
+
+Route::get('categories', [CategoryController::class, 'index']);
+Route::get('products', [ProductController::class, 'index']);
+Route::get('brands', [BrandController::class, 'index']);

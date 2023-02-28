@@ -21,6 +21,7 @@ class CreateCategoriesTable extends Migration
             $table->mediumText('desc')->nullable();
             $table->string('icon')->nullable();
             $table->string('img')->nullable();
+            $table->integer('position')->default(1000);
             $table->text('for_search')->nullable();
             $table->timestamps();
         });
