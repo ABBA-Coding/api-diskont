@@ -17,7 +17,7 @@ class AttributeOption extends Model
     ];
 
     protected $casts = [
-        'name',
+        'name' => 'array',
     ];
 
     public function attribute()

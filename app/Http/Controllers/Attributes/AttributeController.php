@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Attributes;
 use App\Models\Attributes\Attribute;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use DB;
 
 class AttributeController extends Controller
 {
@@ -38,7 +39,7 @@ class AttributeController extends Controller
             'group_id' => 'required|integer',
             'name' => 'required|array',
             'name.ru' => 'required',
-            'options' => 'required|array',
+            'options' => 'nullable|array',
         ]);
 
         DB::beginTransaction();
@@ -103,7 +104,7 @@ class AttributeController extends Controller
             'group_id' => 'required|integer',
             'name' => 'required|array',
             'name.ru' => 'required',
-            'options' => 'required|array',
+            'options' => 'nullable|array',
         ]);
 
         DB::beginTransaction();

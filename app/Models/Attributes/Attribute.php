@@ -16,7 +16,7 @@ class Attribute extends Model
     ];
 
     protected $casts = [
-        'name',
+        'name' => 'array',
     ];
 
     public function group()
