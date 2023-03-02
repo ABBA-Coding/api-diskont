@@ -41,9 +41,9 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => "required|array",
-            'name.' . $this->main_lang => "required",
-            'model' => "nullable|max:255",
+            'name' => 'required|array',
+            'name.' . $this->main_lang => 'required',
+            'model' => 'nullable|max:255',
             'desc' => 'required|array',
             'brand_id' => 'nullable|integer',
             'status' => 'required|in:active,inactive',
@@ -56,7 +56,11 @@ class ProductController extends Controller
             'products.*.variations.*.options.*' => 'required|integer',
             'products.*.variations.*.price' => 'required|numeric',
             'products.*.variations.*.is_default' => 'required|boolean',
+            'products.*.variations.*.is_popular' => 'nullable|boolean',
+            'products.*.variations.*.product_of_the_day' => 'nullable|boolean',
         ]);
+
+        // dd($request->all());
 
         DB::beginTransaction();
         try {
@@ -94,6 +98,8 @@ class ProductController extends Controller
                         'model' => $request->model ?? null,
                         'price' => $variation['price'],
                         'status' => $request->status,
+                        'is_popular' => $variation['is_popular'],
+                        'product_of_the_day' => $variation['product_of_the_day'],
                     ]);
 
                     if($variation['is_default']) $default_product_id = $item->id;
@@ -156,6 +162,8 @@ class ProductController extends Controller
             'products.*.variations.*.options.*' => 'required|integer',
             'products.*.variations.*.price' => 'required|numeric',
             'products.*.variations.*.is_default' => 'required|boolean',
+            'products.*.variations.*.is_popular' => 'nullable|boolean',
+            'products.*.variations.*.product_of_the_day' => 'nullable|boolean',
         ]);
 
         DB::beginTransaction();
@@ -214,6 +222,8 @@ class ProductController extends Controller
                             'model' => $request->model ?? null,
                             'price' => $variation['price'],
                             'status' => $request->status,
+                            'is_popular' => $variation['is_popular'],
+                            'product_of_the_day' => $variation['product_of_the_day'],
                         ]);
                     } else {
                         $item = Product::find($variation['id']);
@@ -221,6 +231,8 @@ class ProductController extends Controller
                             'model' => $request->model ?? null,
                             'price' => $variation['price'],
                             'status' => $request->status,
+                            'is_popular' => $variation['is_popular'],
+                            'product_of_the_day' => $variation['product_of_the_day'],
                         ]);
                     }
 

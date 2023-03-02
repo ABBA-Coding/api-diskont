@@ -18,6 +18,7 @@ class Product extends Model
         'price',
         'status',
         'is_popular',
+        'product_of_the_day',
     ];
 
     public function info()

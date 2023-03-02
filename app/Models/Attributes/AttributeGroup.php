@@ -22,9 +22,4 @@ class AttributeGroup extends Model
     {
         return $this->hasMany(Attribute::class, 'group_id');
     }
-
-    public function categories()
-    {
-        return $this->belongsToMany(Category::class);
-    }
 }

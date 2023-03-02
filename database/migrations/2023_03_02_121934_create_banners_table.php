@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateAttributeGroupCategoryTable extends Migration
+class CreateBannersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,11 @@ class CreateAttributeGroupCategoryTable extends Migration
      */
     public function up()
     {
-        Schema::create('attribute_group_category', function (Blueprint $table) {
+        Schema::create('banners', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('attribute_group_id');
-            $table->bigInteger('category_id');
+            $table->text('img');
+            $table->text('link')->nullable();
+            $table->enum('type', ['main', 'promo', 'small']);
             $table->timestamps();
         });
     }
@@ -28,6 +29,6 @@ class CreateAttributeGroupCategoryTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('attribute_group_category');
+        Schema::dropIfExists('banners');
     }
 }

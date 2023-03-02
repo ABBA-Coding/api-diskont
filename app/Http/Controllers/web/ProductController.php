@@ -15,16 +15,28 @@ class ProductController extends Controller
         $products = Product::select('id', 'info_id', 'model', 'price')
             ->with('info', 'info.brand', 'info.category', 'images');
 
-        if(isset($request->bestsellers)) {
-            $products = $products->orderBy('position');
-        }
+        if(isset($request->type) && $request->type != '') {
+            switch ($request->type) {
+                case 'popular':
+                    $products = $products->orderBy('is_popular');
+                    break;
 
-        if(isset($request->popular)) {
-            $products = $products->orderBy('is_popular');
-        }
+                case 'new':
+                    $products = $products->orderBy('created_at');
+                    break;
 
-        if(isset($request->new)) {
-            $products = $products->orderBy('created_at');
+                case 'products_of_the_day':
+                    $products = $products->where('product_of_the_day', 1);
+                    break;
+
+                case 'bestsellers':
+                    // code...
+                    break;
+                
+                default:
+                    // code...
+                    break;
+            }
         }
 
         if(isset($request->category) && $request->category != '') {

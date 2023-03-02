@@ -19,7 +19,7 @@ class AttributeController extends Controller
     {
         $attributes = Attribute::latest()
             ->select('id', 'group_id', 'name')
-            ->with('group', 'options')
+            ->with('group', 'options', 'categories')
             ->paginate($this->PAGINATE);
 
         return response([

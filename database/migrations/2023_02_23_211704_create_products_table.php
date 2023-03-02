@@ -20,6 +20,7 @@ class CreateProductsTable extends Migration
             $table->string('model')->nullable();
             $table->float('price')->nullable();
             $table->boolean('is_popular')->default(0);
+            $table->boolean('product_of_the_day')->default(0);
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
         });

@@ -35,9 +35,9 @@ class Category extends Model
         return $this->hasMany(Category::class, 'parent_id');
     }
 
-    public function attribute_groups()
+    public function attributes()
     {
-        return $this->belongsToMany(Attributes\AttributeGroup::class);
+        return $this->belongsToMany(Attributes\Attribute::class);
     }
 
     public function characteristic_groups()

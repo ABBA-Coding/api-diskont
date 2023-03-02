@@ -18,8 +18,9 @@ class CategoryController extends Controller
     public function index()
     {
         $categories = Category::latest()
+            ->whereNull('parent_id')
             ->select('id', 'name', 'is_popular', 'desc', 'parent_id', 'img', 'icon')
-            ->with('parent', 'attribute_groups', 'attribute_groups.attributes', 'characteristic_groups', 'characteristic_groups.characteristics')
+            ->with('children', 'attributes', 'characteristic_groups', 'characteristic_groups.characteristics')
             ->paginate($this->PAGINATE);
 
         return response([
@@ -39,7 +40,7 @@ class CategoryController extends Controller
             'name' => 'required|array',
             'name.ru' => 'required|max:255',
             'parent_id' => 'nullable|integer',
-            'group_attributes' => 'required|array',
+            'attributes' => 'required|array',
             'group_characteristics' => 'required|array',
             'icon' => 'nullable|max:255',
             'img' => 'nullable|max:255',
@@ -75,7 +76,7 @@ class CategoryController extends Controller
                 'for_search' => $this->for_search($request, ['name', 'desc'])
             ]);
 
-            $category->attribute_groups()->sync($request->group_attributes);
+            $category->attributes()->sync($request->input('attributes'));
             $category->characteristic_groups()->sync($request->group_characteristics);
 
             DB::commit();
@@ -116,7 +117,7 @@ class CategoryController extends Controller
             'name' => 'required|array',
             'name.ru' => 'required|max:255',
             'parent_id' => 'nullable|integer',
-            'group_attributes' => 'required|array',
+            'attributes' => 'required|array',
             'group_characteristics' => 'required|array',
             'icon' => 'nullable|max:255',
             'img' => 'nullable|max:255',
@@ -160,7 +161,7 @@ class CategoryController extends Controller
                 'for_search' => $this->for_search($request, ['name', 'desc'])
             ]);
 
-            $category->attribute_groups()->sync($request->group_attributes);
+            $category->attributes()->sync($request->input('attributes'));
             $category->characteristic_groups()->sync($request->group_characteristics);
 
             DB::commit();
@@ -187,7 +188,7 @@ class CategoryController extends Controller
     {
         DB::beginTransaction();
         try {
-            $category->attribute_groups()->detach();
+            $category->attributes()->detach();
             $category->characteristic_groups()->detach();
             $category->delete();
 

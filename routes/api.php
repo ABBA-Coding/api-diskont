@@ -21,6 +21,7 @@ use App\Http\Controllers\{
     BrandController,
     PostController,
     CommentController,
+    BannerController,
 };
 use App\Http\Controllers\Faqs\{
     FaqCategoryController,
@@ -30,6 +31,7 @@ use App\Http\Controllers\Products\{
     ProductController,
     ProductInfoController,
 };
+use App\Http\Controllers\Feedbacks\FeedbackController;
 
 /*
 |--------------------------------------------------------------------------
@@ -74,4 +76,8 @@ Route::prefix('admin')->group(function() {
     Route::apiResource('products_infos', ProductInfoController::class);
 
     Route::apiResource('comments', CommentController::class);
+
+    Route::apiResource('banners', BannerController::class);
+
+    Route::apiResource('feedbacks', FeedbackController::class);
 });
