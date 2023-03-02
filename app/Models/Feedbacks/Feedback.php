@@ -17,6 +17,6 @@ class Feedback extends Model
 
     public function images()
     {
-        return $this->hasMany(FeedbackImage::class, 'feedback_id');
+        return $this->hasMany(FeedbackImage::class, 'feedback_id')->select('id', 'feedback_id', 'img');
     }
 }

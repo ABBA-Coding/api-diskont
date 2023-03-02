@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers\Feedbacks;
 
-use App\Models\Feedback;
+use App\Models\Feedbacks\Feedback;
+use App\Models\Feedbacks\FeedbackImage;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Storage;
 
 class FeedbackController extends Controller
 {
+    protected $PAGINATE = 16;
     /**
      * Display a listing of the resource.
      *
@@ -14,7 +18,14 @@ class FeedbackController extends Controller
      */
     public function index()
     {
-        //
+        $feedbacks = Feedback::latest()
+            ->select('id', 'feedback', 'company', 'logo')
+            ->with('images')
+            ->paginate($this->PAGINATE);
+
+        return response([
+            'feedbacks' => $feedbacks
+        ]);
     }
 
     /**
@@ -49,10 +60,14 @@ class FeedbackController extends Controller
         }
 
         if(isset($imgs) && !empty($imgs)) {
-            FeedbackImage::create([
-                'feedback_id' => $feedback
-            ]);
+            foreach($imgs as $item) {
+                FeedbackImage::create([ 
+                    'feedback_id' => $feedback->id,
+                    'img' => $item
+                ]);
+            }
         }
+
 
         return response([
             'feedback' => $feedback
@@ -79,7 +94,50 @@ class FeedbackController extends Controller
      */
     public function update(Request $request, Feedback $feedback)
     {
-        //
+        $request->validate([
+            'feedback' => 'required',
+            'company' => 'nullable',
+            'logo' => 'nullable|max:255',
+            'images' => 'nullable|array',
+        ]);
+
+        $feedback->update([
+            'feedback' => $request->feedback,
+            'company' => isset($request->company) ? $request->company : null,
+            'logo' => isset($request->logo) ? $request->logo : null,
+        ]);
+
+        $old_images = $feedback->images()->pluck('id')->toArray();
+        if(!empty($request->images)) {
+            $result_imgs = [];
+            foreach($request->images as $item) {
+                if($item->id != 0) {
+                    $result_imgs;
+                }
+                if(Storage::disk('public')->exists('/uploads/temp/' . explode('/', $item)[count(explode('/', $item)) - 1])) {
+                    $explode_img = explode('/', $item);
+                    Storage::disk('public')->move('/uploads/temp/' . $explode_img[count($explode_img) - 1], '/uploads/feedbacks/' . $explode_img[count($explode_img) - 1]);
+                    Storage::disk('public')->move('/uploads/temp/200/' . $explode_img[count($explode_img) - 1], '/uploads/feedbacks/200/' . $explode_img[count($explode_img) - 1]);
+                    Storage::disk('public')->move('/uploads/temp/600/' . $explode_img[count($explode_img) - 1], '/uploads/feedbacks/600/' . $explode_img[count($explode_img) - 1]);
+                    $imgs[] = $explode_img[count($explode_img) - 1];
+                }
+            }
+
+            if(isset($imgs) && !empty($imgs)) {
+                foreach($imgs as $item) {
+                    FeedbackImage::create([ 
+                        'feedback_id' => $feedback->id,
+                        'img' => $item
+                    ]);
+                }
+            }
+        } else {
+            $feedback->images()->delete();
+        }
+
+        return response([
+            'feedback' => $feedback
+        ]);
     }
 
     /**
