@@ -7,6 +7,7 @@ use App\Http\Controllers\web\{
     ProductController,
     BrandController,
     BannerController,
+    PostController,
 };
 
 
@@ -30,3 +31,7 @@ Route::get('categories', [CategoryController::class, 'index']);
 Route::get('products', [ProductController::class, 'index']);
 Route::get('brands', [BrandController::class, 'index']);
 Route::get('banners', [BannerController::class, 'index']);
+Route::prefix('posts')->group(function() {
+    Route::get('/', [PostController::class, 'index']);
+    Route::get('/{slug}', [PostController::class, 'show']);
+});

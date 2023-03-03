@@ -14,6 +14,7 @@ class Post extends Model
         'desc',
         'img',
         'for_search',
+        'slug',
     ];
 
     protected $casts = [

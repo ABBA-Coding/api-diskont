@@ -57,7 +57,8 @@ class PostController extends Controller
                 'title' => $request->title,
                 'desc' => $request->desc,
                 'img' => $request->img ? $img : null,
-                'for_search' => $this->for_search($request, ['title', 'desc'])
+                'for_search' => $this->for_search($request, ['title', 'desc']),
+                'slug' => $this->to_slug($request, Post::class, 'title', $this->main_lang)
             ]);
 
             DB::commit();

@@ -19,6 +19,7 @@ class CreatePostsTable extends Migration
             $table->longText('desc')->nullable();
             $table->string('img')->nullable();
             $table->longText('for_search')->nullable();
+            $table->string('slug')->unique();
             $table->timestamps();
         });
     }

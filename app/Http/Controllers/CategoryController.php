@@ -75,7 +75,7 @@ class CategoryController extends Controller
                 'icon' => $request->icon ? $icon : null,
                 'img' => $request->img ? $img : null,
                 'for_search' => $this->for_search($request, ['name', 'desc']),
-                'slug' => $this->to_slug($request, Category::class, 'name', 'ru'),
+                'slug' => $this->to_slug($request, Category::class, 'name', $this->main_lang),
             ]);
 
             $category->attributes()->sync($request->input('attributes'));
@@ -167,7 +167,7 @@ class CategoryController extends Controller
                 'icon' => isset($icon) ? $icon : $request->icon,
                 'img' => isset($img) ? $img : $request->img,
                 'for_search' => $this->for_search($request, ['name', 'desc']),
-                'slug' => $this->to_slug($request, Category::class, 'name', 'ru', $category->id),
+                'slug' => $this->to_slug($request, Category::class, 'name', $this->main_lang, $category->id),
             ]);
 
             $category->attributes()->sync($request->input('attributes'));
