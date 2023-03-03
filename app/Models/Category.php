@@ -18,6 +18,7 @@ class Category extends Model
         'img',
         'for_search',
         'position',
+        'slug',
     ];
 
     protected $casts = [
@@ -32,7 +33,7 @@ class Category extends Model
 
     public function children()
     {
-        return $this->hasMany(Category::class, 'parent_id');
+        return $this->hasMany(Category::class, 'parent_id')->with('children');
     }
 
     public function attributes()

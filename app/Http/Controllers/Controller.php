@@ -23,4 +23,17 @@ class Controller extends BaseController
         ]);
         return true;
     }
+
+    public function to_slug(\Illuminate\Http\Request $request, $model, $field, $lang = 'ru')
+    {
+        $slug = \Illuminate\Support\Str::slug($request->$field[$lang]);
+        $counter = 1;
+
+        while ($model::where('slug', $slug)->exists()) {
+            $slug = $slug . '-' . $counter;
+            $counter ++;
+        }
+
+        return $slug;
+    }
 }

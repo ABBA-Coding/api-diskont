@@ -6,5 +6,5 @@ return [
     'user_not_found' => 'Такого пользователя нет',
     'invalid_credentials' => 'Данные неверны',
     'timed_out' => 'Код устарел. Попросите другой код',
-    'incorrect_code' => 'Код неверный'
+    'incorrect_code' => 'Код неверный',
 ];

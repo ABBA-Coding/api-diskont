@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use Illuminate\Support\Facades\Storage;
 use DB;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
@@ -19,7 +20,7 @@ class CategoryController extends Controller
     {
         $categories = Category::latest()
             ->whereNull('parent_id')
-            ->select('id', 'name', 'is_popular', 'desc', 'parent_id', 'img', 'icon')
+            ->select('id', 'name', 'is_popular', 'desc', 'parent_id', 'img', 'icon', 'slug')
             ->with('children', 'attributes', 'characteristic_groups', 'characteristic_groups.characteristics')
             ->paginate($this->PAGINATE);
 
@@ -73,7 +74,8 @@ class CategoryController extends Controller
                 'desc' => $request->desc,
                 'icon' => $request->icon ? $icon : null,
                 'img' => $request->img ? $img : null,
-                'for_search' => $this->for_search($request, ['name', 'desc'])
+                'for_search' => $this->for_search($request, ['name', 'desc']),
+                'slug' => $this->to_slug($request, Category::class, 'name', 'ru'),
             ]);
 
             $category->attributes()->sync($request->input('attributes'));
