@@ -24,14 +24,30 @@ class Controller extends BaseController
         return true;
     }
 
-    public function to_slug(\Illuminate\Http\Request $request, $model, $field, $lang = 'ru')
+    public function to_slug(\Illuminate\Http\Request $request, $model, $field, $lang = 'ru', $update_id = 0)
     {
         $slug = \Illuminate\Support\Str::slug($request->$field[$lang]);
         $counter = 1;
 
-        if($model::where('slug', $slug)->exists()) {
-            while ($model::where('slug', $slug . '-' . $counter)->exists()) {
-                $counter ++;
+        if($update_id == 0) {
+            if($model::where('slug', \Illuminate\Support\Str::slug($request->$field[$lang]))->exists()) {
+                $slug = \Illuminate\Support\Str::slug($request->$field[$lang]) . '-' . $counter;
+                while ($model::where('slug', \Illuminate\Support\Str::slug($request->$field[$lang]) . '-' . $counter)->exists()) {
+                    $counter ++;
+                    $slug = \Illuminate\Support\Str::slug($request->$field[$lang]) . '-' . $counter;
+                }
+            }
+        }
+
+        if($model::where('slug', $request->slug)->exists()) {
+            $slug = $request->slug;
+            if($model::where('slug', $request->slug)->first()->id != $update_id) {
+                $slug = $request->slug . '-' . $counter;
+                while ($model::where('slug', $request->slug . '-' . $counter)->exists()) {
+                    if($model::where('slug', $request->slug . '-' . $counter)->first()->id == $update_id) break;
+                    $counter ++;
+                    $slug = $request->slug . '-' . $counter;
+                }
             }
         }
 

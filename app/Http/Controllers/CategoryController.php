@@ -166,7 +166,8 @@ class CategoryController extends Controller
                 'desc' => $request->desc,
                 'icon' => isset($icon) ? $icon : $request->icon,
                 'img' => isset($img) ? $img : $request->img,
-                'for_search' => $this->for_search($request, ['name', 'desc'])
+                'for_search' => $this->for_search($request, ['name', 'desc']),
+                'slug' => $this->to_slug($request, Category::class, 'name', 'ru', $category->id),
             ]);
 
             $category->attributes()->sync($request->input('attributes'));
