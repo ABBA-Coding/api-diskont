@@ -103,7 +103,13 @@ class CategoryController extends Controller
      */
     public function show(Category $category)
     {
-        //
+        $category = Category::where('id', $category->id)
+            ->select('id', 'name', 'is_popular', 'desc', 'parent_id', 'img', 'icon', 'slug')
+            ->with('children', 'attributes', 'characteristic_groups', 'characteristic_groups.characteristics')
+            ->first();
+        return response([
+            'category' => $category
+        ]);
     }
 
     /**

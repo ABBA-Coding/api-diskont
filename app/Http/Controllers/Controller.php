@@ -29,10 +29,11 @@ class Controller extends BaseController
         $slug = \Illuminate\Support\Str::slug($request->$field[$lang]);
         $counter = 1;
 
-        while ($model::where('slug', $slug)->exists()) {
-            $counter ++;
+        if($model::where('slug', $slug)->exists()) {
+            while ($model::where('slug', $slug . '-' . $counter)->exists()) {
+                $counter ++;
+            }
         }
-        $slug = $slug . '-' . $counter;
 
         return $slug;
     }
