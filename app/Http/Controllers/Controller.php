@@ -30,9 +30,9 @@ class Controller extends BaseController
         $counter = 1;
 
         while ($model::where('slug', $slug)->exists()) {
-            $slug = $slug . '-' . $counter;
             $counter ++;
         }
+        $slug = $slug . '-' . $counter;
 
         return $slug;
     }
