@@ -40,4 +40,15 @@ class Product extends Model
     {
         return $this->belongsToMany(CharacteristicOption::class);
     }
+
+
+
+    protected $appends = [
+        'discount_price',
+    ];
+
+    public function getDiscountPriceAttribute()
+    {
+        return null;
+    }
 }

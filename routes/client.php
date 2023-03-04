@@ -8,6 +8,7 @@ use App\Http\Controllers\web\{
     BrandController,
     BannerController,
     PostController,
+    FeedbackController,
 };
 
 
@@ -35,3 +36,4 @@ Route::prefix('posts')->group(function() {
     Route::get('/', [PostController::class, 'index']);
     Route::get('/{slug}', [PostController::class, 'show']);
 });
+Route::get('feedbacks', [FeedbackController::class, 'index']);
