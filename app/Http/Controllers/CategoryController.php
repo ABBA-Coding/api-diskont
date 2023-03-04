@@ -21,7 +21,7 @@ class CategoryController extends Controller
         $categories = Category::latest()
             ->whereNull('parent_id')
             ->select('id', 'name', 'is_popular', 'desc', 'parent_id', 'img', 'icon', 'slug')
-            ->with('children', 'attributes', 'characteristic_groups', 'characteristic_groups.characteristics')
+            ->with('children', 'attributes', 'attributes.options', 'characteristic_groups', 'characteristic_groups.characteristics')
             ->paginate($this->PAGINATE);
 
         return response([
@@ -105,7 +105,7 @@ class CategoryController extends Controller
     {
         $category = Category::where('id', $category->id)
             ->select('id', 'name', 'is_popular', 'desc', 'parent_id', 'img', 'icon', 'slug')
-            ->with('children', 'attributes', 'characteristic_groups', 'characteristic_groups.characteristics')
+            ->with('children', 'attributes', 'attributes.options', 'characteristic_groups', 'characteristic_groups.characteristics')
             ->first();
         return response([
             'category' => $category
