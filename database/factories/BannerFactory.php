@@ -13,10 +13,19 @@ class BannerFactory extends Factory
      */
     public function definition()
     {
+        $type = ['main', 'promo', 'small'];
         return [
-            'img' => $this->faker->imageUrl(),
-            'link' => '',
-            'type' => '',
+            'img' => [
+                'ru' => $this->faker->imageUrl(),
+                'uz' => $this->faker->imageUrl(),
+                'en' => $this->faker->imageUrl(),
+            ],
+            'link' => [
+                'ru' => 'https://test.loftcity.uz/',
+                'uz' => 'https://test.loftcity.uz/',
+                'en' => 'https://test.loftcity.uz/',
+            ],
+            'type' => $type[array_rand($type)],
         ];
     }
 }

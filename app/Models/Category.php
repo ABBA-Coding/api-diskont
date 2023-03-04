@@ -33,7 +33,7 @@ class Category extends Model
 
     public function children()
     {
-        return $this->hasMany(Category::class, 'parent_id')->with('children');
+        return $this->hasMany(Category::class, 'parent_id')->with('children', 'attributes', 'attributes.options');
     }
 
     public function attributes()
