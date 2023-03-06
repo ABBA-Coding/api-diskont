@@ -134,7 +134,10 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        //
+        $product = ProductInfo::where('id', $product->info->id)
+            ->with('brand', 'products', 'products.images', 'category')
+            ->first();
+        return response($product);
     }
 
     /**

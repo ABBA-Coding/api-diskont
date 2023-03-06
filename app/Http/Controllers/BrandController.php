@@ -18,7 +18,7 @@ class BrandController extends Controller
     public function index()
     {
         $brands = Brand::latest()
-            ->select('id', 'name', 'logo')
+            ->select('id', 'name', 'logo', 'slug')
             // ->with('parent', 'attribute_groups', 'attribute_groups.attributes', 'characteristic_groups', 'characteristic_groups.characteristics')
             ->paginate($this->PAGINATE);
 
@@ -53,6 +53,7 @@ class BrandController extends Controller
             $brand = Brand::create([
                 'name' => $request->name,
                 'logo' => $request->logo ? $logo : null,
+                'slug' => $this->to_slug($request, Brand::class, 'name', null)
             ]);
 
             DB::commit();
@@ -111,6 +112,7 @@ class BrandController extends Controller
             $brand->update([
                 'name' => $request->name,
                 'logo' => isset($logo) ? $logo : $request->logo,
+                'slug' => $this->to_slug($request, Brand::class, 'name', null, $brand->id)
             ]);
 
             DB::commit();
@@ -137,13 +139,17 @@ class BrandController extends Controller
     {
         DB::beginTransaction();
         try {
+            // udalit fayli iz faylovoy sistemi
+            if(file_exists(public_path('/uploads/brands/200/' . $brand->logo))) unlink(public_path('/uploads/brands/200/' . $brand->logo));
+            if(file_exists(public_path('/uploads/brands/600/' . $brand->logo))) unlink(public_path('/uploads/brands/600/' . $brand->logo));
+            if(file_exists(public_path('/uploads/brands/' . $brand->logo))) unlink(public_path('/uploads/brands/' . $brand->logo));
             $brand->delete();
 
             DB::commit();
         } catch(\Exception $e) {
             DB::rollBack();
 
-            return reponse([
+            return response([
                 'message' => $e->getMessage()
             ], 500);
         }
