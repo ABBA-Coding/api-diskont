@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Feedbacks\Feedback;
+use App\Models\Feedbacks\FeedbackImage;
 use Illuminate\Database\Seeder;
 
 class FeedbackSeeder extends Seeder
@@ -15,7 +16,8 @@ class FeedbackSeeder extends Seeder
     public function run()
     {
         Feedback::factory()
-            ->count(15)
+            ->has(FeedbackImage::factory()->count(3), 'images')
+            ->count(2)
             ->create();
     }
 }

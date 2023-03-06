@@ -23,7 +23,7 @@ class ProductController extends Controller
     public function index()
     {
         $products = ProductInfo::select('id', 'name', 'desc', 'brand_id', 'category_id', 'default_product_id')
-            ->with('category', 'brand', 'products', 'products.images')
+            ->with('category', 'brand', 'products', 'products.images', 'category.characteristic_groups', 'category.characteristic_groups.characteristics')
             ->latest()
             ->paginate($this->PAGINATE);
 
@@ -59,8 +59,6 @@ class ProductController extends Controller
             'products.*.variations.*.is_popular' => 'nullable|boolean',
             'products.*.variations.*.product_of_the_day' => 'nullable|boolean',
         ]);
-
-        // dd($request->all());
 
         DB::beginTransaction();
         try {
@@ -132,9 +130,9 @@ class ProductController extends Controller
      * @param  \App\Models\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function show(Product $product)
+    public function show(ProductInfo $product)
     {
-        $product = ProductInfo::where('id', $product->info->id)
+        $product = ProductInfo::where('id', $product->id)
             ->with('brand', 'category', 'category.characteristic_groups', 'category.characteristic_groups.characteristics', 'products', 'products.images')
             ->first();
 
@@ -277,6 +275,13 @@ class ProductController extends Controller
             foreach($product->products as $item) {
                 $item->attribute_options()->detach();
                 $item->characteristic_options()->detach();
+                foreach($item->images as $image) {
+                    $this->delete_files([
+                        public_path('/uploads/products/200/' . $image->img),
+                        public_path('/uploads/products/600/' . $image->img),
+                        public_path('/uploads/products/' . $image->img),
+                    ]);
+                }
                 $item->images()->detach();
             }
             $product->products()->delete();

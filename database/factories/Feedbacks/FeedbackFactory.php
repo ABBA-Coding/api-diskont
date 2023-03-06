@@ -1,14 +1,11 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Factories\Feedbacks;
 
-use App\Models\Feedbacks\Feedback;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class FeedbackFactory extends Factory
 {
-
-    protected $model = Feedback::class;
     /**
      * Define the model's default state.
      *
@@ -20,11 +17,6 @@ class FeedbackFactory extends Factory
             'feedback' => $this->faker->realText(200),
             'company' => $this->faker->sentence(2),
             'logo' => $this->faker->imageUrl(),
-            // 'images' => [
-            //     $this->faker->imageUrl(),
-            //     $this->faker->imageUrl(),
-            //     $this->faker->imageUrl(),
-            // ]
         ];
     }
 }

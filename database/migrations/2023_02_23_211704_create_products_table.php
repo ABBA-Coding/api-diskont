@@ -22,6 +22,7 @@ class CreateProductsTable extends Migration
             $table->boolean('is_popular')->default(0);
             $table->boolean('product_of_the_day')->default(0);
             $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->string('slug')->unique();
             $table->timestamps();
         });
     }

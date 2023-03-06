@@ -206,9 +206,9 @@ class CategoryController extends Controller
                 public_path('/uploads/categories/icons/200/' . $brand->logo),
                 public_path('/uploads/categories/icons/600/' . $brand->logo),
                 public_path('/uploads/categories/icons/' . $brand->logo),
-                public_path('/uploads/categories/images/200/' . $brand->logo)
-                public_path('/uploads/categories/images/600/' . $brand->logo)
-                public_path('/uploads/categories/images/' . $brand->logo)
+                public_path('/uploads/categories/images/200/' . $brand->logo),
+                public_path('/uploads/categories/images/600/' . $brand->logo),
+                public_path('/uploads/categories/images/' . $brand->logo),
             ]);
             $category->delete();
 

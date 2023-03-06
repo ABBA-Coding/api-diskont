@@ -15,8 +15,8 @@ class CreateAttributesTable extends Migration
     {
         Schema::create('attributes', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('group_id');
             $table->text('name');
+            $table->text('keywords')->nullable();
             $table->text('for_search')->nullable();
             $table->timestamps();
         });

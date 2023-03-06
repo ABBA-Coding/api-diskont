@@ -12,18 +12,13 @@ class Attribute extends Model
 
     protected $fillable = [
         'name',
-        'group_id',
-        'for_search'
+        'for_search',
+        'keywords',
     ];
 
     protected $casts = [
         'name' => 'array',
     ];
-
-    public function group()
-    {
-        return $this->belongsTo(AttributeGroup::class, 'group_id');
-    }
 
     public function options()
     {

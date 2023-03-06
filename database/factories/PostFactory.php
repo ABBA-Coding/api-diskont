@@ -2,8 +2,9 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
 use Str;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class PostFactory extends Factory
 {
@@ -14,22 +15,28 @@ class PostFactory extends Factory
      */
     public function definition()
     {
-        $title = $this->faker->sentence(10);
-        $desc = $this->faker->realText(200);
+        $title = [
+            'ru' => 'ru ' . $this->faker->sentence(10),
+            'uz' => 'uz ' . $this->faker->sentence(10),
+            'en' => 'en ' . $this->faker->sentence(10),
+        ];
+        $desc = [
+            'ru' => 'ru ' . $this->faker->sentence(30),
+            'uz' => 'uz ' . $this->faker->sentence(30),
+            'en' => 'en ' . $this->faker->sentence(30),
+        ];
+
+        $rand_int = rand(1,13);
+        $rand_string = Str::random(16);
+        Storage::disk('public')->copy('delete/' . $rand_int . '.png', 'uploads/posts/' . $rand_string . '.png');
+
+        
         return [
-            'title' => [
-                'ru' => 'ru ' . $title,
-                'uz' => 'uz ' . $title,
-                'en' => 'en ' . $title,
-            ],
-            'desc' => [
-                'ru' => 'ru ' . $desc,
-                'uz' => 'uz ' . $desc,
-                'en' => 'en ' . $desc,
-            ],
-            'img' => $this->faker->imageUrl(),
-            'for_search' => $title,
-            'slug' => Str::slug($title, '-'),
+            'title' => $title,
+            'desc' => $desc,
+            'img' => $rand_string . '.png',
+            'for_search' => $title['ru'],
+            'slug' => Str::slug($title['ru'], '-'),
         ];
     }
 }

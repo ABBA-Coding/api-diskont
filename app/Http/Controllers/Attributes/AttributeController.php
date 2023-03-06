@@ -18,8 +18,8 @@ class AttributeController extends Controller
     public function index()
     {
         $attributes = Attribute::latest()
-            ->select('id', 'group_id', 'name')
-            ->with('group', 'options', 'categories')
+            ->select('id', 'name', 'keywords')
+            ->with('options', 'categories')
             ->paginate($this->PAGINATE);
 
         return response([
@@ -36,7 +36,6 @@ class AttributeController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'group_id' => 'required|integer',
             'name' => 'required|array',
             'name.ru' => 'required',
             'options' => 'nullable|array',
@@ -46,9 +45,9 @@ class AttributeController extends Controller
 
         try {
             $attribute = Attribute::create([
-                'group_id' => $request->group_id,
                 'name' => $request->name,
                 'for_search' => $request->name['ru'],
+                'keywords' => $request->keywords
             ]);
 
             foreach($request->options as $option) {
@@ -82,8 +81,8 @@ class AttributeController extends Controller
     public function show(Attribute $attribute)
     {
         $attribute = Attribute::where('id', $attribute->id)
-            ->select('id', 'group_id', 'name')
-            ->with('group', 'options')
+            ->select('id', 'name', 'keywords')
+            ->with('options')
             ->first();
 
         return response([
@@ -101,7 +100,7 @@ class AttributeController extends Controller
     public function update(Request $request, Attribute $attribute)
     {
         $request->validate([
-            'group_id' => 'required|integer',
+            // 'group_id' => 'required|integer',
             'name' => 'required|array',
             'name.ru' => 'required',
             'options' => 'nullable|array',
@@ -111,9 +110,10 @@ class AttributeController extends Controller
 
         try {
             $attribute->update([
-                'group_id' => $request->group_id,
+                // 'group_id' => $request->group_id,
                 'name' => $request->name,
                 'for_search' => $request->name['ru'],
+                'keywords' => $request->keywords,
             ]);
 
             $not_deleted_options = [];

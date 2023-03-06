@@ -9,7 +9,6 @@ use App\Http\Controllers\Characteristics\{
 };
 use App\Http\Controllers\Attributes\{
     AttributeController,
-    AttributeGroupController,
     AttributeOptionController,
 };
 use App\Http\Controllers\Files\{
@@ -56,8 +55,6 @@ Route::prefix('admin')->group(function() {
     Route::apiResource('characteristics_options', CharacteristicOptionController::class);
 
     Route::apiResource('attributes', AttributeController::class);
-    Route::get('attributes_groups/all', [AttributeGroupController::class, 'all']);
-    Route::apiResource('attributes_groups', AttributeGroupController::class);
     Route::apiResource('attributes_options', AttributeOptionController::class);
 
     Route::post('/files/upload', [UploadController::class, 'upload']);

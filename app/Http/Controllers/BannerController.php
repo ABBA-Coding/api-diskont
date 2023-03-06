@@ -123,9 +123,11 @@ class BannerController extends Controller
     public function destroy(Banner $banner)
     {
         foreach($banner->img as $item) {
-            if(file_exists(public_path('/uploads/banners/600/' . $item))) unlink(public_path('/uploads/banners/600/' . $item));
-            if(file_exists(public_path('/uploads/banners/200/' . $item))) unlink(public_path('/uploads/banners/200/' . $item));
-            if(file_exists(public_path('/uploads/banners/' . $item))) unlink(public_path('/uploads/banners/' . $item));
+            $this->delete_files([
+                public_path('/uploads/banners/200/' . $item),
+                public_path('/uploads/banners/600/' . $item),
+                public_path('/uploads/banners/' . $item),
+            ]);
         }
         $banner->delete();
 
