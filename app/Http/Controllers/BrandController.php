@@ -19,7 +19,6 @@ class BrandController extends Controller
     {
         $brands = Brand::latest()
             ->select('id', 'name', 'logo', 'slug')
-            // ->with('parent', 'attribute_groups', 'attribute_groups.attributes', 'characteristic_groups', 'characteristic_groups.characteristics')
             ->paginate($this->PAGINATE);
 
         return response([
@@ -93,16 +92,17 @@ class BrandController extends Controller
         $request->validate([
             'name' => 'required|max:255',
             'logo' => 'nullable|max:255',
+            'slug' => 'required|max:255',
         ]);
 
-        if($request->logo) {
+        if($request->logo) { 
             if(Storage::disk('public')->exists('/uploads/temp/' . explode('/', $request->logo)[count(explode('/', $request->logo)) - 1])) {
                 $explode_logo = explode('/', $request->logo);
                 Storage::disk('public')->move('/uploads/temp/' . $explode_logo[count($explode_logo) - 1], '/uploads/brands/' . $explode_logo[count($explode_logo) - 1]);
                 Storage::disk('public')->move('/uploads/temp/200/' . $explode_logo[count($explode_logo) - 1], '/uploads/brands/200/' . $explode_logo[count($explode_logo) - 1]);
                 Storage::disk('public')->move('/uploads/temp/600/' . $explode_logo[count($explode_logo) - 1], '/uploads/brands/600/' . $explode_logo[count($explode_logo) - 1]);
                 $logo = $explode_logo[count($explode_logo) - 1];
-            } else if(Storage::disk('public')->exists('/uploads/brands/icons/' . explode('/', $request->logo)[count(explode('/', $request->logo)) - 1])) {
+            } else if(Storage::disk('public')->exists('/uploads/brands/' . explode('/', $request->logo)[count(explode('/', $request->logo)) - 1])) {
                 $logo = $brand->logo;
             }
         }
@@ -112,7 +112,7 @@ class BrandController extends Controller
             $brand->update([
                 'name' => $request->name,
                 'logo' => isset($logo) ? $logo : $request->logo,
-                'slug' => $this->to_slug($request, Brand::class, 'name', null, $brand->id)
+                'slug' => $this->to_slug($request, Brand::class, 'name', null, $brand->id),
             ]);
 
             DB::commit();

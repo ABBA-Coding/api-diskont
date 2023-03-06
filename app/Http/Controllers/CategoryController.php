@@ -141,7 +141,7 @@ class CategoryController extends Controller
                 Storage::disk('public')->move('/uploads/temp/600/' . $explode_icon[count($explode_icon) - 1], '/uploads/categories/icons/600/' . $explode_icon[count($explode_icon) - 1]);
                 $icon = $explode_icon[count($explode_icon) - 1];
             } else if(Storage::disk('public')->exists('/uploads/categories/icons/' . explode('/', $request->icon)[count(explode('/', $request->icon)) - 1])) {
-                $img = $category->icon;
+                $icon = $category->icon;
             }
         }
         if($request->img) {

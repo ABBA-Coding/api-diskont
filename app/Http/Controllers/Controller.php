@@ -27,6 +27,7 @@ class Controller extends BaseController
     public function to_slug(\Illuminate\Http\Request $request, $model, $field, $lang = 'ru', $update_id = 0)
     {
         if($lang == null) {
+
             $slug = \Illuminate\Support\Str::slug($request->$field);
             $counter = 1;
 
@@ -38,17 +39,21 @@ class Controller extends BaseController
                         $slug = \Illuminate\Support\Str::slug($request->$field) . '-' . $counter;
                     }
                 }
-            }
+            } else {
+                if($request->slug == $model::find($update_id)->slug) return $request->slug;
 
-            if($model::where('slug', $request->slug)->exists()) {
-                $slug = $request->slug;
-                if($model::where('slug', $request->slug)->first()->id != $update_id) {
-                    $slug = $request->slug . '-' . $counter;
-                    while ($model::where('slug', $request->slug . '-' . $counter)->exists()) {
-                        if($model::where('slug', $request->slug . '-' . $counter)->first()->id == $update_id) break;
-                        $counter ++;
+                if($model::where('slug', $request->slug)->exists()) {
+                    $slug = $request->slug;
+                    if($model::where('slug', $request->slug)->first()->id != $update_id) {
                         $slug = $request->slug . '-' . $counter;
+                        while ($model::where('slug', $request->slug . '-' . $counter)->exists()) {
+                            if($model::where('slug', $request->slug . '-' . $counter)->first()->id == $update_id) break;
+                            $counter ++;
+                            $slug = $request->slug . '-' . $counter;
+                        }
                     }
+                } else {
+                    $slug = $request->slug;
                 }
             }
 
@@ -64,17 +69,21 @@ class Controller extends BaseController
                         $slug = \Illuminate\Support\Str::slug($request->$field[$lang]) . '-' . $counter;
                     }
                 }
-            }
-
-            if($model::where('slug', $request->slug)->exists()) {
-                $slug = $request->slug;
-                if($model::where('slug', $request->slug)->first()->id != $update_id) {
-                    $slug = $request->slug . '-' . $counter;
-                    while ($model::where('slug', $request->slug . '-' . $counter)->exists()) {
-                        if($model::where('slug', $request->slug . '-' . $counter)->first()->id == $update_id) break;
-                        $counter ++;
+            } else {
+                if($request->slug == $model::find($update_id)->slug) return $request->slug;
+                
+                if($model::where('slug', $request->slug)->exists()) {
+                    $slug = $request->slug;
+                    if($model::where('slug', $request->slug)->first()->id != $update_id) {
                         $slug = $request->slug . '-' . $counter;
+                        while ($model::where('slug', $request->slug . '-' . $counter)->exists()) {
+                            if($model::where('slug', $request->slug . '-' . $counter)->first()->id == $update_id) break;
+                            $counter ++;
+                            $slug = $request->slug . '-' . $counter;
+                        }
                     }
+                } else {
+                    $slug = $request->slug;
                 }
             }
         }
