@@ -90,4 +90,11 @@ class Controller extends BaseController
 
         return $slug;
     }
+
+    public function delete_files($paths)
+    {
+        foreach($paths as $path) {
+            if(file_exists($path)) unlink($path);
+        }
+    }
 }

@@ -131,6 +131,7 @@ class CategoryController extends Controller
             'img' => 'nullable|max:255',
             'is_popular' => 'required|boolean',
             'desc' => 'required|array',
+            'slug' => 'required|max:255',
         ]);
 
         if($request->icon) {
@@ -199,6 +200,16 @@ class CategoryController extends Controller
         try {
             $category->attributes()->detach();
             $category->characteristic_groups()->detach();
+
+            // udalit fayli iz faylovoy sistemi
+            $this->delete_files([
+                public_path('/uploads/categories/icons/200/' . $brand->logo),
+                public_path('/uploads/categories/icons/600/' . $brand->logo),
+                public_path('/uploads/categories/icons/' . $brand->logo),
+                public_path('/uploads/categories/images/200/' . $brand->logo)
+                public_path('/uploads/categories/images/600/' . $brand->logo)
+                public_path('/uploads/categories/images/' . $brand->logo)
+            ]);
             $category->delete();
 
             DB::commit();

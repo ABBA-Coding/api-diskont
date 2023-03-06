@@ -95,7 +95,7 @@ class BrandController extends Controller
             'slug' => 'required|max:255',
         ]);
 
-        if($request->logo) { 
+        if($request->logo) {
             if(Storage::disk('public')->exists('/uploads/temp/' . explode('/', $request->logo)[count(explode('/', $request->logo)) - 1])) {
                 $explode_logo = explode('/', $request->logo);
                 Storage::disk('public')->move('/uploads/temp/' . $explode_logo[count($explode_logo) - 1], '/uploads/brands/' . $explode_logo[count($explode_logo) - 1]);
@@ -140,9 +140,11 @@ class BrandController extends Controller
         DB::beginTransaction();
         try {
             // udalit fayli iz faylovoy sistemi
-            if(file_exists(public_path('/uploads/brands/200/' . $brand->logo))) unlink(public_path('/uploads/brands/200/' . $brand->logo));
-            if(file_exists(public_path('/uploads/brands/600/' . $brand->logo))) unlink(public_path('/uploads/brands/600/' . $brand->logo));
-            if(file_exists(public_path('/uploads/brands/' . $brand->logo))) unlink(public_path('/uploads/brands/' . $brand->logo));
+            $this->delete_files([
+                public_path('/uploads/brands/200/' . $brand->logo),
+                public_path('/uploads/brands/600/' . $brand->logo),
+                public_path('/uploads/brands/' . $brand->logo),
+            ]);
             $brand->delete();
 
             DB::commit();
