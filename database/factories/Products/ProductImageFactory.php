@@ -20,7 +20,7 @@ class ProductImageFactory extends Factory
         Storage::disk('public')->copy('delete/' . $rand_int . '.png', 'uploads/products/' . $rand_string . '.png');
 
         return [
-            'img' => $rand_string
+            'img' => $rand_string . '.png'
         ];
     }
 }
