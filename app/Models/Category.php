@@ -15,6 +15,7 @@ class Category extends Model
         'is_popular',
         'desc',
         'icon',
+        'icon_svg',
         'img',
         'for_search',
         'position',
@@ -46,9 +47,9 @@ class Category extends Model
         return $this->belongsToMany(Characteristics\CharacteristicGroup::class);
     }
 
-    public function product_info()
+    public function product_infos()
     {
-        return $this->hasMany(ProductInfo::class);
+        return $this->hasMany(Products\ProductInfo::class);
     }
 
 

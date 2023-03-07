@@ -28,7 +28,11 @@ Route::prefix('auth')->group(function () {
     });
 });
 
-Route::get('categories', [CategoryController::class, 'index']);
+Route::prefix('categories')->group(function() {
+    Route::get('/', [CategoryController::class, 'index']);
+    Route::get('/{slug}', [CategoryController::class, 'show']);
+});
+// Route::get('categories', [CategoryController::class, 'index']);
 Route::get('products', [ProductController::class, 'index']);
 Route::get('brands', [BrandController::class, 'index']);
 Route::get('banners', [BannerController::class, 'index']);

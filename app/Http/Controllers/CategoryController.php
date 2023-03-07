@@ -20,8 +20,8 @@ class CategoryController extends Controller
     {
         $categories = Category::latest()
             ->whereNull('parent_id')
-            ->select('id', 'name', 'is_popular', 'desc', 'parent_id', 'img', 'icon', 'slug')
-            ->with('children', 'attributes', 'attributes.options', 'characteristic_groups', 'characteristic_groups.characteristics')
+            ->select('id', 'name', 'is_popular', 'desc', 'parent_id', 'img', 'icon', 'icon_svg', 'slug')
+            ->with('children', 'attributes', 'attributes.options', 'characteristic_groups', 'characteristic_groups.characteristics', 'characteristic_groups.characteristics.options')
             ->paginate($this->PAGINATE);
 
         return response([
@@ -44,6 +44,7 @@ class CategoryController extends Controller
             'attributes' => 'required|array',
             'group_characteristics' => 'required|array',
             'icon' => 'nullable|max:255',
+            'icon_svg' => 'nullable',
             'img' => 'nullable|max:255',
             'is_popular' => 'required|boolean',
             'desc' => 'required|array',
@@ -73,6 +74,7 @@ class CategoryController extends Controller
                 'position' => $request->position ?? 1000,
                 'desc' => $request->desc,
                 'icon' => $request->icon ? $icon : null,
+                'icon_svg' => $request->icon_svg,
                 'img' => $request->img ? $img : null,
                 'for_search' => $this->for_search($request, ['name', 'desc']),
                 'slug' => $this->to_slug($request, Category::class, 'name', $this->main_lang),
@@ -128,6 +130,7 @@ class CategoryController extends Controller
             'attributes' => 'required|array',
             'group_characteristics' => 'required|array',
             'icon' => 'nullable|max:255',
+            'icon_svg' => 'nullable',
             'img' => 'nullable|max:255',
             'is_popular' => 'required|boolean',
             'desc' => 'required|array',
@@ -165,6 +168,7 @@ class CategoryController extends Controller
                 'is_popular' => $request->is_popular,
                 'position' => $request->position ?? 1000,
                 'desc' => $request->desc,
+                'icon_svg' => $request->icon_svg,
                 'icon' => isset($icon) ? $icon : $request->icon,
                 'img' => isset($img) ? $img : $request->img,
                 'for_search' => $this->for_search($request, ['name', 'desc']),

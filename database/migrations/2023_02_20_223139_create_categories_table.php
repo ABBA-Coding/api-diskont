@@ -20,6 +20,7 @@ class CreateCategoriesTable extends Migration
             $table->boolean('is_popular')->default(0);
             $table->mediumText('desc')->nullable();
             $table->string('icon')->nullable();
+            $table->text('icon_svg')->nullable();
             $table->string('img')->nullable();
             $table->integer('position')->default(1000);
             $table->string('slug')->unique();
