@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Products\ProductInfo;
 use App\Models\Products\ProductImage;
 use App\Models\Products\Product;
+use DB;
 use Illuminate\Database\Seeder;
 
 class ProductSeeder extends Seeder
@@ -31,6 +32,26 @@ class ProductSeeder extends Seeder
                 ->create([
                     'default_product_id' => rand($i*5-4,$i*5),
                 ]);
+        }
+
+        // add attribute options to products
+        for($i=1; $i<31; $i++) {
+            for($j=1; $j<rand(3,5); $j++) {
+                DB::table('attribute_option_product')->insert([
+                    'attribute_option_id' => rand(1,50),
+                    'product_id' => $i
+                ]);
+            }
+        }
+
+        // add characteristic options to products
+        for($i=1; $i<31; $i++) {
+            for($j=1; $j<rand(10,15); $j++) {
+                DB::table('characteristic_option_product')->insert([
+                    'characteristic_option_id' => rand(1,480),
+                    'product_id' => $i
+                ]);
+            }
         }
     }
 }

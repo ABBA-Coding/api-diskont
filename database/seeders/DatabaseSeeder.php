@@ -19,8 +19,9 @@ class DatabaseSeeder extends Seeder
             FeedbackSeeder::class,
             BannerSeeder::class,
             BrandSeeder::class,
-            CategorySeeder::class,
+            // CategorySeeder::class,
             ProductSeeder::class,
+            CommentSeeder::class,
             // CharacteristicSeeder::class,
             // AttributeSeeder::class,
         ]);
