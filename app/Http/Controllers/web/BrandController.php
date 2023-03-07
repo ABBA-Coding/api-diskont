@@ -9,9 +9,14 @@ use App\Models\Brand;
 class BrandController extends Controller
 {
     protected $PAGINATE = 16;
-
-    public function index()
+    protected function set_paginate($paginate)
     {
+        $this->PAGINATE = $paginate;
+    }
+
+    public function index(Request $request)
+    {
+        if(isset($request->limit) && $request->limit != '' && $request->limit < 41) $this->set_paginate($request->limit);
         $brands = Brand::latest()
             ->paginate($this->PAGINATE);
 

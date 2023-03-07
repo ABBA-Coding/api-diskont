@@ -9,9 +9,14 @@ use App\Models\Products\Product;
 class ProductController extends Controller
 {
     protected $PAGINATE = 16;
-
+    protected function set_paginate($paginate)
+    {
+        $this->PAGINATE = $paginate;
+    }
+    
     public function index(Request $request)
     {
+        if(isset($request->limit) && $request->limit != '' && $request->limit < 41) $this->set_paginate($request->limit);
         $products = Product::select('id', 'info_id', 'model', 'price')
             ->with('info', 'info.brand', 'info.category', 'images');
 

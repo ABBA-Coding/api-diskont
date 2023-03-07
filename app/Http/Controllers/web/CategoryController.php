@@ -9,9 +9,14 @@ use Illuminate\Http\Request;
 class CategoryController extends Controller
 {
     protected $PAGINATE = 16;
-    
-    public function index()
+    protected function set_paginate($paginate)
     {
+        $this->PAGINATE = $paginate;
+    }
+
+    public function index(Request $request)
+    {
+        if(isset($request->limit) && $request->limit != '' && $request->limit < 41) $this->set_paginate($request->limit);
         $categories = Category::whereNull('parent_id')
             ->orderBy('position')
             ->select('id', 'name', 'is_popular', 'desc', 'icon', 'icon_svg', 'img', 'slug')

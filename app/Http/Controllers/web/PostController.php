@@ -9,9 +9,14 @@ use App\Models\Post;
 class PostController extends Controller
 {
     protected $PAGINATE = 16;
-
-    public function index()
+    protected function set_paginate($paginate)
     {
+        $this->PAGINATE = $paginate;
+    }
+
+    public function index(Request $request)
+    {
+        if(isset($request->limit) && $request->limit != '' && $request->limit < 41) $this->set_paginate($request->limit);
         $posts = Post::latest()
             ->select('id', 'title', 'desc', 'img', 'slug', 'created_at')
             ->paginate($this->PAGINATE);
