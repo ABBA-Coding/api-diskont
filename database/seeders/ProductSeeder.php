@@ -38,7 +38,7 @@ class ProductSeeder extends Seeder
         for($i=1; $i<31; $i++) {
             for($j=1; $j<rand(3,5); $j++) {
                 DB::table('attribute_option_product')->insert([
-                    'attribute_option_id' => rand(1,50),
+                    'attribute_option_id' => rand(1,2400),
                     'product_id' => $i
                 ]);
             }
@@ -48,7 +48,7 @@ class ProductSeeder extends Seeder
         for($i=1; $i<31; $i++) {
             for($j=1; $j<rand(10,15); $j++) {
                 DB::table('characteristic_option_product')->insert([
-                    'characteristic_option_id' => rand(1,480),
+                    'characteristic_option_id' => rand(1,3600),
                     'product_id' => $i
                 ]);
             }
