@@ -94,6 +94,43 @@ class Controller extends BaseController
         return $slug;
     }
 
+    public function product_slug_create($info, $additional, $update_id = 0)
+    {
+        $slug = \Illuminate\Support\Str::slug($info->name[$this->main_lang]);
+        if($additional) $slug .= '-' . $additional;
+
+        $counter = 1;
+
+
+        if($update_id == 0) {
+            if(\App\Models\Products\Product::where('slug', \Illuminate\Support\Str::slug($info->name[$this->main_lang]) . '-' . $additional)->exists()) {
+                $slug = \Illuminate\Support\Str::slug($info->name[$this->main_lang]) . '-' . $additional . '-' . $counter;
+                while (\App\Models\Products\Product::where('slug', \Illuminate\Support\Str::slug($info->name[$this->main_lang]) . '-' . $additional . '-' . $counter)->exists()) {
+                    $counter ++;
+                    $slug = \Illuminate\Support\Str::slug($info->name[$this->main_lang]) . '-' . $additional . '-' . $counter;
+                }
+            }
+        } else {
+            if($request->slug == $model::find($update_id)->slug) return $request->slug;
+            
+            if($model::where('slug', $request->slug)->exists()) {
+                $slug = $request->slug;
+                if($model::where('slug', $request->slug)->first()->id != $update_id) {
+                    $slug = $request->slug . '-' . $counter;
+                    while ($model::where('slug', $request->slug . '-' . $counter)->exists()) {
+                        if($model::where('slug', $request->slug . '-' . $counter)->first()->id == $update_id) break;
+                        $counter ++;
+                        $slug = $request->slug . '-' . $counter;
+                    }
+                }
+            } else {
+                $slug = $request->slug;
+            }
+        }
+
+        return $slug;
+    }
+
     public function delete_files($paths)
     {
         foreach($paths as $path) {

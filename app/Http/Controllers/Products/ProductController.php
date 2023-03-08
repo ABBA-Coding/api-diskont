@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Products;
 
-use App\Models\Characteristics\CharacteristicOption;
+use App\Models\Attributes\AttributeOption;
 use App\Models\Products\{
     Product,
     ProductInfo,
@@ -97,12 +97,11 @@ class ProductController extends Controller
                 foreach($product['variations'] as $variation) {
                     $additional_for_slug = [];
                     foreach($variation['options'] as $option) {
-                        if(CharacteristicOption::find($option)) {
-                            $additional_for_slug[] = Str::slug($option[$this->main_lang], '-');
+                        if(AttributeOption::find($option)) {
+                            $additional_for_slug[] = Str::slug(AttributeOption::find($option)->name[$this->main_lang], '-');
                         }
                     }
                     $additional_for_slug = implode('-', $additional_for_slug);
-                    dd($additional_for_slug);
                     $item = Product::create([
                         'info_id' => $product_info->id,
                         'model' => $request->model ?? null,
@@ -110,6 +109,7 @@ class ProductController extends Controller
                         'status' => $request->status,
                         'is_popular' => $variation['is_popular'],
                         'product_of_the_day' => $variation['product_of_the_day'],
+                        'slug' => $this->product_slug_create($product_info, $additional_for_slug),
                     ]);
 
                     if($variation['is_default']) $default_product_id = $item->id;
