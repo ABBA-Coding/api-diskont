@@ -107,7 +107,7 @@ class CategoryController extends Controller
     {
         $category = Category::where('id', $category->id)
             ->select('id', 'name', 'is_popular', 'desc', 'parent_id', 'img', 'icon', 'slug')
-            ->with('children', 'attributes', 'attributes.options', 'characteristic_groups', 'characteristic_groups.characteristics')
+            ->with('children', 'attributes', 'attributes.options', 'characteristic_groups', 'characteristic_groups.characteristics', 'characteristic_groups.characteristics.options')
             ->first();
         return response([
             'category' => $category

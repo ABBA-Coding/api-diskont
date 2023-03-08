@@ -24,7 +24,7 @@ class Controller extends BaseController
         return true;
     }
 
-    public function to_slug(\Illuminate\Http\Request $request, $model, $field, $lang = 'ru', $update_id = 0)
+    public function to_slug(\Illuminate\Http\Request $request, $model, $field, $lang = 'ru', $update_id = 0, $additional = null)
     {
         if($lang == null) {
 
@@ -59,14 +59,17 @@ class Controller extends BaseController
 
         } else {
             $slug = \Illuminate\Support\Str::slug($request->$field[$lang]);
+            if($additional) $slug .= '-' . $additional;
+
             $counter = 1;
 
+
             if($update_id == 0) {
-                if($model::where('slug', \Illuminate\Support\Str::slug($request->$field[$lang]))->exists()) {
-                    $slug = \Illuminate\Support\Str::slug($request->$field[$lang]) . '-' . $counter;
-                    while ($model::where('slug', \Illuminate\Support\Str::slug($request->$field[$lang]) . '-' . $counter)->exists()) {
+                if($model::where('slug', \Illuminate\Support\Str::slug($request->$field[$lang]) . '-' . $additional)->exists()) {
+                    $slug = \Illuminate\Support\Str::slug($request->$field[$lang]) . '-' . $additional . '-' . $counter;
+                    while ($model::where('slug', \Illuminate\Support\Str::slug($request->$field[$lang]) . '-' . $additional . '-' . $counter)->exists()) {
                         $counter ++;
-                        $slug = \Illuminate\Support\Str::slug($request->$field[$lang]) . '-' . $counter;
+                        $slug = \Illuminate\Support\Str::slug($request->$field[$lang]) . '-' . $additional . '-' . $counter;
                     }
                 }
             } else {

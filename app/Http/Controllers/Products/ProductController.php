@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Products;
 
+use App\Models\Characteristics\CharacteristicOption;
 use App\Models\Products\{
     Product,
     ProductInfo,
     ProductImage,
 };
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Str;
 use DB;
 use Storage;
 use Illuminate\Http\Request;
@@ -54,6 +56,8 @@ class ProductController extends Controller
             'products.*.variations.*' => 'required|array',
             'products.*.variations.*.options' => 'required|array',
             'products.*.variations.*.options.*' => 'required|integer',
+            'products.*.variations.*.characteristics' => 'required|array',
+            'products.*.variations.*.characteristics.*' => 'required|integer',
             'products.*.variations.*.price' => 'required|numeric',
             'products.*.variations.*.is_default' => 'required|boolean',
             'products.*.variations.*.is_popular' => 'nullable|boolean',
@@ -91,6 +95,14 @@ class ProductController extends Controller
                 }
 
                 foreach($product['variations'] as $variation) {
+                    $additional_for_slug = [];
+                    foreach($variation['options'] as $option) {
+                        if(CharacteristicOption::find($option)) {
+                            $additional_for_slug[] = Str::slug($option[$this->main_lang], '-');
+                        }
+                    }
+                    $additional_for_slug = implode('-', $additional_for_slug);
+                    dd($additional_for_slug);
                     $item = Product::create([
                         'info_id' => $product_info->id,
                         'model' => $request->model ?? null,
@@ -103,6 +115,7 @@ class ProductController extends Controller
                     if($variation['is_default']) $default_product_id = $item->id;
 
                     $item->attribute_options()->sync($variation['options']);
+                    $item->characteristic_options()->sync($variation['characteristics']);
 
                     if(!empty($product['images'])) $item->images()->sync($images_ids);
                 }
@@ -241,7 +254,8 @@ class ProductController extends Controller
                     if($variation['is_default']) $default_product_id = $item->id;
 
                     $item->attribute_options()->sync($variation['options']);
-
+                    $item->characteristic_options()->sync($variation['characteristics']);
+                    
                     if(!empty($images_ids)) $item->images()->sync($images_ids);
                 }
             }

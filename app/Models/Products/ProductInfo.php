@@ -38,7 +38,7 @@ class ProductInfo extends Model
 
     public function category()
     {
-        return $this->belongsTo(Category::class)->select('id', 'name', 'parent_id', 'is_popular', 'desc', 'icon', 'img', 'position')->with('parent');
+        return $this->belongsTo(Category::class)->select('id', 'name', 'parent_id', 'is_popular', 'desc', 'icon', 'img', 'position', 'slug')->with('parent');
     }
 
     public function default_product()
