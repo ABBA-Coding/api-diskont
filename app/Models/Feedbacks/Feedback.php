@@ -15,6 +15,10 @@ class Feedback extends Model
         'logo',
     ];
 
+    protected $casts = [
+        'feedback' => 'array',
+    ];
+
     public function images()
     {
         return $this->hasMany(FeedbackImage::class, 'feedback_id')->select('id', 'feedback_id', 'img');
