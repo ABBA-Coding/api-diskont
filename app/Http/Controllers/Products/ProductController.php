@@ -193,6 +193,8 @@ class ProductController extends Controller
 
             $default_product_id = $product->default_product_id;
 
+            $this->delete_product_variations($product, $request);
+
             foreach($request->products as $req_product) {
                 $old_images = array_filter($req_product['images'], function($v) {
                     return $v['id'] != 0;
@@ -231,6 +233,14 @@ class ProductController extends Controller
                 }
 
                 foreach($req_product['variations'] as $variation) {
+                    $additional_for_slug = [];
+                    foreach($variation['options'] as $option) {
+                        if(AttributeOption::find($option)) {
+                            $additional_for_slug[] = Str::slug(AttributeOption::find($option)->name[$this->main_lang], '-');
+                        }
+                    }
+                    $additional_for_slug = implode('-', $additional_for_slug);
+
                     if($variation['id'] == 0) {
                         $item = Product::create([
                             'info_id' => $product->id,
@@ -239,6 +249,7 @@ class ProductController extends Controller
                             'status' => $request->status,
                             'is_popular' => $variation['is_popular'],
                             'product_of_the_day' => $variation['product_of_the_day'],
+                            'slug' => $this->product_slug_create($product, $additional_for_slug),
                         ]);
                     } else {
                         $item = Product::find($variation['id']);
@@ -248,6 +259,7 @@ class ProductController extends Controller
                             'status' => $request->status,
                             'is_popular' => $variation['is_popular'],
                             'product_of_the_day' => $variation['product_of_the_day'],
+                            'slug' => $this->product_slug_create($product, $additional_for_slug, $item->id),
                         ]);
                     }
 
@@ -313,5 +325,23 @@ class ProductController extends Controller
         return response([
             'message' => __('messages.successfully_deleted')
         ]);
+    }
+
+    private function delete_product_variations(ProductInfo $info, Request $request)
+    {
+        /*
+         * udalim variacii pri obnovlenii informacii produkta 
+        */
+        
+        $req_products = $request->products;
+        $remaining_products_ids = [];
+
+        foreach($req_products as $req_product) {
+            foreach($req_product['variations'] as $variation) {
+                if($variation['id'] != 0) $remaining_products_ids[] = $variation['id'];
+            }
+        }
+
+        $info->products()->whereNotIn('id', $remaining_products_ids)->delete();
     }
 }

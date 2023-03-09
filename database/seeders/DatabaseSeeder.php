@@ -18,8 +18,8 @@ class DatabaseSeeder extends Seeder
             PostSeeder::class,
             FeedbackSeeder::class,
             BannerSeeder::class,
-            BrandSeeder::class,
-            CategorySeeder::class,
+            // BrandSeeder::class, // from ProductSeeder
+            // CategorySeeder::class, // from ProductSeeder
             ProductSeeder::class,
             CommentSeeder::class,
             // CharacteristicSeeder::class,

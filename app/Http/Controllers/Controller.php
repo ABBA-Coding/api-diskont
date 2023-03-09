@@ -111,20 +111,21 @@ class Controller extends BaseController
                 }
             }
         } else {
-            if($request->slug == $model::find($update_id)->slug) return $request->slug;
+            $req_slug = \Illuminate\Support\Str::slug($info->name[$this->main_lang]) . '-' . $additional;
+            if($req_slug == \App\Models\Products\Product::find($update_id)->slug) return $req_slug;
             
-            if($model::where('slug', $request->slug)->exists()) {
-                $slug = $request->slug;
-                if($model::where('slug', $request->slug)->first()->id != $update_id) {
-                    $slug = $request->slug . '-' . $counter;
-                    while ($model::where('slug', $request->slug . '-' . $counter)->exists()) {
-                        if($model::where('slug', $request->slug . '-' . $counter)->first()->id == $update_id) break;
+            if(\App\Models\Products\Product::where('slug', $req_slug)->exists()) {
+                $slug = $req_slug;
+                if(\App\Models\Products\Product::where('slug', $req_slug)->first()->id != $update_id) {
+                    $slug = $req_slug . '-' . $counter;
+                    while (\App\Models\Products\Product::where('slug', $req_slug . '-' . $counter)->exists()) {
+                        if(\App\Models\Products\Product::where('slug', $req_slug . '-' . $counter)->first()->id == $update_id) break;
                         $counter ++;
-                        $slug = $request->slug . '-' . $counter;
+                        $slug = $req_slug . '-' . $counter;
                     }
                 }
             } else {
-                $slug = $request->slug;
+                $slug = $req_slug;
             }
         }
 

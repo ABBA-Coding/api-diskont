@@ -17,6 +17,11 @@ class ProductSeeder extends Seeder
      */
     public function run()
     {
+        $this->call([
+            BrandSeeder::class, // from ProductSeeder
+            CategorySeeder::class, // from ProductSeeder
+        ]);
+
         for($i=1; $i<31; $i++) {
             ProductInfo::factory()
                 ->has(
