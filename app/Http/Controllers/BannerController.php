@@ -17,7 +17,7 @@ class BannerController extends Controller
     public function index()
     {
         $banners = Banner::latest()
-            ->select('id', 'img', 'link')
+            ->select('id', 'img', 'link', 'type')
             // ->with('parent', 'attribute_groups', 'attribute_groups.attributes', 'characteristic_groups', 'characteristic_groups.characteristics')
             ->paginate($this->PAGINATE);
 
@@ -133,6 +133,18 @@ class BannerController extends Controller
 
         return response([
             'message' => __('messages.successfully_deleted')
+        ]);
+    }
+
+    public function types()
+    {
+        $types = [
+            'main' => 'main',
+            'promo' => 'promo',
+            'small' => 'small',
+        ];
+        return response([
+            'types' => $types
         ]);
     }
 }

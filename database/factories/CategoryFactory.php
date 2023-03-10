@@ -29,10 +29,14 @@ class CategoryFactory extends Factory
         $rand_int = rand(1,13);
         $rand_string_for_img = Str::random(16);
         Storage::disk('public')->copy('delete/' . $rand_int . '.png', 'uploads/categories/images/' . $rand_string_for_img . '.png');
+        Storage::disk('public')->copy('delete/' . $rand_int . '.png', 'uploads/categories/images/200/' . $rand_string_for_img . '.png');
+        Storage::disk('public')->copy('delete/' . $rand_int . '.png', 'uploads/categories/images/600/' . $rand_string_for_img . '.png');
 
         $rand_int = rand(1,13);
         $rand_string_for_icon = Str::random(16);
         Storage::disk('public')->copy('delete/' . $rand_int . '.png', 'uploads/categories/icons/' . $rand_string_for_icon . '.png');
+        Storage::disk('public')->copy('delete/' . $rand_int . '.png', 'uploads/categories/icons/200/' . $rand_string_for_icon . '.png');
+        Storage::disk('public')->copy('delete/' . $rand_int . '.png', 'uploads/categories/icons/600/' . $rand_string_for_icon . '.png');
 
 
         return [

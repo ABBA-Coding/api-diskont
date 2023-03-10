@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Comment;
+use Laravel\Scout\Searchable;
 
 class ProductInfo extends Model
 {
-    use HasFactory;
+    use HasFactory, Searchable;
 
     protected $fillable = [
         'name',
@@ -19,6 +20,7 @@ class ProductInfo extends Model
         'brand_id',
         'category_id',
         'default_product_id',
+        'is_active',
     ];
 
     protected $casts = [

@@ -24,7 +24,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = ProductInfo::select('id', 'name', 'desc', 'brand_id', 'category_id', 'default_product_id')
+        $products = ProductInfo::select('id', 'name', 'desc', 'brand_id', 'category_id', 'default_product_id', 'is_active', 'model')
             ->with('category', 'brand', 'products', 'products.images', 'category.characteristic_groups', 'category.characteristic_groups.characteristics')
             ->latest()
             ->paginate($this->PAGINATE);
@@ -46,6 +46,7 @@ class ProductController extends Controller
             'name' => 'required|array',
             'name.' . $this->main_lang => 'required',
             'model' => 'nullable|max:255',
+            'is_active' => 'required',
             'desc' => 'required|array',
             'brand_id' => 'nullable|integer',
             'status' => 'required|in:active,inactive',
@@ -165,6 +166,7 @@ class ProductController extends Controller
             'name' => "required|array",
             'name.' . $this->main_lang => "required",
             'model' => "nullable|max:255",
+            'is_active' => 'required',
             'desc' => 'required|array',
             'brand_id' => 'nullable|integer',
             'status' => 'required|in:active,inactive',

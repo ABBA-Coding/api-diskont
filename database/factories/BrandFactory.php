@@ -18,6 +18,8 @@ class BrandFactory extends Factory
         $rand_int = rand(1,13);
         $rand_string = Str::random(16);
         Storage::disk('public')->copy('delete/' . $rand_int . '.png', 'uploads/brands/' . $rand_string . '.png');
+        Storage::disk('public')->copy('delete/' . $rand_int . '.png', 'uploads/brands/200/' . $rand_string . '.png');
+        Storage::disk('public')->copy('delete/' . $rand_int . '.png', 'uploads/brands/600/' . $rand_string . '.png');
 
         $name = $this->faker->sentence(2);
         

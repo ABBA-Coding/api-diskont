@@ -20,6 +20,7 @@ class CreateProductInfosTable extends Migration
             $table->longText('desc')->nullable();
             $table->bigInteger('brand_id')->nullable();
             $table->bigInteger('category_id');
+            $table->boolean('is_active')->default(1);
             $table->bigInteger('default_product_id')->nullable();
             $table->timestamps();
         });

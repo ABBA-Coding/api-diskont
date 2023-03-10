@@ -20,7 +20,7 @@ class CategoryController extends Controller
     {
         $categories = Category::latest()
             ->whereNull('parent_id')
-            ->select('id', 'name', 'is_popular', 'desc', 'parent_id', 'img', 'icon', 'icon_svg', 'slug')
+            ->select('id', 'name', 'is_popular', 'desc', 'parent_id', 'img', 'icon', 'icon_svg', 'slug', 'is_active')
             ->with('children', 'attributes', 'attributes.options', 'characteristic_groups', 'characteristic_groups.characteristics', 'characteristic_groups.characteristics.options')
             ->paginate($this->PAGINATE);
 
@@ -48,6 +48,7 @@ class CategoryController extends Controller
             'img' => 'nullable|max:255',
             'is_popular' => 'required|boolean',
             'desc' => 'required|array',
+            'is_active' => 'required',
         ]);
 
         if($request->icon && Storage::disk('public')->exists('/uploads/temp/' . explode('/', $request->icon)[count(explode('/', $request->icon)) - 1])) {
@@ -106,7 +107,7 @@ class CategoryController extends Controller
     public function show(Category $category)
     {
         $category = Category::where('id', $category->id)
-            ->select('id', 'name', 'is_popular', 'desc', 'parent_id', 'img', 'icon', 'slug')
+            ->select('id', 'name', 'is_popular', 'desc', 'parent_id', 'img', 'icon', 'slug', 'is_active')
             ->with('children', 'attributes', 'attributes.options', 'characteristic_groups', 'characteristic_groups.characteristics', 'characteristic_groups.characteristics.options')
             ->first();
         return response([
@@ -135,6 +136,7 @@ class CategoryController extends Controller
             'is_popular' => 'required|boolean',
             'desc' => 'required|array',
             'slug' => 'required|max:255',
+            'is_active' => 'required',
         ]);
 
         if($request->icon) {
@@ -168,6 +170,7 @@ class CategoryController extends Controller
                 'is_popular' => $request->is_popular,
                 'position' => $request->position ?? 1000,
                 'desc' => $request->desc,
+                'is_active' => $request->is_active,
                 'icon_svg' => $request->icon_svg,
                 'icon' => isset($icon) ? $icon : $request->icon,
                 'img' => isset($img) ? $img : $request->img,

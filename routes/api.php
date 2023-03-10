@@ -74,6 +74,7 @@ Route::prefix('admin')->group(function() {
 
     Route::apiResource('comments', CommentController::class);
 
+    Route::get('/banners/types', [BannerController::class, 'types']);
     Route::apiResource('banners', BannerController::class);
 
     Route::apiResource('feedbacks', FeedbackController::class);

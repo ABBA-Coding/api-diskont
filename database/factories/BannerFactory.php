@@ -20,6 +20,8 @@ class BannerFactory extends Factory
             $rand_int = rand(1,13);
             $rand_string = Str::random(16);
             Storage::disk('public')->copy('delete/' . $rand_int . '.png', 'uploads/banners/' . $rand_string . '.png');
+            Storage::disk('public')->copy('delete/' . $rand_int . '.png', 'uploads/banners/200/' . $rand_string . '.png');
+            Storage::disk('public')->copy('delete/' . $rand_int . '.png', 'uploads/banners/600/' . $rand_string . '.png');
             $images[] = $rand_string . '.png';
         }
 

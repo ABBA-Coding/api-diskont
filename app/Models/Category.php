@@ -20,6 +20,7 @@ class Category extends Model
         'for_search',
         'position',
         'slug',
+        'is_active',
     ];
 
     protected $casts = [

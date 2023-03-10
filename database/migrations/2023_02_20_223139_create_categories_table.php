@@ -24,6 +24,7 @@ class CreateCategoriesTable extends Migration
             $table->string('img')->nullable();
             $table->integer('position')->default(1000);
             $table->string('slug')->unique();
+            $table->boolean('is_active')->default(1);
             $table->text('for_search')->nullable();
             $table->timestamps();
         });

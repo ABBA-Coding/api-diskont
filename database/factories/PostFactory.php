@@ -29,6 +29,8 @@ class PostFactory extends Factory
         $rand_int = rand(1,13);
         $rand_string = Str::random(16);
         Storage::disk('public')->copy('delete/' . $rand_int . '.png', 'uploads/posts/' . $rand_string . '.png');
+        Storage::disk('public')->copy('delete/' . $rand_int . '.png', 'uploads/posts/200/' . $rand_string . '.png');
+        Storage::disk('public')->copy('delete/' . $rand_int . '.png', 'uploads/posts/600/' . $rand_string . '.png');
 
         
         return [

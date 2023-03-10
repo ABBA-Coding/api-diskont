@@ -19,7 +19,6 @@ class PostController extends Controller
     {
         $posts = Post::latest()
             ->select('id', 'title', 'desc', 'img')
-            // ->with('parent', 'attribute_groups', 'attribute_groups.attributes', 'characteristic_groups', 'characteristic_groups.characteristics')
             ->paginate($this->PAGINATE);
 
         return response([
