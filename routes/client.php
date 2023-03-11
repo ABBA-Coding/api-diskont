@@ -33,7 +33,11 @@ Route::prefix('categories')->group(function() {
     Route::get('/{slug}', [CategoryController::class, 'show']);
 });
 // Route::get('categories', [CategoryController::class, 'index']);
-Route::get('products', [ProductController::class, 'index']);
+
+Route::prefix('products')->group(function() {
+    Route::get('/', [ProductController::class, 'index']);
+    Route::get('/{slug}', [ProductController::class, 'show']);
+});
 Route::get('brands', [BrandController::class, 'index']);
 Route::get('banners', [BannerController::class, 'index']);
 Route::prefix('posts')->group(function() {
