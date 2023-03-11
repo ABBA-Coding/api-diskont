@@ -31,7 +31,7 @@ class ProductInfoFactory extends Factory
             'for_search' => $name['ru'],
             'desc' => $desc,
             'brand_id' => rand(1,50),
-            'category_id' => rand(71, 120),
+            'category_id' => rand(21, 30),
             'default_product_id' => null,
         ];
     }

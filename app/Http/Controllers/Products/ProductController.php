@@ -24,7 +24,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = ProductInfo::select('id', 'name', 'desc', 'brand_id', 'category_id', 'default_product_id', 'is_active', 'model')
+        $products = ProductInfo::select('id', 'name', 'desc', 'brand_id', 'category_id', 'default_product_id', 'is_active')
             ->with('category', 'brand', 'products', 'products.images', 'category.characteristic_groups', 'category.characteristic_groups.characteristics')
             ->latest()
             ->paginate($this->PAGINATE);

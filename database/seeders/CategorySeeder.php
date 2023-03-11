@@ -28,37 +28,43 @@ class CategorySeeder extends Seeder
                     ->has(CharacteristicOption::factory()->count(5), 'options')
                     ->count(6))
                 ->count(5), 'characteristic_groups')
-            ->count(30)
+            ->count(10)
             ->create([
                 'parent_id' => null
             ]);
 
-        Category::factory()
-            ->has(Attribute::factory()
-                ->has(AttributeOption::factory()->count(5), 'options')
-                ->count(4))
-            ->has(CharacteristicGroup::factory()
-                ->has(Characteristic::factory()
-                    ->has(CharacteristicOption::factory()->count(5), 'options')
-                    ->count(6))
-                ->count(5), 'characteristic_groups')
-            ->count(40)
-            ->create([
-                'parent_id' => rand(1,30)
-            ]);
+        for($i=0; $i<10; $i++) {
+            $parent_id = rand(1,10);
+            Category::factory()
+                ->has(Attribute::factory()
+                    ->has(AttributeOption::factory()->count(5), 'options')
+                    ->count(4))
+                ->has(CharacteristicGroup::factory()
+                    ->has(Characteristic::factory()
+                        ->has(CharacteristicOption::factory()->count(5), 'options')
+                        ->count(6))
+                    ->count(5), 'characteristic_groups')
+                ->count(1)
+                ->create([
+                    'parent_id' => $parent_id
+                ]);
+        }
 
-        Category::factory()
-            ->has(Attribute::factory()
-                ->has(AttributeOption::factory()->count(5), 'options')
-                ->count(4))
-            ->has(CharacteristicGroup::factory()
-                ->has(Characteristic::factory()
-                    ->has(CharacteristicOption::factory()->count(5), 'options')
-                    ->count(6))
-                ->count(5), 'characteristic_groups')
-            ->count(50)
-            ->create([
-                'parent_id' => rand(31,70)
-            ]);
+        for($i=0; $i<10; $i++) {
+            $parent_id = rand(11,20);
+            Category::factory()
+                ->has(Attribute::factory()
+                    ->has(AttributeOption::factory()->count(5), 'options')
+                    ->count(4))
+                ->has(CharacteristicGroup::factory()
+                    ->has(Characteristic::factory()
+                        ->has(CharacteristicOption::factory()->count(5), 'options')
+                        ->count(6))
+                    ->count(5), 'characteristic_groups')
+                ->count(1)
+                ->create([
+                    'parent_id' => $parent_id
+                ]);
+        }
     }
 }
