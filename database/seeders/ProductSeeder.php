@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Attributes\Attribute;
 use App\Models\Products\ProductInfo;
 use App\Models\Products\ProductImage;
 use App\Models\Products\Product;
@@ -41,9 +42,11 @@ class ProductSeeder extends Seeder
 
         // add attribute options to products
         for($i=1; $i<31; $i++) {
-            for($j=1; $j<rand(3,5); $j++) {
+            $product_attributes = Product::find($i)->info->category->attributes;
+            foreach($product_attributes as $product_attribute) {
+                $options_ids = Attribute::find($product_attribute->id)->options->pluck('id')->toArray();
                 DB::table('attribute_option_product')->insert([
-                    'attribute_option_id' => rand(1,600),
+                    'attribute_option_id' => $options_ids[array_rand($options_ids)],
                     'product_id' => $i
                 ]);
             }

@@ -61,11 +61,6 @@ class ProductController extends Controller
 
     public function show($slug)
     {
-        $attribute_options_ids = [330];
-        $product = Product::whereHas('attribute_options', function($q) use ($attribute_options_ids) {
-            $q->whereIn('attribute_option_id', $attribute_options_ids);
-        })->with('attribute_options')->get();
-        dd($product);
         $product = Product::where('slug', $slug)
             ->with('info', 'info.brand', 'info.category', 'images', 'attribute_options', 'characteristic_options')
             ->first();
@@ -93,12 +88,12 @@ class ProductController extends Controller
                 } else {
                     // bowqa attributlari t6gri keladigan imenno wu attributni bowqa variantlari
                     $current_options_attribute_options_ids = AttributeOption::find($option['id'])->attribute->options->pluck('id')->toArray();
-                    $other_product_attributes_ids = array_map(function($product_attributes_id) use ($current_options_attribute_options_ids) {
-                        if(in_array($product_attributes_id, $current_options_attribute_options_ids)) {
-                            return $option['id'];
-                        }
-                        return $product_attributes_id;
-                    }, $product_attributes_ids);
+                    // $other_product_attributes_ids = array_map(function($product_attributes_id) use ($current_options_attribute_options_ids) {
+                    //     if(in_array($product_attributes_id, $current_options_attribute_options_ids)) {
+                    //         return $option['id'];
+                    //     }
+                    //     return $product_attributes_id;
+                    // }, $product_attributes_ids);
 
                     // Product::whereHas();
 
