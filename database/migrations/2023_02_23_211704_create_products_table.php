@@ -18,7 +18,7 @@ class CreateProductsTable extends Migration
             $table->bigInteger('info_id');
             $table->string('c_id')->unique()->nullable();
             $table->string('model')->nullable();
-            $table->float('price')->nullable();
+            $table->decimal('price', 11, 2)->nullable();
             $table->boolean('is_popular')->default(0);
             $table->boolean('product_of_the_day')->default(0);
             $table->enum('status', ['active', 'inactive'])->default('active');
