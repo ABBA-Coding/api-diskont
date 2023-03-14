@@ -62,45 +62,65 @@ class ProductController extends Controller
     public function show($slug)
     {
         $product = Product::where('slug', $slug)
-            ->with('info', 'info.brand', 'info.category', 'images', 'attribute_options', 'characteristic_options')
+            // ->with('info', 'info.brand', 'info.category', 'images', 'attribute_options', 'characteristic_options')
+            // ->with('info.category.attributes', 'info.category.attributes.options')
+            ->with('attribute_options')
             ->first();
+        // dd($product);
 
         $attributes = $product->info->category->attributes()
             ->with('options')
             ->get()
             ->toArray();
 
-        $product_attributes = $product->attribute_options()
+        $product_attributes_ids = $product->attribute_options()
             ->get()
+            ->pluck('id')
             ->toArray();
+        // dd($product_attributes_ids);
 
-        $product_attributes_ids = [];
-        foreach($product_attributes as $product_attribute) {
-            $product_attributes_ids[] = $product_attribute['id'];
-        }
+        $result = Product::whereHas('attribute_options', function($q) use ($product_attributes_ids) {
+            $q->whereIn('attribute_option_id', $product_attributes_ids);
+        })->get();
+        dd($result);
 
-        foreach($attributes as $attribute) {
-            foreach($attribute['options'] as $option) {
+        $attributes = array_map(function($attribute) {
+            return $attribute['id'];
+        }, $attributes);
+        $this->sort_and_redef($attributes);
+        foreach($attributes as $key => $attribute) {
+            $attribute_options = Attribute::find($attribute)->options;
+
+            
+            
+            foreach($attribute_options as $option_key => $option) {
+                $for_delete_item_arr = $attributes;
+                unset($for_delete_item_arr[$key]);
+                $other_attribute_options = Attribute::whereIn('id', $for_delete_item_arr)->get();
+
+                $target_attribute_options = [];
+                foreach($other_attribute_options as $item) {
+                    $target_attribute_options[] = $item->options[0]['id'];
+                }
+
+
+
+
+
+
+
+
+                $target_attribute_options[] = $option->id;
+                $target_attribute_options_temp = $this->sort_and_redef($target_attribute_options);
+                // dd($target_attribute_options_temp);
+
+                dd($product->attribute_options->pluck('id')->toArray());
+
                 if(in_array($option['id'], $product_attributes_ids)) {
                     $option['active'] = 1;
                     $option['slug'] = null;
                     $option['is_not_available'] = 0;
-                } else {
-                    // bowqa attributlari t6gri keladigan imenno wu attributni bowqa variantlari
-                    $current_options_attribute_options_ids = AttributeOption::find($option['id'])->attribute->options->pluck('id')->toArray();
-                    // $other_product_attributes_ids = array_map(function($product_attributes_id) use ($current_options_attribute_options_ids) {
-                    //     if(in_array($product_attributes_id, $current_options_attribute_options_ids)) {
-                    //         return $option['id'];
-                    //     }
-                    //     return $product_attributes_id;
-                    // }, $product_attributes_ids);
-
-                    // Product::whereHas();
-
-                    // 'active' => 0,
-                    // 'slug' => null,
-                    // 'is_not_available' => 0,
-                }
+                } else {}
             }
         }
 
@@ -116,5 +136,11 @@ class ProductController extends Controller
         return response([
             'product' => $product
         ]);
+    }
+
+    private function sort_and_redef($arr)
+    {
+        asort($arr);
+        return array_values($arr);
     }
 }
