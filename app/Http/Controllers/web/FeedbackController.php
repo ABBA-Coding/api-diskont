@@ -19,6 +19,7 @@ class FeedbackController extends Controller
         if(isset($request->limit) && $request->limit != '' && $request->limit < 41) $this->set_paginate($request->limit);
         $feedbacks = Feedback::latest()
             ->select('id', 'feedback', 'company', 'logo')
+            ->with('images')
             ->paginate($this->PAGINATE);
 
         return response([
