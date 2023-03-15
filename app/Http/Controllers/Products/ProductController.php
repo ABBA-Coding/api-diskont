@@ -109,6 +109,7 @@ class ProductController extends Controller
                         'status' => $variation['status'],
                         'is_popular' => $variation['is_popular'],
                         'product_of_the_day' => $variation['product_of_the_day'],
+                        'is_available' => 1,
                         'slug' => $this->product_slug_create($product_info, $additional_for_slug),
                     ]);
 

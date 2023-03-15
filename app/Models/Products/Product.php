@@ -20,6 +20,7 @@ class Product extends Model
         'status',
         'is_popular',
         'product_of_the_day',
+        'is_available',
         'slug',
     ];
 
