@@ -63,15 +63,10 @@ class ProductController extends Controller
     public function show($slug)
     {
         $product = Product::where('slug', $slug)
-            ->with('info', 'info.brand', 'info.category', 'images', 'characteristic_options', 'characteristic_options.characteristic')
+            // ->with('info', 'info.brand', 'info.category', 'images', 'characteristic_options', 'characteristic_options.characteristic')
             // ->with('info.category.attributes', 'info.category.attributes.options')
-            // ->with('attribute_options')
+            ->with('attribute_options')
             ->first();
-
-        return response([
-            'product' => $product,
-            'attributes' => []
-        ]);
 
         $current_product_options_ids = $product->attribute_options->pluck('id')->toArray();
         // id options dannogo produkta v formate [attribute_id => option_id, ...]
@@ -103,6 +98,66 @@ class ProductController extends Controller
             $counter ++;
         }
         unset($counter);
+        // return response($result_attributes);
+
+
+
+
+
+        $result_arr = [];
+        $attributes_count = count($result_attributes);
+        
+        for($i=0; $i<$attributes_count; $i++) {
+            $result_arr[$result_attributes[$i]['id']] = $result_attributes[$i]['options'][0];
+        }
+        // return response($result_attributes);
+
+
+        // for($l=0; $l<count($result_attributes[0]['options']); $l++) {
+        //     for($k=0; $k<count($result_attributes[1]['options']); $k++) {
+        //         for ($i=0; $i<count($result_attributes[2]['options']); $i++) {
+        //             for($j=0; $j<count($result_attributes[3]['options']); $j++) {
+        //                 $result_arr[$result_attributes[3]['id']] = $result_attributes[3]['options'][$j];
+        //                 dd($result_arr);
+        //                 var_dump($result_arr);echo "<br>";
+        //             }
+        //             $result_arr[$result_attributes[3]['id']] = $result_attributes[3]['options'][0];
+
+        //             if($i != count($result_attributes[2]['options']) -1) {
+        //                 $result_arr[$result_attributes[2]['id']] = $result_attributes[2]['options'][$i+1];
+        //             }
+        //         }
+        //         $result_arr[$result_attributes[2]['id']] = $result_attributes[2]['options'][0];
+
+        //         if($k != count($result_attributes[1]['options']) -1) {
+        //             $result_arr[$result_attributes[1]['id']] = $result_attributes[1]['options'][$k+1];
+        //         }
+        //     }
+        //     $result_arr[$result_attributes[1]['id']] = $result_attributes[1]['options'][0];
+
+        //     if($l != count($result_attributes[0]['options']) -1) {
+        //         $result_arr[$result_attributes[0]['id']] = $result_attributes[0]['options'][$l+1];
+        //     }
+        // }
+        // exit();
+
+
+        // for($i1 = 0; $i1 < count($result_attributes[0]['options']); $i1 ++){
+        //     for($i2 = 0; $i2 < count($result_attributes[1]['options']); $i2 ++){
+        //         for($i3 = 0; $i3 < count($result_attributes[2]['options']); $i3 ++){
+        //             for($i4 = 0; $i4 < count($result_attributes[3]['options']); $i4 ++){
+        //                 $variant = [
+        //                     $result_attributes[0]['id'] => $result_attributes[0]['options'][$i1],
+        //                     $result_attributes[1]['id'] => $result_attributes[1]['options'][$i2],
+        //                     $result_attributes[2]['id'] => $result_attributes[2]['options'][$i3],
+        //                     $result_attributes[3]['id'] => $result_attributes[3]['options'][$i4],
+        //                 ];
+        //                 var_dump($variant);echo "<br>";
+        //             }
+        //         }
+        //     }
+        // }
+        // exit();
 
 
 
@@ -117,79 +172,69 @@ class ProductController extends Controller
         }
         unset($counter);
 
-        $slugs = [];
-        $temp_current_product_options_ids_with_attribute_keys = $current_product_options_ids_with_attribute_keys;
-        foreach($result_attributes as $result_attribute) {
-            unset($temp_current_product_options_ids_with_attribute_keys[$result_attribute['id']]);
 
-            foreach($result_attribute['options'] as $option) {
-                $temp_current_product_options_ids_with_attribute_keys[$result_attribute['id']] = $option;
-                var_dump($this->sort_and_redef($temp_current_product_options_ids_with_attribute_keys));
-                foreach($real_combinations as $real_combination) {
-                    if(empty(array_diff($temp_current_product_options_ids_with_attribute_keys, $real_combination['options']))) {
-                        $slugs[] = $real_combination['slug'];
-                    } else {
-                        $slugs[] = null;
-                    }
-                }
-
-                $temp_current_product_options_ids_with_attribute_keys = $current_product_options_ids_with_attribute_keys;
-            }
-        }
-        return response($slugs);
+        $result = [];
+        $this->loop($result_attributes, $result);
+        exit();
 
 
 
 
-
-
-
-
-
-
-
-        $attributes_with_options = [];
-        $counter = 0;
-        foreach($unique_attributes as $attribute) {
-            $temp_attribute = Attribute::find($attribute);
-            $attributes_with_options[$counter]['id'] = $temp_attribute->id;
-            $attributes_with_options[$counter]['name'] = $temp_attribute->name;
-            $attributes_with_options[$counter]['options'] = $temp_attribute->options->toArray();
-
-            $counter ++;
-        }
-        unset($counter);
-
-        $counter = 0;
-        foreach($attributes_with_options as $attribute_with_option) {
-            $inner_counter = 0;
-            foreach($attribute_with_option['options'] as $option) {
-                $array_with_this_options_ids = $current_product_options_ids_with_attribute_keys;
-                $array_with_this_options_ids[$option['attribute_id']] = $option['id'];
-
-                foreach($real_combinations as $real_combination) {
-                    if(empty(array_diff($real_combination['options'], $array_with_this_options_ids))) {
-                        $attributes_with_options[$counter]['options'][$inner_counter]['slug'] = $real_combination['slug'];                    } else {
-                        $attributes_with_options[$counter]['options'][$inner_counter]['slug'] = null;
-                    }
-                }
-                $inner_counter ++;
-            }
-            $counter ++;
-        }
-        unset($inner_counter);
-        unset($counter);
-        $attributes_with_options[0]['options'][3]['slug'] = $real_combination['slug'];
-
-
-
-
-        dd($attributes);
         return response([
             'attributes' => $attributes,
             'product' => $product,
         ]);
     }
+
+
+
+    // for($i1 = 0; $i1 < count($result_attributes[0]['options']); $i1 ++){
+    //     for($i2 = 0; $i2 < count($result_attributes[1]['options']); $i2 ++){
+    //         for($i3 = 0; $i3 < count($result_attributes[2]['options']); $i3 ++){
+    //             for($i4 = 0; $i4 < count($result_attributes[3]['options']); $i4 ++){
+    //                 $variant = [
+    //                     $result_attributes[0]['id'] => $result_attributes[0]['options'][$i1],
+    //                     $result_attributes[1]['id'] => $result_attributes[1]['options'][$i2],
+    //                     $result_attributes[2]['id'] => $result_attributes[2]['options'][$i3],
+    //                     $result_attributes[3]['id'] => $result_attributes[3]['options'][$i4],
+    //                 ];
+    //                 var_dump($variant);echo "<br>";
+    //             }
+    //         }
+    //     }
+    // }
+
+
+
+    private function loop($result_attributes, $result = [], $vlojennost = 0)
+    {
+        for($i=0; $i<count($result_attributes[$vlojennost]['options']); $i++) {
+            $result[$result_attributes[0]['id']] = $result_attributes[0]['options'][$i];
+            if(isset($result_attributes[$vlojennost+1])) {
+                $vlojennost ++;
+                $this->loop($result_attributes, $result, $vlojennost);
+            } else {
+                var_dump($result);echo '<br>';
+                return true;
+            }
+        }
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     private function sort_and_redef($arr)
     {
