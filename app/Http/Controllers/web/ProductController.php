@@ -63,9 +63,9 @@ class ProductController extends Controller
     public function show($slug)
     {
         $product = Product::where('slug', $slug)
-            // ->with('info', 'info.brand', 'info.category', 'images', 'characteristic_options', 'characteristic_options.characteristic')
+            ->with('info', 'info.brand', 'info.category', 'info.category.parent', 'images', 'characteristic_options', 'characteristic_options.characteristic')
             // ->with('info.category.attributes', 'info.category.attributes.options')
-            ->with('attribute_options')
+            // ->with('attribute_options')
             ->first();
         // return response($product);
 
