@@ -332,7 +332,7 @@ class ProductController extends Controller
     private function delete_product_variations(ProductInfo $info, Request $request)
     {
         /*
-         * udalim variacii pri obnovlenii informacii produkta 
+            udalim variacii pri obnovlenii informacii produkta
         */
         
         $req_products = $request->products;

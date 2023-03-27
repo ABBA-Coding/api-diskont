@@ -31,7 +31,7 @@ class CategoryController extends Controller
     public function show($slug)
     {
         $category = Category::where('slug', $slug)
-            ->with('children', 'parent', 'product_infos', 'product_infos.products')
+            ->with('children', 'parent', 'product_infos', 'product_infos.products', 'product_infos.products.images')
             ->first();
         return response([
             'category' => $category
