@@ -49,11 +49,13 @@ use App\Http\Controllers\Feedbacks\FeedbackController;
 //});
 
 Route::prefix('admin')->group(function() {
+    Route::get('/characteristics/all', [CharacteristicController::class, 'all']);
     Route::apiResource('characteristics', CharacteristicController::class);
     Route::get('characteristics_groups/all', [CharacteristicGroupController::class, 'all']);
     Route::apiResource('characteristics_groups', CharacteristicGroupController::class);
     Route::apiResource('characteristics_options', CharacteristicOptionController::class);
 
+    Route::get('/attributes/all', [AttributeController::class, 'all']);
     Route::apiResource('attributes', AttributeController::class);
     Route::apiResource('attributes_options', AttributeOptionController::class);
 

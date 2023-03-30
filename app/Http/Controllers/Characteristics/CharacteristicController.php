@@ -6,7 +6,7 @@ use App\Models\Characteristics\CharacteristicOption;
 use App\Models\Characteristics\Characteristic;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use DB;
+use Illuminate\Support\Facades\DB;
 
 class CharacteristicController extends Controller
 {
@@ -180,6 +180,18 @@ class CharacteristicController extends Controller
 
         return response([
             'message' => __('messages.successfully_deleted')
+        ]);
+    }
+
+    public function all()
+    {
+        $characteristics = Characteristic::latest()
+            ->select('id', 'group_id', 'name')
+            ->with('group', 'options')
+            ->get();
+
+        return response([
+            'characteristics' => $characteristics
         ]);
     }
 }

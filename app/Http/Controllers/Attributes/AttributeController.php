@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Attributes;
 use App\Models\Attributes\Attribute;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use DB;
+use Illuminate\Support\Facades\DB;
 
 class AttributeController extends Controller
 {
@@ -179,6 +179,18 @@ class AttributeController extends Controller
 
         return response([
             'message' => __('messages.successfully_deleted')
+        ]);
+    }
+
+    public function all()
+    {
+        $attributes = Attribute::latest()
+            ->select('id', 'name')
+            ->with('options')
+            ->get();
+
+        return response([
+            'attributes' => $attributes
         ]);
     }
 }
