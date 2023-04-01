@@ -63,6 +63,8 @@ Route::prefix('admin')->group(function() {
     Route::delete('/files/delete', [DeleteController::class, 'delete']);
 
     Route::apiResource('categories', CategoryController::class);
+
+    Route::get('brands/all', [BrandController::class, 'all']);
     Route::apiResource('brands', BrandController::class);
     Route::apiResource('posts', PostController::class);
 

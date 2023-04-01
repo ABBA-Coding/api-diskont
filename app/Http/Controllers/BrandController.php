@@ -160,4 +160,15 @@ class BrandController extends Controller
             'message' => __('messages.successfully_deleted')
         ]);
     }
+
+    public function all()
+    {
+        $brands = Brand::latest()
+            ->select('id', 'name', 'logo', 'slug')
+            ->get();
+
+        return response([
+            'brands' => $brands
+        ]);
+    }
 }
