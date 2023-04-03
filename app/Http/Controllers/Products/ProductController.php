@@ -10,8 +10,8 @@ use App\Models\Products\{
 };
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Str;
-use DB;
-use Storage;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -147,10 +147,53 @@ class ProductController extends Controller
     public function show(ProductInfo $product)
     {
         $product = ProductInfo::where('id', $product->id)
-            ->with('brand', 'category', 'category.characteristic_groups', 'category.characteristic_groups.characteristics', 'products', 'products.images')
+            ->select('id', 'name', 'desc', 'brand_id', 'category_id')
+            ->with('brand', 'category', 'category.parent')
             ->first();
 
-        return response($product);
+        $variations = $product->products;
+        $variation_images = [];
+
+        foreach($variations as $variation) {
+            foreach($variation->images as $image) {
+                $variation_images[] = $image;
+            }
+        }
+        $variation_images = array_map(function($item) {
+            return $item->pivot->product_image_id;
+        }, $variation_images);
+        $variation_images = array_values(array_unique($variation_images));
+
+        $result = [];
+
+        $counter = 0;
+        while(!empty($variation_images)) {
+            $result[$counter]['variations'] = Product::whereHas('images', function($q) use ($variation_images) {
+                $q->whereIn('product_images.id', $variation_images);
+            })->get();
+            if(isset($result[$counter]['variations'][0])) {
+                $product_images_ids = Product::find($result[$counter]['variations'][0]->id)->images->pluck('id')->toArray();
+                $result[$counter]['images'] = ProductImage::whereIn('id', $product_images_ids)
+                    ->get();
+                $result[$counter]['variations'] = Product::whereHas('images', function($q) use ($product_images_ids) {
+                    $q->whereIn('product_images.id', $product_images_ids);
+                })
+                    ->with('characteristic_options', 'characteristic_options.characteristic', 'attribute_options', 'attribute_options.attribute')
+                    ->get();
+                $variation_images = array_filter($variation_images, function($item) use ($product_images_ids) {
+                    return !in_array($item, $product_images_ids);
+                });
+                $variation_images = array_values($variation_images);
+            }
+
+            $counter ++;
+        }
+        
+
+        return response([
+            'products' => $result,
+            'info' => $product,
+        ]);
     }
 
     /**
