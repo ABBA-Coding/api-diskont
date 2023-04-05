@@ -30,23 +30,20 @@ Route::prefix('auth')->group(function () {
 });
 
 Route::prefix('categories')->group(function() {
-    Route::get('/', [CategoryController::class, 'index']);
+    Route::get('/', [CategoryController::class, 'index']); // yes
     Route::get('/{slug}', [CategoryController::class, 'show']);
 });
-// Route::get('categories', [CategoryController::class, 'index']);
 
 Route::prefix('products')->group(function() {
     Route::get('/', [ProductController::class, 'index']);
     Route::get('/{slug}', [ProductController::class, 'show']);
 });
-Route::prefix('brands')->group(function() {
-    Route::get('/', [BrandController::class, 'index']);
-    Route::get('/{slug}', [BrandController::class, 'show']);
-});
-Route::get('banners', [BannerController::class, 'index']);
+Route::get('brands', [BrandController::class, 'index']);
+Route::get('brands/{slug}', [BrandController::class, 'show']); // yes
+Route::get('banners', [BannerController::class, 'index']); // yes
 Route::prefix('posts')->group(function() {
     Route::get('/', [PostController::class, 'index']);
     Route::get('/{slug}', [PostController::class, 'show']);
 });
 Route::get('feedbacks', [FeedbackController::class, 'index']);
-Route::get('search', [SearchController::class, 'search']);
+Route::get('search', [SearchController::class, 'search']); // yes

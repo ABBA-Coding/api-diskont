@@ -7,4 +7,5 @@ return [
     'invalid_credentials' => 'Данные неверны',
     'timed_out' => 'Код устарел. Попросите другой код',
     'incorrect_code' => 'Код неверный',
+    'category_not_found' => 'Категория не найдена',
 ];

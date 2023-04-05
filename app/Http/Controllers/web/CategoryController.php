@@ -21,15 +21,20 @@ class CategoryController extends Controller
         $categories = Category::whereNull('parent_id')
             ->orderBy('position')
             ->select('id', 'name', 'is_popular', 'desc', 'icon', 'icon_svg', 'img', 'slug')
-            ->with('children')
-            ->paginate($this->PAGINATE);
+            ->with('children');
+
+        if(isset($request->popular) && $request->popular != '' && $request->popular == 1) {
+            $categories = $categories->where('is_popular', 1);
+        }
+
+        $categories = $categories->paginate($this->PAGINATE);
 
         return response([
             'categories' => $categories
         ]);
     }
 
-    public function show($slug)
+    public function show(Request $request, $slug)
     {
         $category = Category::where('slug', $slug)
             ->with('children', 'parent', 'children')
@@ -42,13 +47,69 @@ class CategoryController extends Controller
             return $item->id;
         }, $children);
 
-        $product_infos = ProductInfo::whereIn('category_id', $children_ids)
-            ->with('default_product', 'default_product.images')
+
+        $product_infos = ProductInfo::whereIn('category_id', $children_ids);
+        /*
+         * filtr produktov po max i min price
+         */
+        if(isset($request->min_price) && $request->min_price != '') {
+            $product_infos = $product_infos->whereHas('products', function($q) use ($request) {
+                $q->where('price', '>', $request->min_price);
+            });
+        }
+        if(isset($request->max_price) && $request->max_price != '') {
+            $product_infos = $product_infos->whereHas('products', function($q) use ($request) {
+                $q->where('price', '<', $request->max_price);
+            });
+        }
+
+        /*
+         * sortirovka produktov
+         */
+        if(isset($request->sort) && $request->sort != '') {
+            switch($request->sort) {
+                case 'popular':
+                    // 
+                    break;
+                case 'cheap_first':
+                    // 
+                    break;
+                case 'expensive_first':
+                    // 
+                    break;
+                case 'new':
+                    // 
+                    break;
+                case 'high_rating':
+                    // 
+                    break;
+            }
+        }
+
+        /*
+         * sortirovka po attributam
+         */
+        if($request->input('attributes') && $request->input('attributes') != '') {
+            $product_infos = $product_infos->whereHas('products', function($q) use ($request) {
+                $q->whereHas('attribute_options', function($qi) use ($request) {
+                    /*
+                     * str to arr
+                     */
+                    $attributes_ids = explode(',', $request->input('attributes'));
+                    $qi->whereIn('attribute_options.id', $attributes_ids);
+                });
+            });    
+        }
+        $product_infos = $product_infos->with('default_product', 'default_product.images', 'default_product.attribute_options')
             ->get();
+
+        $attributes = $category->attributes()->with('options')->get();
+
 
         return response([
             'category' => $category,
-            'product_infos' => $product_infos
+            'product_infos' => $product_infos,
+            'attributes' => $attributes,
         ]);
     }
 
