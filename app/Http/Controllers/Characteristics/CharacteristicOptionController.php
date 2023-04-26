@@ -13,9 +13,17 @@ class CharacteristicOptionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $options = CharacteristicOption::with('characteristic')
+            ->latest();
+        if(isset($request->search) && $request->search != '') $options = $options->where('name', 'like', '%'.$request->search.'%')->orWhere('for_search', 'like', '%'.$request->search.'%');
+        $options = $options->paginate(24);
+
+        return response([
+            'options' => $options,
+            'search' => isset($request->search) ? $request->search : null
+        ]);
     }
 
     /**
@@ -61,5 +69,25 @@ class CharacteristicOptionController extends Controller
     public function destroy(CharacteristicOption $characteristicOption)
     {
         //
+    }
+
+    public function store_more(Request $request)
+    {
+        $request->validate([
+            'options' => 'required|array',
+            'options.*.id' => 'integer|required',
+            'options.*.name.'.$this->main_lang => 'required',
+        ]);
+
+        foreach($request->options as $option) {
+            CharacteristicOption::find($option['id'])->update([
+                'name' => $option['name'],
+                'for_search' => $option['name'][$this->main_lang]
+            ]);
+        }
+
+        return response([
+            'message' => 'Successfully saved'
+        ]);
     }
 }

@@ -53,6 +53,8 @@ Route::prefix('admin')->group(function() {
     Route::apiResource('characteristics', CharacteristicController::class);
     Route::get('characteristics_groups/all', [CharacteristicGroupController::class, 'all']);
     Route::apiResource('characteristics_groups', CharacteristicGroupController::class);
+
+    Route::post('characteristics_options/store_more', [CharacteristicOptionController::class, 'store_more']);
     Route::apiResource('characteristics_options', CharacteristicOptionController::class);
 
     Route::get('/attributes/all', [AttributeController::class, 'all']);
