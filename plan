@@ -1,0 +1,33 @@
+ADMIN
+	categories
+		- get?serach
+		- store
+		- update
+		- destroy
+
+
+	attributes
+		- get
+		- store
+		- update
+		- destroy
+
+
+	characteristics
+		- get✅
+		- store✅
+		- update✅
+		- destroy✅
+
+
+	products
+		- get
+		- store
+		- update
+		- destroy
+
+
+	comments
+		- get
+		- store
+		- destroy

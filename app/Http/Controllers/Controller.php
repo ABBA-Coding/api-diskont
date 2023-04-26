@@ -103,13 +103,20 @@ class Controller extends BaseController
 
 
         if($update_id == 0) {
-            if(\App\Models\Products\Product::where('slug', \Illuminate\Support\Str::slug($info->name[$this->main_lang]) . '-' . $additional)->exists()) {
-                $slug = \Illuminate\Support\Str::slug($info->name[$this->main_lang]) . '-' . $additional . '-' . $counter;
-                while (\App\Models\Products\Product::where('slug', \Illuminate\Support\Str::slug($info->name[$this->main_lang]) . '-' . $additional . '-' . $counter)->exists()) {
+            if(\App\Models\Products\Product::where('slug', $slug)->exists()) {
+                $slug = \Illuminate\Support\Str::slug($info->name[$this->main_lang]) . '-' . $counter;
+                while (\App\Models\Products\Product::where('slug', \Illuminate\Support\Str::slug($info->name[$this->main_lang]) . '-' . $counter)->exists()) {
                     $counter ++;
-                    $slug = \Illuminate\Support\Str::slug($info->name[$this->main_lang]) . '-' . $additional . '-' . $counter;
+                    $slug = \Illuminate\Support\Str::slug($info->name[$this->main_lang]) . '-' . $counter;
                 }
             }
+            // if(\App\Models\Products\Product::where('slug', \Illuminate\Support\Str::slug($info->name[$this->main_lang]) . '-' . $additional)->exists()) {
+            //     $slug = \Illuminate\Support\Str::slug($info->name[$this->main_lang]) . '-' . $additional . '-' . $counter;
+            //     while (\App\Models\Products\Product::where('slug', \Illuminate\Support\Str::slug($info->name[$this->main_lang]) . '-' . $additional . '-' . $counter)->exists()) {
+            //         $counter ++;
+            //         $slug = \Illuminate\Support\Str::slug($info->name[$this->main_lang]) . '-' . $additional . '-' . $counter;
+            //     }
+            // }
         } else {
             $req_slug = \Illuminate\Support\Str::slug($info->name[$this->main_lang]) . '-' . $additional;
             if($req_slug == \App\Models\Products\Product::find($update_id)->slug) return $req_slug;
@@ -137,5 +144,18 @@ class Controller extends BaseController
         foreach($paths as $path) {
             if(file_exists($path)) unlink($path);
         }
+    }
+
+    public function for_search(\Illuminate\Http\Request $request, $fields)
+    {
+        $result = '';
+
+        if(count($fields) == 0) return '';
+
+        foreach($fields as $field) {
+            $result .= isset($request->$field[$this->main_lang]) ? ($request->$field[$this->main_lang] . ' ') : '';
+        }
+
+        return $result;
     }
 }

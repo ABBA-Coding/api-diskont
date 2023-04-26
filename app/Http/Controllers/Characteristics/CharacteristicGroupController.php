@@ -39,7 +39,7 @@ class CharacteristicGroupController extends Controller
     {
         $request->validate([
             'name' => 'required|array',
-            'name.ru' => 'required|max:255',
+            'name.'.$this->main_lang => 'required|max:255',
         ]);
 
         $characteristic_group = CharacteristicGroup::create([
@@ -82,18 +82,5 @@ class CharacteristicGroupController extends Controller
     public function destroy(CharacteristicGroup $characteristicGroup)
     {
         //
-    }
-
-    private function for_search(Request $request, $fields)
-    {
-        $result = '';
-
-        if(count($fields) == 0) return '';
-
-        foreach($fields as $field) {
-            $result .= isset($request->$field['ru']) ? ($request->$field['ru'] . ' ') : '';
-        }
-
-        return $result;
     }
 }
