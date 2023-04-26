@@ -63,10 +63,17 @@ class CharacteristicController extends Controller
                     'for_search' => $attribute['name'][$this->main_lang],
                 ]);
 
+                // foreach($attribute['options'] as $option) {
+                //     $option = [
+                //         'name' => $option['name'],
+                //         'for_search' => $option['name'][$this->main_lang]
+                //     ];
+                //     $characteristic->options()->create($option);        
+                // }
                 foreach($attribute['options'] as $option) {
                     $option = [
-                        'name' => $option['name'],
-                        'for_search' => $option['name'][$this->main_lang]
+                        'name' => [$this->main_lang => $option],
+                        'for_search' => $option
                     ];
                     $characteristic->options()->create($option);        
                 }
@@ -167,8 +174,10 @@ class CharacteristicController extends Controller
                  */
                 foreach(CharacteristicOption::whereIn('id', $qolganlari_ids_inner)->get() as $option) {
                     $inner_data = $request->input('attributes')[array_search($item->id, $qolganlari_ids)]['options'][array_search($option->id, $qolganlari_ids_inner)];
-
-                    $option->update($inner_data);
+                    $option->update([
+                        'name' => [$this->main_lang => $inner_data['name']],
+                        'for_search' => $inner_data['name']
+                    ]);
                 }
                 /*
                  *  liwniylarini 6ciriw
@@ -183,15 +192,15 @@ class CharacteristicController extends Controller
                 foreach($yangilari_inner as $yangisi) {
                     CharacteristicOption::create([
                         'characteristic_id' => $item->id,
-                        'name' => $yangisi['name'],
-                        'for_search' => $yangisi['name'][$this->main_lang]
+                        'name' => [$this->main_lang => $yangisi['name']],
+                        'for_search' => $yangisi['name']
                     ]);
                 }
             }
             /*
              *  liwniylarini 6ciriw
              */
-            foreach($characteristic_group->characteristics as $characteristic) {
+            foreach($characteristic_group->characteristics()->whereNotIn('id', $qolganlari_ids)->get() as $characteristic) {
                 $characteristic->options()->delete();
             }
             $characteristic_group->characteristics()->whereNotIn('id', $qolganlari_ids)->delete();
@@ -210,8 +219,8 @@ class CharacteristicController extends Controller
                 foreach($item['options'] as $option) {
                     CharacteristicOption::create([
                         'characteristic_id' => $new_characteristic->id,
-                        'name' => $option['name'],
-                        'for_search' => $option['name'][$this->main_lang]
+                        'name' => [$this->main_lang => $option],
+                        'for_search' => $option
                     ]);
                 }
             }

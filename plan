@@ -7,10 +7,10 @@ ADMIN
 
 
 	attributes
-		- get
+		- get✅
 		- store
 		- update
-		- destroy
+		- destroy✅
 
 
 	characteristics
