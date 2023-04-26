@@ -14,6 +14,7 @@ class AttributeOption extends Model
         'attribute_id',
         'name',
         'for_search',
+        'position',
     ];
 
     protected $casts = [

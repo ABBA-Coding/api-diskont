@@ -219,8 +219,8 @@ class CharacteristicController extends Controller
                 foreach($item['options'] as $option) {
                     CharacteristicOption::create([
                         'characteristic_id' => $new_characteristic->id,
-                        'name' => [$this->main_lang => $option],
-                        'for_search' => $option
+                        'name' => [$this->main_lang => $option['name']],
+                        'for_search' => $option['name']
                     ]);
                 }
             }

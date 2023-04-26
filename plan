@@ -8,7 +8,7 @@ ADMIN
 
 	attributes
 		- get✅
-		- store
+		- store✅
 		- update
 		- destroy✅
 

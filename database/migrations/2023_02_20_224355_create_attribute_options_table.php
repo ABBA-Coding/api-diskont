@@ -17,6 +17,7 @@ class CreateAttributeOptionsTable extends Migration
             $table->id();
             $table->bigInteger('attribute_id');
             $table->text('name');
+            $table->integer('position')->default(0);
             $table->text('for_search')->nullable();
             $table->timestamps();
         });

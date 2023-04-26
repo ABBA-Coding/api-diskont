@@ -39,6 +39,8 @@ class AttributeController extends Controller
             'name' => 'required|array',
             'name.ru' => 'required',
             'options' => 'nullable|array',
+            'options.*.position' => 'required|integer',
+            'options.*.name.'.$this->main_lang => 'required',
         ]);
 
         DB::beginTransaction();
@@ -47,16 +49,14 @@ class AttributeController extends Controller
             $attribute = Attribute::create([
                 'name' => $request->name,
                 'for_search' => $request->name['ru'],
-                'keywords' => $request->keywords
+                'keywords' => $request->keywords,
             ]);
 
             foreach($request->options as $option) {
-                $name = [
-                    'ru' => $option
-                ];
                 $attribute->options()->create([
-                    'name' => $name,
-                    'for_search' => $option,
+                    'name' => $option['name'],
+                    'for_search' => $option['name'][$this->main_lang],
+                    'position' => $option['position'],
                 ]);        
             }
 
