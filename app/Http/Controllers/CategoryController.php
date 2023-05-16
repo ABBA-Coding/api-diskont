@@ -16,12 +16,15 @@ class CategoryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        $search = isset($request->search) && $request->search != '' ? $request->search : null;
         $categories = Category::latest()
             ->whereNull('parent_id')
-            ->select('id', 'name', 'is_popular', 'desc', 'parent_id', 'img', 'icon', 'icon_svg', 'slug', 'is_active')
-            ->with('children', 'attributes', 'attributes.options', 'characteristic_groups', 'characteristic_groups.characteristics', 'characteristic_groups.characteristics.options')
+            ->select('id', 'name', 'is_popular', 'desc', 'parent_id', 'img', 'icon', 'icon_svg', 'slug', 'is_active');
+        if($search) $categories = $categories->where('name', 'like', '%'.$search.'%')
+            ->orWhere('for_search', 'like', '%'.$search.'%');
+        $categories = $categories->with('children', 'attributes', 'attributes.options', 'characteristic_groups', 'characteristic_groups.characteristics', 'characteristic_groups.characteristics.options')
             ->paginate($this->PAGINATE);
 
         return response([
@@ -39,16 +42,16 @@ class CategoryController extends Controller
     {
         $request->validate([
             'name' => 'required|array',
-            'name.ru' => 'required|max:255',
+            'name.'.$this->main_lang => 'required|max:255',
             'parent_id' => 'nullable|integer',
-            'attributes' => 'required|array',
-            'group_characteristics' => 'required|array',
+            'attributes' => 'nullable|array',
+            'group_characteristics' => 'nullable|array',
             'icon' => 'nullable|max:255',
             'icon_svg' => 'nullable',
             'img' => 'nullable|max:255',
             'is_popular' => 'required|boolean',
             'desc' => 'required|array',
-            'is_active' => 'required',
+            'is_active' => 'required|boolean',
         ]);
 
         if($request->icon && Storage::disk('public')->exists('/uploads/temp/' . explode('/', $request->icon)[count(explode('/', $request->icon)) - 1])) {
@@ -78,7 +81,7 @@ class CategoryController extends Controller
                 'icon_svg' => $request->icon_svg,
                 'img' => $request->img ? $img : null,
                 'for_search' => $this->for_search($request, ['name', 'desc']),
-                'slug' => $this->to_slug($request, Category::class, 'name', $this->main_lang),
+                'slug' => $this->to_slug($request, Category::class, 'name'),
             ]);
 
             $category->attributes()->sync($request->input('attributes'));
@@ -135,7 +138,7 @@ class CategoryController extends Controller
             'img' => 'nullable|max:255',
             'is_popular' => 'required|boolean',
             'desc' => 'required|array',
-            'slug' => 'required|max:255',
+            // 'slug' => 'required|max:255',
             'is_active' => 'required',
         ]);
 
@@ -233,7 +236,7 @@ class CategoryController extends Controller
         ]);
     }
 
-    private function for_search(Request $request, $fields)
+    public function for_search(Request $request, $fields)
     {
         $result = '';
 

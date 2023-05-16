@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\Attributes;
 
-use App\Models\Attributes\Attribute;
+use App\Models\Attributes\{
+    AttributeOption,
+    Attribute,
+};
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -37,7 +40,7 @@ class AttributeController extends Controller
     {
         $request->validate([
             'name' => 'required|array',
-            'name.ru' => 'required',
+            'name.'.$this->main_lang => 'required',
             'options' => 'nullable|array',
             'options.*.position' => 'required|integer',
             'options.*.name.'.$this->main_lang => 'required',
@@ -100,10 +103,11 @@ class AttributeController extends Controller
     public function update(Request $request, Attribute $attribute)
     {
         $request->validate([
-            // 'group_id' => 'required|integer',
             'name' => 'required|array',
-            'name.ru' => 'required',
+            'name.'.$this->main_lang => 'required',
             'options' => 'nullable|array',
+            'options.*.position' => 'required|integer',
+            'options.*.name.'.$this->main_lang => 'required',
         ]);
 
         DB::beginTransaction();
@@ -116,31 +120,43 @@ class AttributeController extends Controller
                 'keywords' => $request->keywords,
             ]);
 
-            $not_deleted_options = [];
-            $options = $attribute->options;
-            foreach($request->options as $option) {
-                $name = [
-                    'ru' => $option['name']
-                ];
-                if($option['id'] == 0) {
-                    $new_option = $attribute->options()->create([
-                        'name' => $name,
-                        'for_search' => $option['name'],
-                    ]);
-                    $not_deleted_options[] = $new_option->id;
-                } else {
-                    $not_deleted_options[] = $option['id'];
-                    $attribute->options()
-                        ->find($option['id'])
-                        ->update([
-                            'name' => $name,
-                            'for_search' => $option['name'],
-                        ]);
-                }
+            /*
+             *  6cirilmagan optionlarni topish
+             */
+            $request_options = $request->options;
+            $qolganlari_ids = array_filter($request_options, function($i) {
+                if($i['id'] != 0) return true;
+            });
+            $qolganlari_ids = array_values(array_map(function($i) {
+                return $i['id'];
+            }, $qolganlari_ids));
+            /*
+             *  6cirilmagan optionlarni update qiliw
+             */
+            foreach(AttributeOption::whereIn('id', $qolganlari_ids)->get() as $item) {
+                $inner_data = $request->options[array_search($item->id, $qolganlari_ids)];
+                $inner_data['for_search'] = $inner_data['name'][$this->main_lang];
+
+                $item->update($inner_data);
             }
-            $attribute->options()
-                ->whereNotIn('id', $not_deleted_options)
-                ->delete();
+            /*
+             *  liwniylarini 6ciriw
+             */
+            $attribute->options()->whereNotIn('id', $qolganlari_ids)->delete();
+            /*
+             *  yangilarini q6wiw
+             */
+            $yangilari = array_filter($request_options, function($i) {
+                if($i['id'] == 0) return true;
+            });
+            foreach($yangilari as $item) {
+                AttributeOption::create([
+                    'attribute_id' => $attribute->id,
+                    'position' => $item['position'],
+                    'name' => $item['name'],
+                    'for_search' => $item['name'][$this->main_lang],
+                ]);
+            }
 
             DB::commit();
         } catch (\Exception $e) {

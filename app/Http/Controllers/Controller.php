@@ -24,71 +24,24 @@ class Controller extends BaseController
         return true;
     }
 
-    public function to_slug(\Illuminate\Http\Request $request, $model, $field, $lang = 'ru', $update_id = 0, $additional = null)
+    public function to_slug(\Illuminate\Http\Request $request, $model, $field, $lang = 'ru', $update_id = 0)
     {
         if($lang == null) {
-
-            $slug = \Illuminate\Support\Str::slug($request->$field);
-            $counter = 1;
-
-            if($update_id == 0) {
-                if($model::where('slug', \Illuminate\Support\Str::slug($request->$field))->exists()) {
-                    $slug = \Illuminate\Support\Str::slug($request->$field) . '-' . $counter;
-                    while ($model::where('slug', \Illuminate\Support\Str::slug($request->$field) . '-' . $counter)->exists()) {
-                        $counter ++;
-                        $slug = \Illuminate\Support\Str::slug($request->$field) . '-' . $counter;
-                    }
-                }
-            } else {
-                if($request->slug == $model::find($update_id)->slug) return $request->slug;
-
-                if($model::where('slug', $request->slug)->exists()) {
-                    $slug = $request->slug;
-                    if($model::where('slug', $request->slug)->first()->id != $update_id) {
-                        $slug = $request->slug . '-' . $counter;
-                        while ($model::where('slug', $request->slug . '-' . $counter)->exists()) {
-                            if($model::where('slug', $request->slug . '-' . $counter)->first()->id == $update_id) break;
-                            $counter ++;
-                            $slug = $request->slug . '-' . $counter;
-                        }
-                    }
-                } else {
-                    $slug = $request->slug;
-                }
-            }
-
+            $request_field = strlen($request->$field) > 250 ? substr($request->$field, 0, 250) : $request->$field;
+            $slug = \Illuminate\Support\Str::slug($request_field);
         } else {
-            $slug = \Illuminate\Support\Str::slug($request->$field[$lang]);
-            if($additional) $slug .= '-' . $additional;
+            $request_field = strlen($request->$field[$lang]) > 250 ? substr($request->$field[$lang], 0, 250) : $request->$field[$lang];
+            $slug = \Illuminate\Support\Str::slug($request_field);
+        }
 
-            $counter = 1;
-
-
-            if($update_id == 0) {
-                if($model::where('slug', \Illuminate\Support\Str::slug($request->$field[$lang]) . '-' . $additional)->exists()) {
-                    $slug = \Illuminate\Support\Str::slug($request->$field[$lang]) . '-' . $additional . '-' . $counter;
-                    while ($model::where('slug', \Illuminate\Support\Str::slug($request->$field[$lang]) . '-' . $additional . '-' . $counter)->exists()) {
-                        $counter ++;
-                        $slug = \Illuminate\Support\Str::slug($request->$field[$lang]) . '-' . $additional . '-' . $counter;
-                    }
-                }
-            } else {
-                if($request->slug == $model::find($update_id)->slug) return $request->slug;
-                
-                if($model::where('slug', $request->slug)->exists()) {
-                    $slug = $request->slug;
-                    if($model::where('slug', $request->slug)->first()->id != $update_id) {
-                        $slug = $request->slug . '-' . $counter;
-                        while ($model::where('slug', $request->slug . '-' . $counter)->exists()) {
-                            if($model::where('slug', $request->slug . '-' . $counter)->first()->id == $update_id) break;
-                            $counter ++;
-                            $slug = $request->slug . '-' . $counter;
-                        }
-                    }
-                } else {
-                    $slug = $request->slug;
-                }
+        if($update_id == 0) {
+            if($model::where('slug', \Illuminate\Support\Str::slug($request_field))->exists()) {
+                $slug = \Illuminate\Support\Str::slug($request_field) . '-' . $model::latest()->first()->id + 1;
             }
+        } else {
+            if($slug == $model::find($update_id)->slug || $slug.'-'.$update_id == $model::find($update_id)->slug) return $model::find($update_id)->slug;
+            
+            $slug = $model::where('slug', $slug)->exists() ? $slug.'-'.$update_id : $slug;
         }
 
         return $slug;

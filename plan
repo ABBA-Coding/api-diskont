@@ -1,15 +1,15 @@
 ADMIN
 	categories
-		- get?serach
-		- store
-		- update
+		- get?serach✅
+		- store✅
+		- update✅
 		- destroy
 
 
 	attributes
 		- get✅
 		- store✅
-		- update
+		- update✅
 		- destroy✅
 
 
