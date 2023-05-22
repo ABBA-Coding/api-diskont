@@ -44,7 +44,7 @@ class CategoryController extends Controller
             'name' => 'required|array',
             'name.'.$this->main_lang => 'required|max:255',
             'parent_id' => 'nullable|integer',
-            'attributes' => 'nullable|array',
+            // 'attributes' => 'nullable|array',
             'group_characteristics' => 'nullable|array',
             'icon' => 'nullable|max:255',
             'icon_svg' => 'nullable',
@@ -84,7 +84,7 @@ class CategoryController extends Controller
                 'slug' => $this->to_slug($request, Category::class, 'name'),
             ]);
 
-            $category->attributes()->sync($request->input('attributes'));
+            if(isset($request->input('attributes'))) $category->attributes()->sync($request->input('attributes')); // buni qarab qo'yish kerak
             $category->characteristic_groups()->sync($request->group_characteristics);
 
             DB::commit();
