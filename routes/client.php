@@ -1,8 +1,9 @@
 <?php
 
-use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\web\{
+    Auth\AuthController,
+    ProfileController,
     CategoryController,
     ProductController,
     BrandController,
@@ -21,11 +22,15 @@ use App\Http\Controllers\web\{
 
 
 Route::prefix('auth')->group(function () {
-    Route::post('check', [LoginController::class, 'checkUser']);
-    Route::post('login', [LoginController::class, 'login']);
-    Route::post('register', [LoginController::class, 'register']);
-    Route::get('test/{phone_number}', function ($phone_number) {
-        return response(\Illuminate\Support\Facades\Cache::get($phone_number));
+    Route::post('check', [AuthController::class, 'checkUser']);
+    Route::post('login', [AuthController::class, 'login']);
+    Route::post('register', [AuthController::class, 'register']);
+});
+
+Route::middleware(['auth:sanctum'])->group(function() {
+    Route::prefix('profile')->group(function () {
+        Route::put('update', [ProfileController::class, 'update']);
+        Route::get('orders', [ProfileController::class, 'orders']);
     });
 });
 
@@ -33,7 +38,6 @@ Route::prefix('categories')->group(function() {
     Route::get('/', [CategoryController::class, 'index']);
     Route::get('/{slug}', [CategoryController::class, 'show']);
 });
-// Route::get('categories', [CategoryController::class, 'index']);
 
 Route::prefix('products')->group(function() {
     Route::get('/', [ProductController::class, 'index']);

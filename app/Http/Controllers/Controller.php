@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\SmsHistory;
+use App\Models\{
+    Products\Product,
+    SmsHistory
+};
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -24,7 +27,7 @@ class Controller extends BaseController
         return true;
     }
 
-    public function to_slug(\Illuminate\Http\Request $request, $model, $field, $lang = 'ru', $update_id = 0)
+    public function to_slug(\Illuminate\Http\Request $request, $model, $field, $lang = 'ru', $update_id = 0): string
     {
         if($lang == null) {
             $request_field = strlen($request->$field) > 250 ? substr($request->$field, 0, 250) : $request->$field;
@@ -47,46 +50,22 @@ class Controller extends BaseController
         return $slug;
     }
 
-    public function product_slug_create($info, $additional, $update_id = 0)
+    public function product_slug_create($info, $additional, $update_id = 0): string
     {
-        $slug = \Illuminate\Support\Str::slug($info->name[$this->main_lang]);
-        if($additional) $slug .= '-' . $additional;
+        $request_field = $info->name[$this->main_lang];
+        if($additional) $request_field .= '-' . $additional;
 
-        $counter = 1;
-
+        $request_field = strlen($request_field) > 250 ? substr($request_field, 0, 250) : $request_field;
+        $slug = \Illuminate\Support\Str::slug($request_field);
 
         if($update_id == 0) {
-            if(\App\Models\Products\Product::where('slug', $slug)->exists()) {
-                $slug = \Illuminate\Support\Str::slug($info->name[$this->main_lang]) . '-' . $counter;
-                while (\App\Models\Products\Product::where('slug', \Illuminate\Support\Str::slug($info->name[$this->main_lang]) . '-' . $counter)->exists()) {
-                    $counter ++;
-                    $slug = \Illuminate\Support\Str::slug($info->name[$this->main_lang]) . '-' . $counter;
-                }
+            if(Product::where('slug', \Illuminate\Support\Str::slug($request_field))->exists()) {
+                $slug = \Illuminate\Support\Str::slug($request_field) . '-' . Product::latest()->first()->id + 1;
             }
-            // if(\App\Models\Products\Product::where('slug', \Illuminate\Support\Str::slug($info->name[$this->main_lang]) . '-' . $additional)->exists()) {
-            //     $slug = \Illuminate\Support\Str::slug($info->name[$this->main_lang]) . '-' . $additional . '-' . $counter;
-            //     while (\App\Models\Products\Product::where('slug', \Illuminate\Support\Str::slug($info->name[$this->main_lang]) . '-' . $additional . '-' . $counter)->exists()) {
-            //         $counter ++;
-            //         $slug = \Illuminate\Support\Str::slug($info->name[$this->main_lang]) . '-' . $additional . '-' . $counter;
-            //     }
-            // }
         } else {
-            $req_slug = \Illuminate\Support\Str::slug($info->name[$this->main_lang]) . '-' . $additional;
-            if($req_slug == \App\Models\Products\Product::find($update_id)->slug) return $req_slug;
+            if($slug == Product::find($update_id)->slug || $slug.'-'.$update_id == Product::find($update_id)->slug) return Product::find($update_id)->slug;
             
-            if(\App\Models\Products\Product::where('slug', $req_slug)->exists()) {
-                $slug = $req_slug;
-                if(\App\Models\Products\Product::where('slug', $req_slug)->first()->id != $update_id) {
-                    $slug = $req_slug . '-' . $counter;
-                    while (\App\Models\Products\Product::where('slug', $req_slug . '-' . $counter)->exists()) {
-                        if(\App\Models\Products\Product::where('slug', $req_slug . '-' . $counter)->first()->id == $update_id) break;
-                        $counter ++;
-                        $slug = $req_slug . '-' . $counter;
-                    }
-                }
-            } else {
-                $slug = $req_slug;
-            }
+            $slug = Product::where('slug', $slug)->exists() ? $slug.'-'.$update_id : $slug;
         }
 
         return $slug;

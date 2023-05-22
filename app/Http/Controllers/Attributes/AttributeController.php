@@ -42,7 +42,7 @@ class AttributeController extends Controller
             'name' => 'required|array',
             'name.'.$this->main_lang => 'required',
             'options' => 'nullable|array',
-            'options.*.position' => 'required|integer',
+            // 'options.*.position' => 'required|integer',
             'options.*.name.'.$this->main_lang => 'required',
         ]);
 
@@ -59,7 +59,7 @@ class AttributeController extends Controller
                 $attribute->options()->create([
                     'name' => $option['name'],
                     'for_search' => $option['name'][$this->main_lang],
-                    'position' => $option['position'],
+                    'position' => isset($option['position']) ? $option['position'] : 1000, // buni required qilib qo'yish kerak
                 ]);        
             }
 

@@ -22,6 +22,11 @@ class User extends Authenticatable
         'email',
         'login',
         'password',
+        'region_id',
+        'district_id',
+        'address',
+        'postcode',
+        'password_updated'
     ];
 
     /**
@@ -51,5 +56,15 @@ class User extends Authenticatable
     public function comments()
     {
         return $this->hasMany(Comment::class);
+    }
+
+    public function region()
+    {
+        return $this->belongsTo(Region::class);
+    }
+
+    public function district()
+    {
+        return $this->belongsTo(District::class);
     }
 }

@@ -21,9 +21,9 @@ ADMIN
 
 
 	products
-		- get
-		- store
-		- update
+		- get✅
+		- store✅
+		- update✅
 		- destroy
 
 
@@ -31,3 +31,13 @@ ADMIN
 		- get
 		- store
 		- destroy
+
+CLIENT
+	auth
+		- register✅
+		- login✅
+		- order
+		- profile✅
+		- forget password
+		
+

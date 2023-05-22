@@ -95,11 +95,13 @@ class ProductController extends Controller
                 }
 
                 foreach($product['variations'] as $variation) {
+                    /*
+                     * sozdanie dopolnilnoy chasti sluga
+                     */
                     $additional_for_slug = [];
-                    foreach($variation['options'] as $option) {
-                        if(AttributeOption::find($option)) {
-                            $additional_for_slug[] = Str::slug(AttributeOption::find($option)->name[$this->main_lang], '-');
-                        }
+                    $variation_attribute_options = AttributeOption::whereIn('id', $variation['options'])->get()->sortBy('id');
+                    foreach($variation_attribute_options as $option) {
+                        $additional_for_slug[] = Str::slug($option->name[$this->main_lang], '-');
                     }
                     $additional_for_slug = implode('-', $additional_for_slug);
                     $item = Product::create([
@@ -206,78 +208,84 @@ class ProductController extends Controller
     public function update(Request $request, ProductInfo $product)
     {
         $request->validate([
-            'name' => "required|array",
-            'name.' . $this->main_lang => "required",
-            'model' => "nullable|max:255",
-            'is_active' => 'required',
+            'name' => 'required|array',
+            'name.' . $this->main_lang => 'required',
+            'model' => 'nullable|max:255',
+            'is_active' => 'required|integer',
             'desc' => 'required|array',
             'brand_id' => 'nullable|integer',
             'category_id' => 'required|integer',
             'products' => 'required|array',
-            'products.images' => 'nullable|array',
+            'products.*.images' => 'nullable|array',
             'products.*.variations' => 'required|array',
-            'products.*.variations.*.status' => 'required|in:active,inactive',
             'products.*.variations.*' => 'required|array',
             'products.*.variations.*.options' => 'required|array',
             'products.*.variations.*.options.*' => 'required|integer',
+            'products.*.variations.*.characteristics' => 'required|array',
+            'products.*.variations.*.characteristics.*' => 'required|integer',
             'products.*.variations.*.price' => 'required|numeric',
             'products.*.variations.*.is_default' => 'required|boolean',
             'products.*.variations.*.is_popular' => 'nullable|boolean',
             'products.*.variations.*.product_of_the_day' => 'nullable|boolean',
         ]);
+        $data = $request->all();
 
         DB::beginTransaction();
         try {
+            /*
+             * product info save
+             */
+            $default_product_id = null;
             $product->update([
-                'name' => $request->name,
-                'for_search' => $request->name[$this->main_lang],
-                'desc' => $request->desc,
-                'brand_id' => $request->brand_id ?? null,
-                'category_id' => $request->category_id,
+                'name' => $data['name'],
+                'desc' => $data['desc'],
+                'for_search' => isset($data['name']['ru'])
+                                ? (
+                                    $data['name']['ru'] . (
+                                                            isset($data['desc']['ru'])
+                                                            ? ' ' . $data['desc']['ru'] 
+                                                            : ''
+                                                        )
+                                )
+                                : null,
+                'brand_id' => $data['brand_id'],
+                'category_id' => $data['category_id'],
+                'is_active' => $data['is_active']
             ]);
 
-            $default_product_id = $product->default_product_id;
 
-            $this->delete_product_variations($product, $request);
-
-            foreach($request->products as $req_product) {
-                $old_images = array_filter($req_product['images'], function($v) {
-                    return $v['id'] != 0;
-                });
-                $old_images_ids = [];
-                foreach($old_images as $old_img) {
-                    $old_images_ids[] = $old_img['id'];
-                }
-                $new_images = array_filter($req_product['images'], function($v) {
-                    return $v['id'] == 0;
-                });
-                $new_images_pathes = [];
-                foreach($new_images as $new_img) {
-                    $new_images_pathes[] = $new_img['img'];
-                }
-
-                $images_ids = $old_images_ids;
-                if(!empty($new_images_pathes)) {
-                    foreach($new_images_pathes as $image) {
+            /*
+             * products save
+             */
+            $not_saved_products_id = []; // massiv nesushestvuyushix variaciy
+            foreach($data['products'] as $variations) {
+                /*
+                 * product images save
+                 */
+                if(!empty($variations['images'])) {
+                    $images_ids = [];
+                    foreach($variations['images'] as $image) {
                         if(Storage::disk('public')->exists('/uploads/temp/' . explode('/', $image)[count(explode('/', $image)) - 1])) {
-                            $explode_icon = explode('/', $image);
-                            Storage::disk('public')->move('/uploads/temp/' . $explode_icon[count($explode_icon) - 1], '/uploads/products/' . $explode_icon[count($explode_icon) - 1]);
-                            Storage::disk('public')->move('/uploads/temp/200/' . $explode_icon[count($explode_icon) - 1], '/uploads/products/200/' . $explode_icon[count($explode_icon) - 1]);
-                            Storage::disk('public')->move('/uploads/temp/600/' . $explode_icon[count($explode_icon) - 1], '/uploads/products/600/' . $explode_icon[count($explode_icon) - 1]);
-                            $icon = $explode_icon[count($explode_icon) - 1];
+                            $img = explode('/', $image);
+                            Storage::disk('public')->move('/uploads/temp/' . $img[count($img) - 1], '/uploads/products/' . $img[count($img) - 1]);
+                            Storage::disk('public')->move('/uploads/temp/200/' . $img[count($img) - 1], '/uploads/products/200/' . $img[count($img) - 1]);
+                            Storage::disk('public')->move('/uploads/temp/600/' . $img[count($img) - 1], '/uploads/products/600/' . $img[count($img) - 1]);
 
                             $img = ProductImage::create([
-                                'img' => $explode_icon[count($explode_icon) - 1]
+                                'img' => $img[count($img) - 1]
                             ]);
                             $images_ids[] = $img->id;
                         }
                     }
-                } else {
-                    $var = Product::find($req_product['variations'][0]['id']);
-                    if($var) $var->images()->delete();
                 }
 
-                foreach($req_product['variations'] as $variation) {
+                /*
+                 * variations save
+                 */
+                foreach($variations['variations'] as $variation) {
+                    /*
+                     * sozdanie dopolnilnoy chasti sluga
+                     */
                     $additional_for_slug = [];
                     foreach($variation['options'] as $option) {
                         if(AttributeOption::find($option)) {
@@ -286,37 +294,43 @@ class ProductController extends Controller
                     }
                     $additional_for_slug = implode('-', $additional_for_slug);
 
-                    if($variation['id'] == 0) {
-                        $item = Product::create([
+                    if($variation['id'] != 0) {
+                        $variation_model = Product::find($variation['id']);
+                        if(!$variation_model) $not_saved_products_id[] = $variation['id'];
+
+                        $variation_model->update([
                             'info_id' => $product->id,
-                            'model' => $request->model ?? null,
                             'price' => $variation['price'],
+                            'is_popular' => $variation['is_popular'],
+                            'product_of_the_day' => $variation['product_of_the_day'],
                             'status' => $variation['status'],
-                            'is_popular' => $variation['is_popular'],
-                            'product_of_the_day' => $variation['product_of_the_day'],
-                            'slug' => $this->product_slug_create($product, $additional_for_slug),
-                        ]);
+                            'slug' => $this->product_slug_create($product, $additional_for_slug, 1)
+                        ]); // model, c_id, is_available ne izpolzuyetsya
                     } else {
-                        $item = Product::find($variation['id']);
-                        $item->update([
-                            'model' => $request->model ?? null,
+                        $variation_model = Product::create([
+                            'info_id' => $product->id,
+                            'c_id' => null,
+                            'model' => $data['model'],
                             'price' => $variation['price'],
-                            'status' => $request->status,
                             'is_popular' => $variation['is_popular'],
                             'product_of_the_day' => $variation['product_of_the_day'],
-                            'slug' => $this->product_slug_create($product, $additional_for_slug, $item->id),
-                        ]);
+                            'status' => $variation['status'],
+                            'slug' => $this->product_slug_create($product, $additional_for_slug, 1)
+                        ]); // is_available ne izpolzuyetsya
                     }
+                    $variation_model->attribute_options()->sync($variation['options']);
+                    $variation_model->characteristic_options()->sync($variation['characteristics']);
+                    if(!empty($variations['images'])) $variation_model->images()->sync($images_ids);
 
-                    if($variation['is_default']) $default_product_id = $item->id;
-
-                    $item->attribute_options()->sync($variation['options']);
-                    $item->characteristic_options()->sync($variation['characteristics']);
-                    
-                    if(!empty($images_ids)) $item->images()->sync($images_ids);
+                    if($variation['is_default']) $default_product_id = $variation_model->id;
                 }
             }
 
+            if(!$default_product_id) {
+                return response([
+                    'message' => 'Ne vibran produkt po umolchaniyu'
+                ]);
+            } 
             $product->update([
                 'default_product_id' => $default_product_id
             ]);
@@ -330,7 +344,11 @@ class ProductController extends Controller
             ], 500);
         }
 
-        return response($product);
+        return response([
+            'product' => $product,
+            'message' => 'Success',
+            'not_found_products' => $not_saved_products_id,
+        ]);
     }
 
     /**
