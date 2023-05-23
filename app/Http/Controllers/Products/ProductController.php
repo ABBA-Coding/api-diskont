@@ -107,7 +107,7 @@ class ProductController extends Controller
                     $item = Product::create([
                         'info_id' => $product_info->id,
                         'model' => $request->model ?? null,
-                        'price' => $variation['price'],
+                        'price' => intval($variation['price']),
                         'status' => $variation['status'],
                         'is_popular' => $variation['is_popular'],
                         'product_of_the_day' => $variation['product_of_the_day'],
@@ -307,7 +307,7 @@ class ProductController extends Controller
                         if(!$variation_model) $not_saved_products_id[] = $variation['id'];
                         $variation_model->update([
                             'info_id' => $product->id,
-                            'price' => $variation['price'],
+                            'price' => intval($variation['price']),
                             'is_popular' => $variation['is_popular'],
                             'product_of_the_day' => $variation['product_of_the_day'],
                             'status' => $variation['status'],
@@ -318,7 +318,7 @@ class ProductController extends Controller
                             'info_id' => $product->id,
                             'c_id' => null,
                             'model' => $data['model'],
-                            'price' => $variation['price'],
+                            'price' => intval($variation['price']),
                             'is_popular' => $variation['is_popular'],
                             'product_of_the_day' => $variation['product_of_the_day'],
                             'status' => $variation['status'],
