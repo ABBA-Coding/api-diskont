@@ -84,7 +84,7 @@ class CategoryController extends Controller
                 'slug' => $this->to_slug($request, Category::class, 'name'),
             ]);
 
-            if(isset($request->input('attributes'))) $category->attributes()->sync($request->input('attributes')); // buni qarab qo'yish kerak
+            if($request->input('attributes') != null) $category->attributes()->sync($request->input('attributes')); // buni qarab qo'yish kerak
             $category->characteristic_groups()->sync($request->group_characteristics);
 
             DB::commit();
