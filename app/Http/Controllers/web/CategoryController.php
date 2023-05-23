@@ -107,7 +107,7 @@ class CategoryController extends Controller
         ]);
     }
 
-    private function getAllChildren($category, &$children)
+    public function getAllChildren($category, &$children)
     {
         $children[] = $category;
         if(empty($category->children)) return $category;
