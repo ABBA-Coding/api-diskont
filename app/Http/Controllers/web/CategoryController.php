@@ -56,6 +56,7 @@ class CategoryController extends Controller
             $product_infos = $product_infos->whereHas('products', function($q) use ($request) {
                 $q->whereBetween('price', [$request->min_price, $request->max_price]);
             });
+        }
 
         /*
          * sortirovka produktov
@@ -107,7 +108,7 @@ class CategoryController extends Controller
         ]);
     }
 
-    public function getAllChildren($category, &$children)
+    private function getAllChildren($category, &$children)
     {
         $children[] = $category;
         if(empty($category->children)) return $category;
