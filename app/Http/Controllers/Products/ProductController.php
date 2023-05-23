@@ -265,8 +265,8 @@ class ProductController extends Controller
                 if(!empty($variations['images'])) {
                     $images_ids = [];
                     foreach($variations['images'] as $image) {
-                        if(Storage::disk('public')->exists('/uploads/temp/' . explode('/', $image)[count(explode('/', $image)) - 1])) {
-                            $img = explode('/', $image);
+                        if($image['id'] == 0 && Storage::disk('public')->exists('/uploads/temp/' . explode('/', $image['img'])[count(explode('/', $image['img'])) - 1])) {
+                            $img = explode('/', $image['img']);
                             Storage::disk('public')->move('/uploads/temp/' . $img[count($img) - 1], '/uploads/products/' . $img[count($img) - 1]);
                             Storage::disk('public')->move('/uploads/temp/200/' . $img[count($img) - 1], '/uploads/products/200/' . $img[count($img) - 1]);
                             Storage::disk('public')->move('/uploads/temp/600/' . $img[count($img) - 1], '/uploads/products/600/' . $img[count($img) - 1]);
@@ -277,6 +277,14 @@ class ProductController extends Controller
                             $images_ids[] = $img->id;
                         }
                     }
+                    $qolgan_rasmlar = array_filter($variations['images'], function ($i) {
+                        return $i['id'] != 0;
+                    });
+                    $qolgan_rasmlar = array_map(function($i) {
+                        return $i['id'];
+                    }, $qolgan_rasmlar);
+                } else {
+                    $images_ids = [];
                 }
 
                 /*
@@ -297,14 +305,13 @@ class ProductController extends Controller
                     if($variation['id'] != 0) {
                         $variation_model = Product::find($variation['id']);
                         if(!$variation_model) $not_saved_products_id[] = $variation['id'];
-
                         $variation_model->update([
                             'info_id' => $product->id,
                             'price' => $variation['price'],
                             'is_popular' => $variation['is_popular'],
                             'product_of_the_day' => $variation['product_of_the_day'],
                             'status' => $variation['status'],
-                            'slug' => $this->product_slug_create($product, $additional_for_slug, 1)
+                            'slug' => $this->product_slug_create($product, $additional_for_slug, $variation_model->id)
                         ]); // model, c_id, is_available ne izpolzuyetsya
                     } else {
                         $variation_model = Product::create([
@@ -315,12 +322,24 @@ class ProductController extends Controller
                             'is_popular' => $variation['is_popular'],
                             'product_of_the_day' => $variation['product_of_the_day'],
                             'status' => $variation['status'],
-                            'slug' => $this->product_slug_create($product, $additional_for_slug, 1)
+                            'slug' => $this->product_slug_create($product, $additional_for_slug, 0)
                         ]); // is_available ne izpolzuyetsya
                     }
                     $variation_model->attribute_options()->sync($variation['options']);
                     $variation_model->characteristic_options()->sync($variation['characteristics']);
-                    if(!empty($variations['images'])) $variation_model->images()->sync($images_ids);
+
+                    /*
+                     * sync images
+                     */
+                    $old_images = $variation_model->images; 
+                    $old_images_ids = $old_images->pluck('id')->toArray();
+                    $delete_images_ids = array_diff($old_images_ids, $qolgan_rasmlar);
+                    $delete_images_ids = array_values($delete_images_ids);
+
+                    foreach($delete_images_ids as $image) {
+                        $variation_model->images()->detach($image);
+                    }
+                    $variation_model->images()->sync($images_ids);
 
                     if($variation['is_default']) $default_product_id = $variation_model->id;
                 }

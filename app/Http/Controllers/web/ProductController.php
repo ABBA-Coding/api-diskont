@@ -67,7 +67,24 @@ class ProductController extends Controller
             // ->with('info.category.attributes', 'info.category.attributes.options')
             // ->with('attribute_options')
             ->first();
-        // return response($product);
+            
+        // $characteristic_groups = [];
+        // foreach($product->characteristic_options as $option) {
+        //     $characteristic_groups[] = $option->characteristic->group;
+        // }
+        // $characteristic_groups = array_unique($characteristic_groups);
+        // $counter = 0;
+        // foreach($characteristic_groups as $group) {
+        //     foreach($product->characteristic_options as $option) {
+        //         if($option->characteristic->group_id == $group->id) {
+        //             $group['characteristics'][$counter] = $option->characteristic;
+
+        //             $counter ++;
+        //         }
+        //     }
+        // }
+        // unset($counter);
+        // return response($characteristic_groups);
 
         /*
             produktning optionlar idlari
@@ -233,9 +250,6 @@ class ProductController extends Controller
             }
         }
         unset($counter);
-        // return response($res);
-
-
 
 
         return response([
