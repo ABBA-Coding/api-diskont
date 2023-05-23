@@ -52,16 +52,16 @@ class CategoryController extends Controller
         /*
          * filtr produktov po max i min price
          */
-        if(isset($request->min_price) && $request->min_price != '') {
+        if(isset($request->min_price) && $request->min_price != '' && isset($request->max_price) && $request->max_price != '') {
             $product_infos = $product_infos->whereHas('products', function($q) use ($request) {
-                $q->where('price', '>', $request->min_price);
+                $q->whereBetween('price', [$request->min_price, $request->max_price]);
             });
         }
-        if(isset($request->max_price) && $request->max_price != '') {
-            $product_infos = $product_infos->whereHas('products', function($q) use ($request) {
-                $q->where('price', '<', $request->max_price);
-            });
-        }
+        // if(isset($request->max_price) && $request->max_price != '') {
+        //     $product_infos = $product_infos->whereHas('products', function($q) use ($request) {
+        //         $q->where('price', '<', $request->max_price);
+        //     });
+        // }
 
         /*
          * sortirovka produktov
