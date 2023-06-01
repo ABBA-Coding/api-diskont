@@ -15,6 +15,7 @@ class CreateOrdersTable extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('client_id')->constrained('users', 'id');
             $table->enum('delivery_method', ['pickup', 'courier']);
             $table->text('name'); 
             $table->string('phone_number');
@@ -24,7 +25,7 @@ class CreateOrdersTable extends Migration
             $table->string('postcode')->nullable();
             $table->string('email')->nullable();
             $table->text('comments')->nullable();
-            $table->enum('payment_method', ['cash', 'card', 'payme', 'apelsin', 'click ']);
+            $table->enum('payment_method', ['cash', 'payme', 'uzum', 'click', 'payze']);
             /*
              * [{"product_id" => 1, "count" => 2, "price" => 150000}, ...]
              */

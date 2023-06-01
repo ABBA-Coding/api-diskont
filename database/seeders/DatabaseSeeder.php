@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             CommentSeeder::class,
             // CharacteristicSeeder::class,
             // AttributeSeeder::class,
+            UserSeeder::class,
         ]);
     }
 }

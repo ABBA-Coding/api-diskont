@@ -67,4 +67,9 @@ class User extends Authenticatable
     {
         return $this->belongsTo(District::class);
     }
+
+    public function orders()
+    {
+        return $this->belongsToMany(Orders\Order::class);
+    }
 }

@@ -17,7 +17,7 @@ class UserSeeder extends Seeder
     {
         User::create([
             'login' => '998913722502',
-            'password' => Hash::make(123)
+            'password' => Hash::make(123123)
         ]);
     }
 }

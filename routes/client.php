@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\web\{
+    OrderController,
     Auth\AuthController,
     ProfileController,
     CategoryController,
@@ -32,6 +33,8 @@ Route::middleware(['auth:sanctum'])->group(function() {
         Route::put('update', [ProfileController::class, 'update']);
         Route::get('orders', [ProfileController::class, 'orders']);
     });
+
+    Route::post('order', [OrderController::class, 'store']);
 });
 
 Route::prefix('categories')->group(function() {
