@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\web\{
+    RegionController,
     OrderController,
     Auth\AuthController,
     ProfileController,
@@ -31,7 +32,7 @@ Route::prefix('auth')->group(function () {
 Route::middleware(['auth:sanctum'])->group(function() {
     Route::prefix('profile')->group(function () {
         Route::put('update', [ProfileController::class, 'update']);
-        Route::get('orders', [ProfileController::class, 'orders']);
+        Route::get('me', [ProfileController::class, 'me']);
     });
 
     Route::post('order', [OrderController::class, 'store']);
@@ -56,5 +57,6 @@ Route::prefix('posts')->group(function() {
     Route::get('/{slug}', [PostController::class, 'show']);
 });
 Route::get('feedbacks', [FeedbackController::class, 'index']);
+Route::get('regions', [RegionController::class, 'index']);
 Route::get('search', [SearchController::class, 'search']);
 Route::post('get_products', [OrderController::class, 'get_products']);

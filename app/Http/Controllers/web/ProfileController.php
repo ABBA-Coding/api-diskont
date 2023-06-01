@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\web;
 
+use App\Models\Products\Product;
 use App\Http\Controllers\Controller;
 use Hash;
 use Illuminate\Http\Request;
@@ -38,8 +39,30 @@ class ProfileController extends Controller
         ]);
     }
 
-    public function orders()
+    public function me()
     {
+        $user = auth()->user()->with('orders')
+            ->first();
 
+        foreach($user->orders as $order) {
+            /*
+             * privyazka produkta k zakazu
+             */
+            $products = $order->products;
+
+            foreach($products as $key => $product) {
+                $new_arr = $product;
+
+                $new_arr['product'] = Product::find($product['product_id']);
+
+                $products[$key] = $new_arr;
+            }
+
+            $order->products = $products;
+        }
+
+        return response([
+            'user' => $user
+        ]);
     }
 }

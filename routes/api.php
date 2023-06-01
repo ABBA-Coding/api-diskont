@@ -21,6 +21,8 @@ use App\Http\Controllers\{
     PostController,
     CommentController,
     BannerController,
+    Settings\RegionController,
+    Settings\DistrictController,
 };
 use App\Http\Controllers\Faqs\{
     FaqCategoryController,
@@ -84,4 +86,7 @@ Route::prefix('admin')->group(function() {
     Route::apiResource('banners', BannerController::class);
 
     Route::apiResource('feedbacks', FeedbackController::class);
+
+    Route::apiResource('regions', RegionController::class);
+    Route::apiResource('districts', DistrictController::class);
 });
