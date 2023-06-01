@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\web;
 
-use App\Models\Orders\Order;
+use App\Models\{
+    Products\Product,
+    Orders\Order
+};
 use DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -71,7 +74,7 @@ class OrderController extends Controller
         ]);
 
         $products = Product::whereIn('id', $request->products)
-            ->with('')
+            ->with('info', 'images')
             ->get();
 
         return response([

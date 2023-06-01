@@ -57,3 +57,4 @@ Route::prefix('posts')->group(function() {
 });
 Route::get('feedbacks', [FeedbackController::class, 'index']);
 Route::get('search', [SearchController::class, 'search']);
+Route::post('get_products', [OrderController::class, 'get_products']);
