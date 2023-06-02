@@ -149,7 +149,7 @@ class ProductController extends Controller
     public function show(ProductInfo $product)
     {
         $product = ProductInfo::where('id', $product->id)
-            ->select('id', 'name', 'desc', 'brand_id', 'category_id', 'status')
+            ->select('id', 'name', 'desc', 'brand_id', 'category_id', 'is_active')
             ->with('brand', 'category', 'category.parent')
             ->first();
 
