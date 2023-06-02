@@ -149,7 +149,6 @@ class ProductController extends Controller
     public function show(ProductInfo $product)
     {
         $product = ProductInfo::where('id', $product->id)
-            ->select('id', 'name', 'desc', 'brand_id', 'category_id', 'is_active')
             ->with('brand', 'category', 'category.parent')
             ->first();
 
@@ -409,7 +408,7 @@ class ProductController extends Controller
         ]);
     }
 
-    private function delete_product_variations(ProductInfo $info, Request $request)
+    private function delete_product_variations(ProductInfo $info, Request $request): void
     {
         /*
             udalim variacii pri obnovlenii informacii produkta
