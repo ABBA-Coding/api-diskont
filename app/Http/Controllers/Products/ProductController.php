@@ -143,13 +143,13 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Product  $product
+     * @param  \App\Models\Product  $product 
      * @return \Illuminate\Http\Response
      */
     public function show(ProductInfo $product)
     {
         $product = ProductInfo::where('id', $product->id)
-            ->select('id', 'name', 'desc', 'brand_id', 'category_id')
+            ->select('id', 'name', 'desc', 'brand_id', 'category_id', 'is_active')
             ->with('brand', 'category', 'category.parent')
             ->first();
 
