@@ -106,12 +106,12 @@ class AuthController extends Controller
         ]);
     }
 
-    public function generate_code(): integer
+    public function generate_code()
     {
         return rand(100001, 999998);
     }
 
-    public function generateRandomString($length = 10): string
+    public function generateRandomString($length = 10)
     {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $charactersLength = strlen($characters);

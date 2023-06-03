@@ -149,6 +149,7 @@ class ProductController extends Controller
     public function show(ProductInfo $product)
     {
         $product = ProductInfo::where('id', $product->id)
+            ->select('id', 'name', 'desc', 'brand_id', 'category_id', 'is_active')
             ->with('brand', 'category', 'category.parent')
             ->first();
 
@@ -261,8 +262,16 @@ class ProductController extends Controller
                 /*
                  * product images save
                  */
+                $deleted_all_imgs = false;
                 if(!empty($variations['images'])) {
-                    $images_ids = [];
+                    $qolgan_rasmlar = array_values(array_filter($variations['images'], function($i) {
+                        return $i['id'] != 0;
+                    }));
+                    $yangi_rasmlar = array_values(array_filter($variations['images'], function($i) {
+                        return $i['id'] == 0;
+                    }));
+
+                    $new_images_ids = [];
                     foreach($variations['images'] as $image) {
                         if($image['id'] == 0 && Storage::disk('public')->exists('/uploads/temp/' . explode('/', $image['img'])[count(explode('/', $image['img'])) - 1])) {
                             $img = explode('/', $image['img']);
@@ -273,17 +282,31 @@ class ProductController extends Controller
                             $img = ProductImage::create([
                                 'img' => $img[count($img) - 1]
                             ]);
-                            $images_ids[] = $img->id;
+                            $new_images_ids[] = $img->id;
                         }
                     }
-                    $qolgan_rasmlar = array_filter($variations['images'], function ($i) {
-                        return $i['id'] != 0;
-                    });
-                    $qolgan_rasmlar = array_map(function($i) {
-                        return $i['id'];
-                    }, $qolgan_rasmlar);
                 } else {
-                    $images_ids = [];
+                    $deleted_all_imgs = true;
+                    $new_images_ids = [];
+                }
+
+                $yangi_variaciyalar = array_values(array_filter($variations['variations'], function($i) {
+                    return $i['id'] == 0;
+                }));
+                $qolgan_variaciyalar = array_values(array_filter($variations['variations'], function($i) {
+                    return $i['id'] != 0;
+                }));
+                $qolgan_variaciyalar_ids = array_map(function($i) {
+                    return $i['id'];
+                }, $qolgan_variaciyalar);
+
+                /*
+                 * o'chirilgan variaciyalarni o'chirish
+                 */
+                $kerakmas_variaciyalar = $product->products()->whereNotIn('id', $qolgan_variaciyalar_ids)->get();
+                foreach($kerakmas_variaciyalar as $variation) {
+                    $variation->images()->delete(); // bu yerda rasmning filelarini ham o'chirihs kerak
+                    $variation->delete();
                 }
 
                 /*
@@ -305,7 +328,7 @@ class ProductController extends Controller
                         $variation_model = Product::find($variation['id']);
                         if(!$variation_model) $not_saved_products_id[] = $variation['id'];
                         $variation_model->update([
-                            'info_id' => $product->id,
+                            // 'info_id' => $product->id,
                             'price' => intval($variation['price']),
                             'is_popular' => $variation['is_popular'],
                             'product_of_the_day' => $variation['product_of_the_day'],
@@ -330,15 +353,32 @@ class ProductController extends Controller
                     /*
                      * sync images
                      */
-                    $old_images = $variation_model->images; 
-                    $old_images_ids = $old_images->pluck('id')->toArray();
-                    $delete_images_ids = array_diff($old_images_ids, $qolgan_rasmlar);
-                    $delete_images_ids = array_values($delete_images_ids);
-
-                    foreach($delete_images_ids as $image) {
-                        $variation_model->images()->detach($image);
+                    $qolgan_rasmlar_ids = array_map(function($i) {
+                        return $i['id'];
+                    }, $qolgan_rasmlar);
+                    /*
+                     * kerakmas rasmlarni o'chiramiz
+                     */
+                    $variation_model->images()->whereNotIn('product_images.id', $qolgan_rasmlar_ids)->delete();
+                    /*
+                     * yangi rasmlarni save qilamiz
+                     */
+                    foreach($new_images_ids as $new_images_id) {
+                        $variation_model->images()->attach($new_images_id);
                     }
-                    $variation_model->images()->sync($images_ids);
+
+                    /*
+                     * detach bo'ldima? tekshirib keyin o'chirib tashiman
+                     */
+                    // $old_images_ids = $old_images->pluck('id')->toArray();
+                    // $delete_images_ids = array_diff($old_images_ids, $qolgan_rasmlar);
+                    // $delete_images_ids = array_values($delete_images_ids);
+
+                    // foreach($delete_images_ids as $image) {
+                    //     $variation_model->images()->detach($image);
+                    // }
+
+                    // $variation_model->images()->sync($images_ids);
 
                     if($variation['is_default']) $default_product_id = $variation_model->id;
                 }
@@ -408,7 +448,7 @@ class ProductController extends Controller
         ]);
     }
 
-    private function delete_product_variations(ProductInfo $info, Request $request): void
+    private function delete_product_variations(ProductInfo $info, Request $request)
     {
         /*
             udalim variacii pri obnovlenii informacii produkta
