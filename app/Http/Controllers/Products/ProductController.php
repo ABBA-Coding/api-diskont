@@ -258,12 +258,14 @@ class ProductController extends Controller
             /*
              * products save
              */
+            $counter = 0;
+            $boshqa_ids = [];
             $not_saved_products_id = []; // massiv nesushestvuyushix variaciy
             foreach($data['products'] as $variations) {
                 /*
                  * product images save
                  */
-                $deleted_all_imgs = false; // buni ham tekshirihs kerak
+                $deleted_all_imgs = false; // buni ham tekshirish kerak
                 if(!empty($variations['images'])) {
                     $qolgan_rasmlar = array_values(array_filter($variations['images'], function($i) {
                         return $i['id'] != 0;
@@ -300,6 +302,7 @@ class ProductController extends Controller
                 $qolgan_variaciyalar_ids = array_map(function($i) {
                     return $i['id'];
                 }, $qolgan_variaciyalar);
+                $qolgan_variaciyalar_ids = array_merge($qolgan_variaciyalar_ids, $boshqa_ids);
 
                 /*
                  * o'chirilgan variaciyalarni o'chirish
@@ -387,7 +390,14 @@ class ProductController extends Controller
                     // $variation_model->images()->sync($images_ids);
 
                     if($variation['is_default']) $default_product_id = $variation_model->id;
+
+                    /*
+                     * obrabotka qilingan variaciyalar
+                     */
+                     $boshqa_ids[] = $variation_model->id;
                 }
+
+                $counter ++;
             }
 
             if(!$default_product_id) {
