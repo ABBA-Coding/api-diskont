@@ -52,6 +52,7 @@ class ProductController extends Controller
             'category_id' => 'required|integer',
             'products' => 'required|array',
             'products.images' => 'nullable|array',
+            'products.*.images.*' => 'required',
             'products.*.variations' => 'required|array',
             'products.*.variations.*' => 'required|array',
             'products.*.variations.*.options' => 'required|array',
