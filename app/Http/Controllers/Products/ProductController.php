@@ -52,7 +52,7 @@ class ProductController extends Controller
             'category_id' => 'required|integer',
             'products' => 'required|array',
             'products.images' => 'nullable|array',
-            'products.*.images.*' => 'required',
+            'products.images.*' => 'required',
             'products.*.variations' => 'required|array',
             'products.*.variations.*' => 'required|array',
             'products.*.variations.*.options' => 'required|array',
@@ -217,8 +217,8 @@ class ProductController extends Controller
             'brand_id' => 'nullable|integer',
             'category_id' => 'required|integer',
             'products' => 'required|array',
-            'products.*.images' => 'nullable|array',
-            'products.*.images.*' => 'required',
+            'products.images' => 'nullable|array',
+            'products.images.*' => 'required',
             'products.*.variations' => 'required|array',
             'products.*.variations.*' => 'required|array',
             'products.*.variations.*.options' => 'required|array',
@@ -263,6 +263,7 @@ class ProductController extends Controller
             $boshqa_ids = [];
             $not_saved_products_id = []; // massiv nesushestvuyushix variaciy
             foreach($data['products'] as $variations) {
+                dd($variations);
                 /*
                  * product images save
                  */
@@ -361,7 +362,7 @@ class ProductController extends Controller
                             'product_of_the_day' => $variation['product_of_the_day'],
                             'status' => $variation['status'],
                             'slug' => $this->product_slug_create($product, $additional_for_slug, 0)
-                        ]); // is_available ne izpolzuyetsya
+                        ]); // is_available ne ispolzuyetsya
 
                         foreach($qolgan_rasmlar_ids as $qolgan_rasmlar_id) {
                             $variation_model->images()->attach($qolgan_rasmlar_id);
