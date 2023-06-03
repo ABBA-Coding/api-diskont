@@ -217,6 +217,7 @@ class ProductController extends Controller
             'category_id' => 'required|integer',
             'products' => 'required|array',
             'products.*.images' => 'nullable|array',
+            'products.*.images.*' => 'required',
             'products.*.variations' => 'required|array',
             'products.*.variations.*' => 'required|array',
             'products.*.variations.*.options' => 'required|array',
@@ -262,7 +263,7 @@ class ProductController extends Controller
                 /*
                  * product images save
                  */
-                $deleted_all_imgs = false;
+                $deleted_all_imgs = false; // buni ham tekshirihs kerak
                 if(!empty($variations['images'])) {
                     $qolgan_rasmlar = array_values(array_filter($variations['images'], function($i) {
                         return $i['id'] != 0;
