@@ -335,6 +335,17 @@ class ProductController extends Controller
                             'status' => $variation['status'],
                             'slug' => $this->product_slug_create($product, $additional_for_slug, $variation_model->id)
                         ]); // model, c_id, is_available ne izpolzuyetsya
+
+                        /*
+                         * sync images
+                         */
+                        $qolgan_rasmlar_ids = array_map(function($i) {
+                            return $i['id'];
+                        }, $qolgan_rasmlar);
+                        /*
+                         * kerakmas rasmlarni o'chiramiz
+                         */
+                        $variation_model->images()->whereNotIn('product_images.id', $qolgan_rasmlar_ids)->delete();
                     } else {
                         $variation_model = Product::create([
                             'info_id' => $product->id,
@@ -346,20 +357,14 @@ class ProductController extends Controller
                             'status' => $variation['status'],
                             'slug' => $this->product_slug_create($product, $additional_for_slug, 0)
                         ]); // is_available ne izpolzuyetsya
+
+                        foreach($qolgan_rasmlar_ids as $qolgan_rasmlar_id) {
+                            $variation_model->images()->attach($qolgan_rasmlar_id);
+                        }
                     }
                     $variation_model->attribute_options()->sync($variation['options']);
                     $variation_model->characteristic_options()->sync($variation['characteristics']);
 
-                    /*
-                     * sync images
-                     */
-                    $qolgan_rasmlar_ids = array_map(function($i) {
-                        return $i['id'];
-                    }, $qolgan_rasmlar);
-                    /*
-                     * kerakmas rasmlarni o'chiramiz
-                     */
-                    $variation_model->images()->whereNotIn('product_images.id', $qolgan_rasmlar_ids)->delete();
                     /*
                      * yangi rasmlarni save qilamiz
                      */
