@@ -161,6 +161,7 @@ class ProductController extends Controller
                 $variation_images[] = $image;
             }
         }
+
         $variation_images = array_map(function($item) {
             return $item->pivot->product_image_id;
         }, $variation_images);
@@ -274,8 +275,9 @@ class ProductController extends Controller
                     }));
 
                     $new_images_ids = [];
-                    foreach($variations['images'] as $image) {
-                        if($image['id'] == 0 && Storage::disk('public')->exists('/uploads/temp/' . explode('/', $image['img'])[count(explode('/', $image['img'])) - 1])) {
+                    // foreach($variations['images'] as $image) {
+                    foreach($yangi_rasmlar as $image) {
+                        if(Storage::disk('public')->exists('/uploads/temp/' . explode('/', $image['img'])[count(explode('/', $image['img'])) - 1])) {
                             $img = explode('/', $image['img']);
                             Storage::disk('public')->move('/uploads/temp/' . $img[count($img) - 1], '/uploads/products/' . $img[count($img) - 1]);
                             Storage::disk('public')->move('/uploads/temp/200/' . $img[count($img) - 1], '/uploads/products/200/' . $img[count($img) - 1]);
@@ -292,9 +294,9 @@ class ProductController extends Controller
                     $new_images_ids = [];
                 }
 
-                $yangi_variaciyalar = array_values(array_filter($variations['variations'], function($i) {
-                    return $i['id'] == 0;
-                }));
+                // $yangi_variaciyalar = array_values(array_filter($variations['variations'], function($i) {
+                //     return $i['id'] == 0;
+                // }));
                 $qolgan_variaciyalar = array_values(array_filter($variations['variations'], function($i) {
                     return $i['id'] != 0;
                 }));
@@ -308,7 +310,7 @@ class ProductController extends Controller
                  */
                 $kerakmas_variaciyalar = $product->products()->whereNotIn('id', $qolgan_variaciyalar_ids)->get();
                 foreach($kerakmas_variaciyalar as $variation) {
-                    $variation->images()->delete(); // bu yerda rasmning filelarini ham o'chirihs kerak
+                    // $variation->images()->delete(); // bu yerda rasmning filelarini ham o'chirihs kerak
                     $variation->delete();
                 }
 
