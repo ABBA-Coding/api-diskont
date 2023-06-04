@@ -408,8 +408,6 @@ class ProductController extends Controller
                 'default_product_id' => $default_product_id
             ]);
 
-            dd(1);
-
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
