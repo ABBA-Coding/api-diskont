@@ -261,7 +261,6 @@ class ProductController extends Controller
             $boshqa_ids = [];
             $not_saved_products_id = []; // massiv nesushestvuyushix variaciy
             foreach($data['products'] as $variations) {
-                dd($variations);
                 /*
                  * product images save
                  */
