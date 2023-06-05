@@ -60,7 +60,10 @@ class Controller extends BaseController
 
         if($update_id == 0) {
             if(Product::where('slug', \Illuminate\Support\Str::slug($request_field))->exists()) {
-                $slug = \Illuminate\Support\Str::slug($request_field) . '-' . Product::latest()->first()->id + 1;
+                // var_dump('slug begin');
+                // var_dump(Product::latest()->first()->id);
+                $slug = \Illuminate\Support\Str::slug($request_field) . '-' . (Product::latest()->first()->id + 1);
+                // var_dump('slug end');
             }
         } else {
             if($slug == Product::find($update_id)->slug || $slug.'-'.$update_id == Product::find($update_id)->slug) return Product::find($update_id)->slug;

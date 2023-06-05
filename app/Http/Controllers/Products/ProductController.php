@@ -275,7 +275,6 @@ class ProductController extends Controller
                     }));
 
                     $new_images_ids = [];
-                    // foreach($variations['images'] as $image) {
                     foreach($yangi_rasmlar as $image) {
                         if(Storage::disk('public')->exists('/uploads/temp/' . explode('/', $image['img'])[count(explode('/', $image['img'])) - 1])) {
                             $img = explode('/', $image['img']);
@@ -297,9 +296,15 @@ class ProductController extends Controller
                 // $yangi_variaciyalar = array_values(array_filter($variations['variations'], function($i) {
                 //     return $i['id'] == 0;
                 // }));
-                $qolgan_variaciyalar = array_values(array_filter($variations['variations'], function($i) {
-                    return $i['id'] != 0;
-                }));
+                // $qolgan_variaciyalar = array_values(array_filter($variations['variations'], function($i) {
+                //     return $i['id'] != 0;
+                // }));
+                $qolgan_variaciyalar = [];
+                foreach($data['products'] as $jkl) {
+                    foreach($jkl['variations'] as $kl) {
+                        if($kl['id'] != 0) $qolgan_variaciyalar[] = $kl;
+                    }
+                }
                 $qolgan_variaciyalar_ids = array_map(function($i) {
                     return $i['id'];
                 }, $qolgan_variaciyalar);
@@ -332,39 +337,40 @@ class ProductController extends Controller
                     if($variation['id'] != 0) {
                         $variation_model = Product::find($variation['id']);
                         if(!$variation_model) $not_saved_products_id[] = $variation['id'];
-                        if($variation_model) {
-                            $variation_model->update([
-                                // 'info_id' => $product->id,
-                                'price' => intval($variation['price']),
-                                'is_popular' => $variation['is_popular'],
-                                'product_of_the_day' => $variation['product_of_the_day'],
-                                'status' => $variation['status'],
-                                'slug' => $this->product_slug_create($product, $additional_for_slug, $variation_model->id)
-                            ]); // model, c_id, is_available ne izpolzuyetsya
+                        $variation_model->update([
+                            // 'info_id' => $product->id,
+                            'price' => intval($variation['price']),
+                            'is_popular' => $variation['is_popular'],
+                            'product_of_the_day' => $variation['product_of_the_day'],
+                            'status' => $variation['status'],
+                            'slug' => $this->product_slug_create($product, $additional_for_slug, $variation_model->id)
+                        ]); // model, c_id, is_available ne izpolzuyetsya
 
-                            /*
-                             * sync images
-                             */
-                            $qolgan_rasmlar_ids = array_map(function($i) {
-                                return $i['id'];
-                            }, $qolgan_rasmlar);
-                            /*
-                             * kerakmas rasmlarni o'chiramiz
-                             */
-                            $variation_model->images()->whereNotIn('product_images.id', $qolgan_rasmlar_ids)->delete();
-                        }
+                        /*
+                         * sync images
+                         */
+                        $qolgan_rasmlar_ids = array_map(function($i) {
+                            return $i['id'];
+                        }, $qolgan_rasmlar);
+                        /*
+                         * kerakmas rasmlarni o'chiramiz
+                         */
+                        $variation_model->images()->whereNotIn('product_images.id', $qolgan_rasmlar_ids)->delete();
                     } else {
                         $variation_model = Product::create([
                             'info_id' => $product->id,
                             'c_id' => null,
                             'model' => $data['model'],
-                            'price' => intval($variation['price']),
+                            'price' => $variation['price'],
                             'is_popular' => $variation['is_popular'],
                             'product_of_the_day' => $variation['product_of_the_day'],
                             'status' => $variation['status'],
                             'slug' => $this->product_slug_create($product, $additional_for_slug, 0)
                         ]); // is_available ne ispolzuyetsya
-
+                        
+                        $qolgan_rasmlar_ids = array_map(function($i) {
+                            return $i['id'];
+                        }, $qolgan_rasmlar);
                         foreach($qolgan_rasmlar_ids as $qolgan_rasmlar_id) {
                             $variation_model->images()->attach($qolgan_rasmlar_id);
                         }
@@ -375,8 +381,10 @@ class ProductController extends Controller
                     /*
                      * yangi rasmlarni save qilamiz
                      */
-                    foreach($new_images_ids as $new_images_id) {
-                        $variation_model->images()->attach($new_images_id);
+                    if(count($new_images_ids) != 0) {
+                         foreach($new_images_ids as $new_images_id) {
+                            $variation_model->images()->attach($new_images_id);
+                        }   
                     }
 
                     /*
@@ -398,6 +406,7 @@ class ProductController extends Controller
                      * obrabotka qilingan variaciyalar
                      */
                      $boshqa_ids[] = $variation_model->id;
+                     $qolgan_rasmlar_ids = [];
                 }
 
                 $counter ++;
