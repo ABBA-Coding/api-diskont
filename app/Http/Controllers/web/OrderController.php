@@ -4,7 +4,8 @@ namespace App\Http\Controllers\web;
 
 use App\Models\{
     Products\Product,
-    Orders\Order
+    Orders\Order,
+    Orders\OneClickOrder,
 };
 use DB;
 use App\Http\Controllers\Controller;
@@ -79,6 +80,22 @@ class OrderController extends Controller
 
         return response([
             'products' => $products
+        ]);
+    }
+
+    public function one_click(Request $request)
+    {
+        $request->validate([
+            'phone_number' => 'required|numeric|min:998000000001|max:998999999998',
+            'name' => 'required|max:255',
+            'product_id' => 'required|integer',
+        ]);
+        $data = $request->all();
+
+        OneClickOrder::create($data);
+
+        return response([
+            'message' => 'Successfully ordered'
         ]);
     }
 }

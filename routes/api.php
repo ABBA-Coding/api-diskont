@@ -16,6 +16,7 @@ use App\Http\Controllers\Files\{
     DeleteController,
 };
 use App\Http\Controllers\{
+    Orders\OneClickOrderController,
     ShowcaseController,
     CategoryController,
     BrandController,
@@ -93,4 +94,6 @@ Route::prefix('admin')->group(function() {
 
     Route::get('showcases/all', [ShowcaseController::class, 'all']);
     Route::apiResource('showcases', ShowcaseController::class);
+
+    Route::apiResource('one_click_orders', OneClickOrderController::class);
 });
