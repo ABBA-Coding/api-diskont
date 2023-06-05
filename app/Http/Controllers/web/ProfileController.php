@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\web;
 
+use App\Models\Orders\Order;
 use App\Models\Products\Product;
 use App\Http\Controllers\Controller;
 use Hash;
@@ -23,17 +24,17 @@ class ProfileController extends Controller
             'postcode' => 'nullable|max:255',
         ]);
 
-        if(!auth()->user()) return response([
+        if(!auth('sanctum')->user()) return response([
             'message' => 'Unauthorized'
         ], 401);
 
-        if(Hash::make($request->current_password) != auth()->user()->password) return response([
+        if(Hash::make($request->current_password) != auth('sanctum')->user()->password) return response([
             'message' => 'Nepravilniy parol'
         ], 400);
 
-        auth()->user()->update([
+        auth('sanctum')->user()->update([
             'name' => $request->name,
-            'password' => $request->password ? Hash::make($request->password) : auth()->user()->password,
+            'password' => $request->password ? Hash::make($request->password) : auth('sanctum')->user()->password,
             'login' => $request->phone_number,
             'password_updated' => 1,
             'address' => $request->address,
@@ -44,7 +45,7 @@ class ProfileController extends Controller
         ]);
 
         return response([
-            'user' => auth()->user(),
+            'user' => auth('sanctum')->user(),
             'message' => 'Saved'
         ]);
     }
@@ -55,24 +56,27 @@ class ProfileController extends Controller
             'name' => 'required'
         ]);
 
-        if(!auth()->user()) return response([
+        if(!auth('sanctum')->user()) return response([
             'message' => 'Unauthorized'
         ], 401);
 
-        auth()->user()->update([
+        auth('sanctum')->user()->update([
             'name' => $request->name
         ]);
 
         return response([
-            'user' => auth()->user(),
+            'user' => auth('sanctum')->user(),
             'message' => 'Saved'
         ]);
     }
 
     public function me()
     {
-        $user = auth()->user()->with('orders')
-            ->first();
+        $user = auth('sanctum')->user();
+
+        $orders = Order::where('client_id', $user->id)
+            ->get();
+        $user->orders = $orders;
 
         foreach($user->orders as $order) {
             /*

@@ -2,10 +2,11 @@
 
 namespace App\Models\Products;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Showcase;
 use App\Models\Attributes\AttributeOption;
 use App\Models\Characteristics\CharacteristicOption;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Laravel\Scout\Searchable;
 
 class Product extends Model
@@ -42,6 +43,11 @@ class Product extends Model
     public function characteristic_options()
     {
         return $this->belongsToMany(CharacteristicOption::class);
+    }
+
+    public function showcases()
+    {
+        return $this->belongsToMany(Showcase::class);
     }
 
 

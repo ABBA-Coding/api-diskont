@@ -16,6 +16,7 @@ use App\Http\Controllers\Files\{
     DeleteController,
 };
 use App\Http\Controllers\{
+    ShowcaseController,
     CategoryController,
     BrandController,
     PostController,
@@ -89,4 +90,7 @@ Route::prefix('admin')->group(function() {
 
     Route::apiResource('regions', RegionController::class);
     Route::apiResource('districts', DistrictController::class);
+
+    Route::get('showcases/all', [ShowcaseController::class, 'all']);
+    Route::apiResource('showcases', ShowcaseController::class);
 });
