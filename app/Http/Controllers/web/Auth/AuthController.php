@@ -25,8 +25,8 @@ class AuthController extends Controller
         ];
 
         $user_exist = User::where('login', $request->phone_number)
-            ->exists();
-        if(!$user_exist) {
+            ->first();
+        if(!$user_exist || !$user_exist->password_updated) {
             Cache::add($request->phone_number, $cache_variables[0], $sms_active_time);
 //            $generated_code = $this->generate_code();
             $generated_code = 111111;
@@ -60,8 +60,9 @@ class AuthController extends Controller
 
         if(Cache::has($request->phone_number) && Cache::get($request->phone_number) == 'sms_send') {
             if(Cache::has($request->phone_number. 'code') && Cache::get($request->phone_number. 'code') == $request->sms_code) {
-                $user = User::create([
+                $user = User::updateOrCreate([
                     'login' => $request->phone_number,
+                ],[
                     'password' => Hash::make($this->generateRandomString())
                 ]);
 
@@ -103,6 +104,19 @@ class AuthController extends Controller
 
         return response([
             'token' => $user->createToken('auth-token')->plainTextToken
+        ]);
+    }
+
+    public function logout()
+    {
+        if(!auth('sanctum')->user()) return response([
+            'message' => 'Unauthorized'
+        ], 401);
+
+        auth('sanctum')->user()->tokens()->delete();
+
+        return response([
+            'message' => 'Successfully logout'
         ]);
     }
 
