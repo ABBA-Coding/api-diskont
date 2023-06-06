@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\web\{
+    ShowcaseController,
     RegionController,
     OrderController,
     Auth\AuthController,
@@ -63,3 +64,4 @@ Route::get('regions', [RegionController::class, 'index']);
 Route::get('search', [SearchController::class, 'search']);
 Route::post('get_products', [OrderController::class, 'get_products']);
 Route::post('order/one_click', [OrderController::class, 'one_click']);
+Route::get('showcases', [ShowcaseController::class, 'get']);

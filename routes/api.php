@@ -17,6 +17,7 @@ use App\Http\Controllers\Files\{
 };
 use App\Http\Controllers\{
     Orders\OneClickOrderController,
+    Orders\OrderController,
     ShowcaseController,
     CategoryController,
     BrandController,
@@ -96,4 +97,5 @@ Route::prefix('admin')->group(function() {
     Route::apiResource('showcases', ShowcaseController::class);
 
     Route::apiResource('one_click_orders', OneClickOrderController::class);
+    Route::apiResource('orders', OrderController::class);
 });

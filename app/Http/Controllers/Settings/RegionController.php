@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\Settings;
 
-use App\Models\Settings\Region;
+use App\Models\Settings\{
+    District,
+    Region,
+};
 use App\Http\Controllers\Controller;
 use DB;
 use Illuminate\Http\Request;
@@ -96,6 +99,23 @@ class RegionController extends Controller
                 'name' => $request->name,
                 'for_search' => $this->for_search($request, ['name'])
             ]);
+
+            foreach($request->districts as $district) {
+                if($district['id'] == 0) {
+                    $region->districts()->create([
+                        'name' => $district['name']
+                    ]);
+                } else {
+                    $d = District::find($district['id']);
+                    if(!$d) return response([
+                        'message' => 'District not found'
+                    ], 404);
+
+                    $d->update([
+                        'name' => $district['name']
+                    ]);
+                }
+            }
 
             DB::commit();
         } catch (\Exception $e) {
