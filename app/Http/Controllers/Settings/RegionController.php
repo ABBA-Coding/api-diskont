@@ -101,6 +101,15 @@ class RegionController extends Controller
                 'for_search' => $this->for_search($request, ['name'])
             ]);
 
+            $sushestvuyushie_goroda_ids = $region->districts->pluck('id')->toArray();
+            $qolganlari_ids = $request->districts;
+            $qolganlari_ids = array_map(function($i) {
+                if($i['id'] != 0) return $i['id'];
+            }, $qolganlari_ids);
+            $qolganlari_ids = array_values(array_filter($qolganlari_ids, function($i) {
+                return !is_null($i);
+            }));
+            $region->districts()->whereNotIn('id', $qolganlari_ids)->delete();
             foreach($request->districts as $district) {
                 if($district['id'] == 0) {
                     $region->districts()->create([

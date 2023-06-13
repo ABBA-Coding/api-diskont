@@ -53,8 +53,10 @@ class CategoryController extends Controller
          * filtr produktov po max i min price
          */
         if(isset($request->min_price) && $request->min_price != '' && isset($request->max_price) && $request->max_price != '') {
-            $product_infos = $product_infos->whereHas('products', function($q) use ($request) {
-                $q->whereBetween('price', [$request->min_price, $request->max_price]);
+            $min_price = (float)$request->min_price;
+            $max_price = (float)$request->max_price;
+            $product_infos = $product_infos->whereHas('default_product', function($q) use ($min_price, $max_price) {
+                $q->whereBetween('price', [$min_price, $max_price]);
             });
         }
 

@@ -66,6 +66,11 @@ class AuthController extends Controller
                     'password' => Hash::make($this->generateRandomString())
                 ]);
 
+                $this->cache_forget([
+                    $request->phone_number,
+                    $request->phone_number. 'code'
+                ]);
+
                 return response([
                     'token' => $user->createToken('auth-token')->plainTextToken
                 ]);
@@ -102,6 +107,10 @@ class AuthController extends Controller
             ], 422);
         }
 
+        $this->cache_forget([
+            $request->phone_number,
+            $request->phone_number. 'code'
+        ]);
         return response([
             'token' => $user->createToken('auth-token')->plainTextToken
         ]);
@@ -134,5 +143,12 @@ class AuthController extends Controller
             $randomString .= $characters[random_int(0, $charactersLength - 1)];
         }
         return $randomString;
+    }
+
+    private function cache_forget($caches)
+    {
+        foreach($caches as $item) {
+            Cache::forget($item);
+        }
     }
 }
