@@ -17,33 +17,55 @@ class AuthController extends Controller
         ]);
 
         $cache_variables = [
-            'sms_send'
+            'sms_send',
+            'sms_for_forget'
         ];
         $sms_active_time = 300; //in seconds
         $sms_texts = [
-            'sms_send' => 'Your code for auth in HOME24.uz: '
+            'sms_send' => 'Your code for auth in e-shop: ',
+            'sms_for_forget' => 'Your code for restore: ',
         ];
 
-        $user_exist = User::where('login', $request->phone_number)
-            ->first();
-        if(!$user_exist || !$user_exist->password_updated) {
-            Cache::add($request->phone_number, $cache_variables[0], $sms_active_time);
+        if(isset($request->forget) && $request->forget == 1) {
+            Cache::add($request->phone_number, $cache_variables[1], $sms_active_time);
 //            $generated_code = $this->generate_code();
             $generated_code = 111111;
-            $sent = $this->send_sms($request->phone_number, $sms_texts['sms_send'] . $generated_code);
+            $sent = $this->send_sms($request->phone_number, $sms_texts['sms_for_forget'] . $generated_code);
             Cache::add($request->phone_number. 'code', $generated_code, $sms_active_time);
             if (!$sent) {
                 return response([
-                    'authorized' => 0,
+                    'authorized' => 1,
                     'message' => __('sms.not_sent')
                 ], 500);
 
             }
 
             return response([
-                'authorized' => 0,
+                'authorized' => 1,
                 'message' => __('sms.sent')
             ]);
+        } else {
+            $user_exist = User::where('login', $request->phone_number)
+                ->first();
+            if(!$user_exist || !$user_exist->password_updated) {
+                Cache::add($request->phone_number, $cache_variables[0], $sms_active_time);
+    //            $generated_code = $this->generate_code();
+                $generated_code = 111111;
+                $sent = $this->send_sms($request->phone_number, $sms_texts['sms_send'] . $generated_code);
+                Cache::add($request->phone_number. 'code', $generated_code, $sms_active_time);
+                if (!$sent) {
+                    return response([
+                        'authorized' => 0,
+                        'message' => __('sms.not_sent')
+                    ], 500);
+
+                }
+
+                return response([
+                    'authorized' => 0,
+                    'message' => __('sms.sent')
+                ]);
+            }
         }
 
         return response([
@@ -64,6 +86,24 @@ class AuthController extends Controller
                     'login' => $request->phone_number,
                 ],[
                     'password' => Hash::make($this->generateRandomString())
+                ]);
+
+                $this->cache_forget([
+                    $request->phone_number,
+                    $request->phone_number. 'code'
+                ]);
+
+                return response([
+                    'token' => $user->createToken('auth-token')->plainTextToken
+                ]);
+            }
+        } else if(Cache::has($request->phone_number) && Cache::get($request->phone_number) == 'sms_for_forget') {
+            if(Cache::has($request->phone_number. 'code') && Cache::get($request->phone_number. 'code') == $request->sms_code) {
+                $user = User::updateOrCreate([
+                    'login' => $request->phone_number,
+                ],[
+                    'password' => Hash::make($this->generateRandomString()),
+                    'password_updated' => 0,
                 ]);
 
                 $this->cache_forget([
