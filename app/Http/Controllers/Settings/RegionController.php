@@ -71,7 +71,8 @@ class RegionController extends Controller
      */
     public function show(Region $region)
     {
-        $region = Region::with('districts')
+        $region = Region::where('id', $region->id)
+            ->with('districts')
             ->first();
 
         return response([
