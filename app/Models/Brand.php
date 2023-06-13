@@ -13,6 +13,7 @@ class Brand extends Model
         'name',
         'logo',
         'slug',
+        'is_top',
     ];
 
     public function product_infos()

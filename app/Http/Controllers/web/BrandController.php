@@ -22,8 +22,13 @@ class BrandController extends Controller
         if(isset($request->limit) && $request->limit != '' && $request->limit < 41) $this->set_paginate($request->limit);
 
         $brands = Brand::latest();
-        // if(isset($request->top) && $request->top != '' && $request->top != 1) $brands = $brands->where('is_top', 1);
-        $brands = $brands->paginate($this->PAGINATE);
+
+        if(isset($request->top) && $request->top == 1) {
+            $brands = $brands->where('is_top', 1)
+                ->get();
+        } else {
+            $brands = $brands->paginate($this->PAGINATE);
+        }
 
         return response([
             'brands' => $brands

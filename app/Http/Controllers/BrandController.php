@@ -18,7 +18,7 @@ class BrandController extends Controller
     public function index()
     {
         $brands = Brand::latest()
-            ->select('id', 'name', 'logo', 'slug')
+            ->select('id', 'name', 'logo', 'slug', 'is_top')
             ->paginate($this->PAGINATE);
 
         return response([
@@ -52,7 +52,8 @@ class BrandController extends Controller
             $brand = Brand::create([
                 'name' => $request->name,
                 'logo' => $request->logo ? $logo : null,
-                'slug' => $this->to_slug($request, Brand::class, 'name', null)
+                'slug' => $this->to_slug($request, Brand::class, 'name', null),
+                'is_top' => isset($request->is_top) ? $request->is_top : 0
             ]);
 
             DB::commit();
@@ -113,6 +114,7 @@ class BrandController extends Controller
                 'name' => $request->name,
                 'logo' => isset($logo) ? $logo : $request->logo,
                 'slug' => $this->to_slug($request, Brand::class, 'name', null, $brand->id),
+                'is_top' => isset($request->is_top) ? $request->is_top : 0
             ]);
 
             DB::commit();
