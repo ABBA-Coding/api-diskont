@@ -32,6 +32,7 @@ use App\Http\Controllers\Faqs\{
     FaqController,
 };
 use App\Http\Controllers\Products\{
+    ProductBadgeController,
     ProductController,
     ProductInfoController,
 };
@@ -98,4 +99,6 @@ Route::prefix('admin')->group(function() {
 
     Route::apiResource('one_click_orders', OneClickOrderController::class);
     Route::apiResource('orders', OrderController::class);
+
+    Route::apiResource('product_badges', ProductBadgeController::class);
 });

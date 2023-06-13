@@ -37,7 +37,7 @@ class ShowcaseController extends Controller
      */
     public function show(Showcase $showcase)
     {
-        $showcase = Showcase::with('products')
+        $showcase = Showcase::with('products', 'products.images')
             ->where('id', $showcase->id)
             ->first();
 
@@ -89,6 +89,10 @@ class ShowcaseController extends Controller
                 'message' => $e->getMessage()
             ], 500);
         }
+
+        $showcase = Showcase::where('id', $showcase->id)
+            ->with('products')
+            ->first();
 
         return response([
             'showcase' => $showcase

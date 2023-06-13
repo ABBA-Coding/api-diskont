@@ -1,16 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Settings;
+namespace App\Http\Controllers\Products;
 
-use App\Models\Settings\{
-    District,
-    Region,
-};
+use App\Models\Products\ProductBadge;
 use App\Http\Controllers\Controller;
 use DB;
 use Illuminate\Http\Request;
 
-class RegionController extends Controller
+class ProductBadgeController extends Controller
 {
     protected $PAGINATE = 16;
     /**
@@ -20,12 +17,12 @@ class RegionController extends Controller
      */
     public function index()
     {
-        $regions = Region::latest()
-            ->with('districts')
+        $badges = ProductBadge::latest()
+            ->with('products', 'products.info', 'products.images')
             ->paginate($this->PAGINATE);
 
         return response([
-            'regions' => $regions
+            'badges' => $badges
         ]);
     }
 
@@ -44,7 +41,7 @@ class RegionController extends Controller
 
         DB::beginTransaction();
         try {
-            $region = Region::create([
+            $badge = ProductBadge::create([
                 'name' => $request->name,
                 'for_search' => $this->for_search($request, ['name'])
             ]);
@@ -59,23 +56,24 @@ class RegionController extends Controller
         }
 
         return response([
-            'region' => $region
+            'badge' => $badge
         ]);
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Region  $region
+     * @param  \App\Models\ProductBadge  $productBadge
      * @return \Illuminate\Http\Response
      */
-    public function show(Region $region)
+    public function show(ProductBadge $productBadge)
     {
-        $region = Region::with('districts')
+        $badge = ProductBadge::where('id', $productBadge->id)
+            ->with('products')
             ->first();
 
         return response([
-            'region' => $region
+            'badge' => $badge
         ]);
     }
 
@@ -83,10 +81,10 @@ class RegionController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\cr  $cr
+     * @param  \App\Models\ProductBadge  $productBadge
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Region $region)
+    public function update(Request $request, ProductBadge $productBadge)
     {
         $request->validate([
             'name' => 'required|array',
@@ -95,27 +93,11 @@ class RegionController extends Controller
 
         DB::beginTransaction();
         try {
-            $region->update([
+            $productBadge->update([
                 'name' => $request->name,
                 'for_search' => $this->for_search($request, ['name'])
             ]);
-
-            foreach($request->districts as $district) {
-                if($district['id'] == 0) {
-                    $region->districts()->create([
-                        'name' => $district['name']
-                    ]);
-                } else {
-                    $d = District::find($district['id']);
-                    if(!$d) return response([
-                        'message' => 'District not found'
-                    ], 404);
-
-                    $d->update([
-                        'name' => $district['name']
-                    ]);
-                }
-            }
+            $productBadge->products()->sync($request->products);
 
             DB::commit();
         } catch (\Exception $e) {
@@ -126,27 +108,23 @@ class RegionController extends Controller
             ], 500);
         }
 
-        $region = Region::where('id', $region->id)
-            ->with('districts')
-            ->first();
-
         return response([
-            'region' => $region
+            'productBadge' => $productBadge
         ]);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\cr  $cr
+     * @param  \App\Models\ProductBadge  $productBadge
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Region $region)
+    public function destroy(ProductBadge $productBadge)
     {
         DB::beginTransaction();
         try {
-            $region->districts()->delete();
-            $region->delete();
+            $productBadge->products()->detach();
+            $productBadge->delete();
 
             DB::commit();
         } catch(\Exception $e) {
@@ -160,18 +138,5 @@ class RegionController extends Controller
         return response([
             'message' => __('messages.successfully_deleted')
         ]);
-    }
-
-    public function for_search(Request $request, $fields): string
-    {
-        $result = '';
-
-        if(count($fields) == 0) return '';
-
-        foreach($fields as $field) {
-            $result .= isset($request->$field['ru']) ? ($request->$field['ru'] . ' ') : '';
-        }
-
-        return $result;
     }
 }

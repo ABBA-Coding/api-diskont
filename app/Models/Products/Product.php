@@ -49,6 +49,11 @@ class Product extends Model
     {
         return $this->belongsToMany(Showcase::class);
     }
+ 
+    public function badges()
+    {
+        return $this->belongsToMany(ProductBadge::class);
+    }
 
 
 

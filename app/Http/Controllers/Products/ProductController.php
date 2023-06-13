@@ -22,12 +22,20 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         $products = ProductInfo::select('id', 'name', 'desc', 'brand_id', 'category_id', 'default_product_id', 'is_active')
-            ->with('category', 'brand', 'products', 'products.images', 'category.characteristic_groups', 'category.characteristic_groups.characteristics')
-            ->latest()
-            ->paginate($this->PAGINATE);
+            ->latest();
+
+        $data = $request->all();
+        if(isset($data['search']) && $data['search'] != '') {
+            $products = $products->where('name', 'like', '%'.$data['search'].'%')->orWhere('for_search', 'like', '%'.$data['search'].'%')
+                ->with('products.images');
+        } else {
+            $products = $products->with('category', 'brand', 'products', 'products.images', 'category.characteristic_groups', 'category.characteristic_groups.characteristics');
+        }
+
+        $products = $products->paginate($this->PAGINATE);
 
         return response([
             'products' => $products
