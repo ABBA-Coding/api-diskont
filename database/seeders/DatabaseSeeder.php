@@ -25,7 +25,7 @@ class DatabaseSeeder extends Seeder
             // CharacteristicSeeder::class,
             // AttributeSeeder::class,
             UserSeeder::class,
-            Showcase::class,
+            ShowcaseSeeder::class,
         ]);
     }
 }

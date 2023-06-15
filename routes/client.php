@@ -14,6 +14,7 @@ use App\Http\Controllers\web\{
     PostController,
     FeedbackController,
     SearchController,
+    ComparisonController,
 };
 
 
@@ -65,3 +66,4 @@ Route::get('search', [SearchController::class, 'search']);
 Route::post('get_products', [OrderController::class, 'get_products']);
 Route::post('order/one_click', [OrderController::class, 'one_click']);
 Route::get('showcases', [ShowcaseController::class, 'get']);
+Route::post('comparison', [ComparisonController::class, 'comparison']);
