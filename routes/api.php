@@ -16,6 +16,7 @@ use App\Http\Controllers\Files\{
     DeleteController,
 };
 use App\Http\Controllers\{
+    DiscountController,
     Orders\OneClickOrderController,
     Orders\OrderController,
     ShowcaseController,
@@ -25,8 +26,7 @@ use App\Http\Controllers\{
     CommentController,
     BannerController,
     Settings\RegionController,
-    Settings\DistrictController,
-};
+    Settings\DistrictController};
 use App\Http\Controllers\Faqs\{
     FaqCategoryController,
     FaqController,
@@ -101,4 +101,5 @@ Route::prefix('admin')->group(function() {
     Route::apiResource('orders', OrderController::class);
 
     Route::apiResource('product_badges', ProductBadgeController::class);
+    Route::apiResource('discounts', DiscountController::class);
 });
