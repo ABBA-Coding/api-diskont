@@ -14,7 +14,7 @@ class ProfileController extends Controller
     {
         $request->validate([
             'name' => 'required|max:255',
-            // 'current_password' => 'required|min:6|max:255',
+             'current_password' => 'sometimes|min:6|max:255',
             'password' => 'required|confirmed|min:6|max:255',
             'phone_number' => 'required|min:998000000001|max:999999999998|numeric',
             'region_id' => 'nullable|integer',
@@ -28,9 +28,9 @@ class ProfileController extends Controller
             'message' => 'Unauthorized'
         ], 401);
 
-        // if(Hash::make($request->current_password) != auth('sanctum')->user()->password) return response([
-        //     'message' => 'Nepravilniy parol'
-        // ], 400);
+         if(Hash::make($request->current_password) != auth('sanctum')->user()->password) return response([
+             'message' => 'Nepravilniy parol'
+         ], 400);
 
         auth('sanctum')->user()->update([
             'name' => $request->name,

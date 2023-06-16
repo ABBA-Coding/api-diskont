@@ -37,7 +37,7 @@ class ShowcaseController extends Controller
      */
     public function show(Showcase $showcase)
     {
-        $showcase = Showcase::with('products', 'products.images')
+        $showcase = Showcase::with('products', 'products.info', 'products.images')
             ->where('id', $showcase->id)
             ->first();
 

@@ -2,6 +2,7 @@
 
 namespace App\Models\Products;
 
+use App\Models\Discount;
 use App\Models\Showcase;
 use App\Models\Attributes\AttributeOption;
 use App\Models\Characteristics\CharacteristicOption;
@@ -49,7 +50,7 @@ class Product extends Model
     {
         return $this->belongsToMany(Showcase::class);
     }
- 
+
     public function badges()
     {
         return $this->belongsToMany(ProductBadge::class);
@@ -58,11 +59,37 @@ class Product extends Model
 
 
     protected $appends = [
-        'discount_price',
+        'discount',
     ];
 
-    public function getDiscountPriceAttribute()
+    public function getDiscountAttribute()
     {
-        return null;
+        $product_discount = Discount::where([
+                ['type', 'product'],
+                ['status', 1],
+                ['start', '<=', date('Y-m-d')],
+            ])
+            ->where(function ($q) {
+                $q->where('end', null)
+                    ->orWhere('end', '>=', date('Y-m-d'));
+            })
+            ->whereJsonContains('ids', $this->id)
+            ->latest()
+            ->first();
+
+        if($product_discount) return $product_discount;
+
+        return Discount::where([
+                ['type', 'brand'],
+                ['status', 1],
+                ['start', '<=', date('Y-m-d')]
+            ])
+            ->where(function ($q) {
+                $q->where('end', null)
+                    ->orWhere('end', '>=', date('Y-m-d'));
+            })
+            ->whereJsonContains('ids', $this->info->brand_id)
+            ->latest()
+            ->first();
     }
 }

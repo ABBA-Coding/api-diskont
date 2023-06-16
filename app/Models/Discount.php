@@ -23,19 +23,11 @@ class Discount extends Model
         'for_search',
     ];
 
+//    protected $hidden = ['ids'];
+
     protected $casts = [
         'title' => 'array',
         'desc' => 'array',
         'ids' => 'array',
     ];
-
-    public function products()
-    {
-        return Product::whereIn('id', $this->ids)->get();
-    }
-
-    public function brands()
-    {
-        return Brand::whereIn('id', $this->ids)->get();
-    }
 }

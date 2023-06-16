@@ -17,7 +17,7 @@ class CreateOrdersTable extends Migration
             $table->id();
             $table->foreignId('client_id')->constrained('users', 'id');
             $table->enum('delivery_method', ['pickup', 'courier']);
-            $table->text('name'); 
+            $table->text('name');
             $table->string('phone_number');
             $table->foreignId('region_id')->nullable()->constrained();
             $table->foreignId('district_id')->nullable()->constrained();

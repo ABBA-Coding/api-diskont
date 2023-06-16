@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Orders;
 
 use App\Models\Orders\OneClickOrder;
 use App\Http\Controllers\Controller;
-use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class OneClickOrderController extends Controller
 {
@@ -76,11 +76,11 @@ class OneClickOrderController extends Controller
         } catch(\Exception $e) {
             DB::rollBack();
 
-            return reponse([
+            return response([
                 'message' => $e->getMessage()
             ], 500);
         }
-        
+
         return response([
             'message' => __('messages.successfully_deleted')
         ]);

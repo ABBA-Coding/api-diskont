@@ -98,6 +98,7 @@ Route::prefix('admin')->group(function() {
     Route::apiResource('showcases', ShowcaseController::class);
 
     Route::apiResource('one_click_orders', OneClickOrderController::class);
+    Route::get('orders/counts', [OrderController::class, 'counts']);
     Route::apiResource('orders', OrderController::class);
 
     Route::apiResource('product_badges', ProductBadgeController::class);

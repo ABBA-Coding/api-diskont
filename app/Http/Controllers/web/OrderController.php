@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\web;
 
+use Illuminate\Support\Facades\DB;
 use App\Models\{
     Products\Product,
     Orders\Order,
     Orders\OneClickOrder,
 };
-use DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -31,26 +31,14 @@ class OrderController extends Controller
         ]);
 
         $data = $request->all();
+        $data['client_id'] = auth()->id();
+        $data['status'] = 'new';
+        $data['amount'] = $this->amount_calculate($request);
+        $data['is_paid'] = 0;
 
         DB::beginTransaction();
         try {
-            $order =  Order::create([
-                'client_id' => auth()->id(),
-                'delivery_method' => $data['delivery_method'],
-                'name' => $data['name'],
-                'phone_number' => $data['phone_number'],
-                'region_id' => $data['region_id'],
-                'district_id' => $data['district_id'],
-                'address' => $data['address'],
-                'postcode' => $data['postcode'],
-                'email' => $data['email'],
-                'comments' => $data['comments'],
-                'payment_method' => $data['payment_method'],
-                'products' => $data['products'],
-                'amount' => 0,
-                'status' => 'new',
-                'is_paid' => 0,
-            ]);
+            Order::create($data);
 
             DB::commit();
         } catch (\Exception $e) {
@@ -97,5 +85,31 @@ class OrderController extends Controller
         return response([
             'message' => 'Successfully ordered'
         ]);
+    }
+
+    public function amount_calculate(Request $request)
+    {
+        $amount = 0;
+
+        foreach ($request->products as $id) {
+            $product = Product::find($id);
+            if($product) {
+                if(!$product->discount && !empty($product->discount)) {
+                    if($product->discount->percent != null) {
+                        $inner_amount = $product->price * $product->discount->percent / 100;
+                    } else {
+                        $inner_amount = $product->price - $product->discount->amount;
+                        if($inner_amount < 0) $inner_amount = 0;
+                    }
+
+                    $amount += $inner_amount;
+                }
+
+                $amount += $product->price;
+            }
+
+        }
+
+        return $amount;
     }
 }

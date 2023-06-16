@@ -14,14 +14,15 @@ class OrderController extends Controller
 {
     protected $PAGINATE = 16;
     /**
-     * Display a listing of the resource.
+     * Display a listing of the resource. +
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $orders = Order::latest()
-            ->with('client')
+        $orders = Order::latest();
+        if(isset($request->status) && $request->status != '') $orders = $orders->where('status', $request->status);
+        $orders = $orders->with('client')
             ->paginate($this->PAGINATE);
 
         foreach($orders as $order) {
@@ -65,7 +66,28 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        //
+        $order = Order::where('id', $order->id)
+            ->with('client')
+            ->first();
+
+        /*
+         * privyazka produkta k zakazu
+         */
+        $products = $order->products;
+
+        foreach($products as $key => $product) {
+            $new_arr = $product;
+
+            $new_arr['product'] = Product::with('info', 'images')->find($product['product_id']);
+
+            $products[$key] = $new_arr;
+        }
+
+        $order->products = $products;
+
+        return response([
+            'order' => $order
+        ]);
     }
 
     /**
@@ -88,6 +110,24 @@ class OrderController extends Controller
      */
     public function destroy(Order $order)
     {
-        
+        $order->delete();
+
+        return response([
+            'message' => 'Success'
+        ]);
+    }
+
+    public function counts()
+    {
+        $orders = Order::all();
+
+        $counts = [];
+        foreach (['new', 'canceled', 'accepted', 'done', 'returned', 'pending'] as $status) {
+            $counts[$status] = count($orders->where('status', $status));
+        }
+
+        return response([
+            'counts' => $counts
+        ]);
     }
 }
