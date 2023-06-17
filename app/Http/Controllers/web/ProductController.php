@@ -16,12 +16,12 @@ class ProductController extends Controller
     {
         $this->PAGINATE = $paginate;
     }
-    
+
     public function index(Request $request)
     {
         if(isset($request->limit) && $request->limit != '' && $request->limit < 41) $this->set_paginate($request->limit);
         $products = Product::select('id', 'info_id', 'model', 'price', 'slug')
-            ->with('info', 'info.brand', 'info.category', 'images', 'attribute_options');
+            ->with('info', 'info.brand', 'info.category', 'images', 'attribute_options', 'badges');
 
         if(isset($request->type) && $request->type != '') {
             switch ($request->type) {
@@ -40,7 +40,7 @@ class ProductController extends Controller
                 case 'bestsellers':
                     // code...
                     break;
-                
+
                 default:
                     // code...
                     break;
@@ -63,11 +63,11 @@ class ProductController extends Controller
     public function show($slug)
     {
         $product = Product::where('slug', $slug)
-            ->with('info', 'info.brand', 'info.category', 'info.category.parent', 'images', 'characteristic_options', 'characteristic_options.characteristic')
+            ->with('info', 'info.brand', 'info.category', 'info.category.parent', 'images', 'characteristic_options', 'characteristic_options.characteristic', 'badges')
             // ->with('info.category.attributes', 'info.category.attributes.options')
             // ->with('attribute_options')
             ->first();
-            
+
         // $characteristic_groups = [];
         // foreach($product->characteristic_options as $option) {
         //     $characteristic_groups[] = $option->characteristic->group;
@@ -150,7 +150,7 @@ class ProductController extends Controller
         foreach($attributes as $attribute) {
             // return response($attribute);
             $result_attributes[$counter]['id'] = $attribute['id'];
-            $result_attributes[$counter]['title'] = $attribute['title'];            
+            $result_attributes[$counter]['title'] = $attribute['title'];
             $result_attributes[$counter]['options'] = Attribute::find($attribute['id'])->options->pluck('id')->toArray();
 
             $counter ++;
@@ -181,7 +181,7 @@ class ProductController extends Controller
                     ...
                 ]
             ]
-        */       
+        */
 
         $res = [];
         $counter = 0;

@@ -6,11 +6,12 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Region extends Model
+class Village extends Model
 {
     use HasFactory;
 
     protected $fillable = [
+        'district_id',
         'name',
         'for_search',
     ];
@@ -19,13 +20,13 @@ class Region extends Model
         'name' => 'array',
     ];
 
+    public function district()
+    {
+        return $this->belongsTo(District::class);
+    }
+
     public function users()
     {
         return $this->hasMany(User::class);
-    }
-
-    public function districts()
-    {
-        return $this->hasMany(District::class);
     }
 }
