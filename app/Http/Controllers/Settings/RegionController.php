@@ -7,8 +7,8 @@ use App\Models\Settings\{
     Region,
 };
 use App\Http\Controllers\Controller;
-use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class RegionController extends Controller
 {
@@ -41,13 +41,12 @@ class RegionController extends Controller
             'name' => 'required|array',
             'name.ru' => 'required',
         ]);
+        $data = $request->all();
+        $data['for_search'] = $this->for_search($request, ['name']);
 
         DB::beginTransaction();
         try {
-            $region = Region::create([
-                'name' => $request->name,
-                'for_search' => $this->for_search($request, ['name'])
-            ]);
+            $region = Region::create($data);
 
             DB::commit();
         } catch (\Exception $e) {
@@ -93,15 +92,13 @@ class RegionController extends Controller
             'name' => 'required|array',
             'name.ru' => 'required',
         ]);
+        $data = $request->all();
+        $data['for_search'] = $this->for_search($request, ['name']);
 
         DB::beginTransaction();
         try {
-            $region->update([
-                'name' => $request->name,
-                'for_search' => $this->for_search($request, ['name'])
-            ]);
+            $region->update($data);
 
-            $sushestvuyushie_goroda_ids = $region->districts->pluck('id')->toArray();
             $qolganlari_ids = $request->districts;
             $qolganlari_ids = array_map(function($i) {
                 if($i['id'] != 0) return $i['id'];
@@ -166,7 +163,7 @@ class RegionController extends Controller
                 'message' => $e->getMessage()
             ], 500);
         }
-        
+
         return response([
             'message' => __('messages.successfully_deleted')
         ]);

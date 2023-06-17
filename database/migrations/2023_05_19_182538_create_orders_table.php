@@ -21,13 +21,14 @@ class CreateOrdersTable extends Migration
             $table->string('phone_number');
             $table->foreignId('region_id')->nullable()->constrained();
             $table->foreignId('district_id')->nullable()->constrained();
+            $table->foreignId('village_id')->nullable()->constrained();
             $table->text('address')->nullable();
             $table->string('postcode')->nullable();
             $table->string('email')->nullable();
             $table->text('comments')->nullable();
             $table->enum('payment_method', ['cash', 'payme', 'uzum', 'click', 'payze']);
             /*
-             * [{"product_id" => 1, "count" => 2, "price" => 150000}, ...]
+             * [{"product_id" => 1, "count" => 2, "price" => 150000, "price_with_discount" => 120000}, ...]
              */
             $table->text('products');
             $table->bigInteger('amount');
@@ -36,6 +37,8 @@ class CreateOrdersTable extends Migration
              * pending - v ojidanii tovara(masalan tovar hali skladda yo'q, klient kutvotti)
              */
             $table->enum('status', ['new', 'canceled', 'accepted', 'done', 'returned', 'pending']);
+
+            $table->integer('delivery_price')->default(0);
             $table->timestamps();
         });
     }

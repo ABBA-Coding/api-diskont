@@ -3,11 +3,7 @@
 namespace App\Http\Controllers\web;
 
 use Illuminate\Support\Facades\DB;
-use App\Models\{
-    Products\Product,
-    Orders\Order,
-    Orders\OneClickOrder,
-};
+use App\Models\{Products\Product, Orders\Order, Orders\OneClickOrder, Settings\Region};
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -35,6 +31,24 @@ class OrderController extends Controller
         $data['status'] = 'new';
         $data['amount'] = $this->amount_calculate($request);
         $data['is_paid'] = 0;
+        $data['delivery_price'] = isset($data['region_id']) ? Region::find($data['region_id'])->delivery_price : 0;
+
+        foreach ($data['products'] as $item) {
+            $product = Product::find($item['product_id']);
+
+            if(!$product->discount && !empty($product->discount)) {
+                if($product->discount->percent != null) {
+                    $inner_amount = $product->price * $product->discount->percent / 100;
+                } else {
+                    $inner_amount = $product->price - $product->discount->amount;
+                    if($inner_amount < 0) $inner_amount = 0;
+                }
+
+                $item['price_with_discount'] = $inner_amount;
+            } else {
+                $item['price_with_discount'] = $product->price;
+            }
+        }
 
         DB::beginTransaction();
         try {
@@ -94,6 +108,7 @@ class OrderController extends Controller
         foreach ($request->products as $id) {
             $product = Product::find($id);
             if($product) {
+                dd($product->discount);
                 if(!$product->discount && !empty($product->discount)) {
                     if($product->discount->percent != null) {
                         $inner_amount = $product->price * $product->discount->percent / 100;
@@ -108,6 +123,15 @@ class OrderController extends Controller
                 $amount += $product->price;
             }
 
+        }
+
+        /*
+         * dostavka pulini minus qilamiz
+         */
+        if(isset($request->region_id)) {
+            $region = Region::find($request->region_id);
+
+            $amount = $amount - $region->delivery_price;
         }
 
         return $amount;

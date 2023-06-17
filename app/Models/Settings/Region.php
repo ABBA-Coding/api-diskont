@@ -13,6 +13,7 @@ class Region extends Model
     protected $fillable = [
         'name',
         'for_search',
+        'delivery_price',
     ];
 
     protected $casts = [
