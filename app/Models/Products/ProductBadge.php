@@ -12,6 +12,8 @@ class ProductBadge extends Model
     protected $fillable = [
         'name',
         'for_search',
+        'background_color',
+        'text_color'
     ];
 
     protected $casts = [

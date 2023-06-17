@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Products;
 
 use App\Models\Products\ProductBadge;
 use App\Http\Controllers\Controller;
-use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ProductBadgeController extends Controller
 {
@@ -38,13 +38,12 @@ class ProductBadgeController extends Controller
             'name' => 'required|array',
             'name.ru' => 'required',
         ]);
+        $data = $request->all();
+        $data['for_search'] = $this->for_search($request, ['name']);
 
         DB::beginTransaction();
         try {
-            $badge = ProductBadge::create([
-                'name' => $request->name,
-                'for_search' => $this->for_search($request, ['name'])
-            ]);
+            $badge = ProductBadge::create($data);
 
             DB::commit();
         } catch (\Exception $e) {
@@ -90,13 +89,12 @@ class ProductBadgeController extends Controller
             'name' => 'required|array',
             'name.ru' => 'required',
         ]);
+        $data = $request->all();
+        $data['for_search'] = $this->for_search($request, ['name']);
 
         DB::beginTransaction();
         try {
-            $productBadge->update([
-                'name' => $request->name,
-                'for_search' => $this->for_search($request, ['name'])
-            ]);
+            $productBadge->update($data);
             $productBadge->products()->sync($request->products);
 
             DB::commit();
@@ -134,7 +132,7 @@ class ProductBadgeController extends Controller
                 'message' => $e->getMessage()
             ], 500);
         }
-        
+
         return response([
             'message' => __('messages.successfully_deleted')
         ]);
