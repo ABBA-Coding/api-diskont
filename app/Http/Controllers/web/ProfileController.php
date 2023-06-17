@@ -28,14 +28,13 @@ class ProfileController extends Controller
             'message' => 'Unauthorized'
         ], 401);
 
-         if(Hash::make($request->current_password) != auth('sanctum')->user()->password) return response([
+         if(auth('sanctum')->user()->password_updated && Hash::make($request->current_password) != auth('sanctum')->user()->password) return response([
              'message' => 'Nepravilniy parol'
          ], 400);
 
         auth('sanctum')->user()->update([
             'name' => $request->name,
             'password' => $request->password ? Hash::make($request->password) : auth('sanctum')->user()->password,
-            'login' => $request->phone_number,
             'password_updated' => 1,
             'address' => $request->address,
             'region_id' => $request->region_id,
