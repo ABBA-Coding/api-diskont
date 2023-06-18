@@ -27,7 +27,7 @@ class ComparisonController extends Controller
         foreach($characteristic_groups as $group) {
             foreach($group->characteristics as $characteristic) {
                 foreach($products as $product) {
-                    $response_characteristics[$group->id][$characteristic->id][$product->id] = $this->get_option_id($characteristic->id, $product->id);
+                    $response_characteristics[$group->name['ru']][$characteristic->name['ru']][$product->id] = $this->get_option_id($characteristic->id, $product->id);
                 }
             }
         }

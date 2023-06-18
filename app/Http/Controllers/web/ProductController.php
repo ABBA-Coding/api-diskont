@@ -21,7 +21,7 @@ class ProductController extends Controller
     {
         if(isset($request->limit) && $request->limit != '' && $request->limit < 41) $this->set_paginate($request->limit);
         $products = Product::select('id', 'info_id', 'model', 'price', 'slug')
-            ->with('info', 'info.brand', 'info.category', 'images', 'attribute_options', 'badges');
+            ->with('info', 'info.brand', 'info.category', 'images', 'attribute_options', 'badges', 'characteristic_options');
 
         if(isset($request->type) && $request->type != '') {
             switch ($request->type) {
