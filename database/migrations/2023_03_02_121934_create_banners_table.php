@@ -15,9 +15,10 @@ class CreateBannersTable extends Migration
     {
         Schema::create('banners', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('showcase_id')->nullable()->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->text('img');
             $table->text('link')->nullable();
-            $table->enum('type', ['main', 'promo', 'small']);
+            $table->enum('type', ['main', 'promo', 'top', 'medium', 'small', 'bottom']);
             $table->timestamps();
         });
     }

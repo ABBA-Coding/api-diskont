@@ -19,8 +19,13 @@ class Showcase extends Model
         'name' => 'array'
     ];
 
-    public function products()
+    public function products(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(Product::class)->withPivot('position')->orderBy('position');
+    }
+
+    public function banners(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Banner::class);
     }
 }

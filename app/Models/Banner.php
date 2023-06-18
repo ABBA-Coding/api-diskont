@@ -10,6 +10,7 @@ class Banner extends Model
     use HasFactory;
 
     protected $fillable = [
+        'showcase_id',
         'img',
         'link',
         'type',
@@ -55,5 +56,10 @@ class Banner extends Model
         }
 
         return $img;
+    }
+
+    public function showcase(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Showcase::class);
     }
 }

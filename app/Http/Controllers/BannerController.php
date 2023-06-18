@@ -17,8 +17,8 @@ class BannerController extends Controller
     public function index()
     {
         $banners = Banner::latest()
-            ->select('id', 'img', 'link', 'type')
-            // ->with('parent', 'attribute_groups', 'attribute_groups.attributes', 'characteristic_groups', 'characteristic_groups.characteristics')
+            ->select('id', 'showcase_id', 'img', 'link', 'type')
+            ->with('showcase')
             ->paginate($this->PAGINATE);
 
         return response([
@@ -39,6 +39,7 @@ class BannerController extends Controller
             'img.' . $this->main_lang => 'required',
             'link' => 'nullable|array',
             'type' => 'required|in:main,promo,small',
+            'showcase_id' => 'nullable|integer',
         ]);
 
         foreach($request->img as $key => $item) {
@@ -57,6 +58,7 @@ class BannerController extends Controller
             'img' => $img,
             'link' => $request->link,
             'type' => $request->type,
+            'showcase_id' => $request->showcase_id,
         ]);
 
         return response([
@@ -89,6 +91,7 @@ class BannerController extends Controller
             'img.' . $this->main_lang => 'required',
             'link' => 'nullable|array',
             'type' => 'required|in:main,promo,small',
+            'showcase_id' => 'nullable|integer',
         ]);
 
         foreach($request->img as $key => $item) {
@@ -96,7 +99,7 @@ class BannerController extends Controller
                 $explode_logo = explode('/', $request->img[$key]);
                 Storage::disk('public')->move('/uploads/temp/' . $explode_logo[count($explode_logo) - 1], '/uploads/banners/' . $explode_logo[count($explode_logo) - 1]);
                 Storage::disk('public')->move('/uploads/temp/200/' . $explode_logo[count($explode_logo) - 1], '/uploads/banners/200/' . $explode_logo[count($explode_logo) - 1]);
-                Storage::disk('public')->move('/uploads/temp/600/' . $explode_logo[count($explode_logo) - 1], '/uploads/banners/600/' . $explode_logo[count($explode_logo) - 1]); 
+                Storage::disk('public')->move('/uploads/temp/600/' . $explode_logo[count($explode_logo) - 1], '/uploads/banners/600/' . $explode_logo[count($explode_logo) - 1]);
                 $img[$key] = $explode_logo[count($explode_logo) - 1];
             }
         }
@@ -107,6 +110,7 @@ class BannerController extends Controller
             'img' => $img,
             'link' => $request->link,
             'type' => $request->type,
+            'showcase_id' => $request->showcase_id,
         ]);
 
         return response([
