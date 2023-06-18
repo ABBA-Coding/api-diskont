@@ -26,38 +26,6 @@ class Product extends Model
         'slug',
     ];
 
-    public function info()
-    {
-        return $this->belongsTo(ProductInfo::class, 'info_id')->select('id', 'name', 'desc', 'brand_id', 'category_id', 'default_product_id', 'is_active');
-    }
-
-    public function images()
-    {
-        return $this->belongsToMany(ProductImage::class, 'product_product_image');
-    }
-
-    public function attribute_options()
-    {
-        return $this->belongsToMany(AttributeOption::class);
-    }
-
-    public function characteristic_options()
-    {
-        return $this->belongsToMany(CharacteristicOption::class);
-    }
-
-    public function showcases()
-    {
-        return $this->belongsToMany(Showcase::class);
-    }
-
-    public function badges()
-    {
-        return $this->belongsToMany(ProductBadge::class);
-    }
-
-
-
     protected $appends = [
         'discount',
     ];
@@ -65,10 +33,10 @@ class Product extends Model
     public function getDiscountAttribute()
     {
         $product_discount = Discount::where([
-                ['type', 'product'],
-                ['status', 1],
-                ['start', '<=', date('Y-m-d')],
-            ])
+            ['type', 'product'],
+            ['status', 1],
+            ['start', '<=', date('Y-m-d')],
+        ])
             ->where(function ($q) {
                 $q->where('end', null)
                     ->orWhere('end', '>=', date('Y-m-d'));
@@ -80,10 +48,10 @@ class Product extends Model
         if($product_discount) return $product_discount;
 
         return Discount::where([
-                ['type', 'brand'],
-                ['status', 1],
-                ['start', '<=', date('Y-m-d')]
-            ])
+            ['type', 'brand'],
+            ['status', 1],
+            ['start', '<=', date('Y-m-d')]
+        ])
             ->where(function ($q) {
                 $q->where('end', null)
                     ->orWhere('end', '>=', date('Y-m-d'));
@@ -91,5 +59,35 @@ class Product extends Model
             ->whereJsonContains('ids', $this->info->brand_id)
             ->latest()
             ->first();
+    }
+
+    public function info()
+    {
+        return $this->belongsTo(ProductInfo::class, 'info_id')->select('id', 'name', 'desc', 'brand_id', 'category_id', 'default_product_id', 'is_active');
+    }
+
+    public function images()
+    {
+        return $this->belongsToMany(ProductImage::class, 'product_product_image');
+    }
+
+    public function attribute_options(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(AttributeOption::class);
+    }
+
+    public function characteristic_options(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(CharacteristicOption::class);
+    }
+
+    public function showcases(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Showcase::class);
+    }
+
+    public function badges(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(ProductBadge::class);
     }
 }

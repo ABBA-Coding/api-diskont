@@ -19,7 +19,7 @@ class ProductFactory extends Factory
 
         return [
             'model' => $this->faker->sentence(1),
-            'price' => $this->faker->randomFloat(2,100000,1000000),
+            'price' => $this->faker->numberBetween(50000, 15000000),
             'is_popular' => rand(0,1),
             'product_of_the_day' => rand(0,1),
             'status' => $status[rand(0,1)],

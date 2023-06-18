@@ -24,14 +24,16 @@ class OrderController extends Controller
             'payment_method' => 'required|in:cash,payme,uzum,click,payze',
             'products' => 'required',
             'amount' => 'required|numeric',
+
         ]);
 
         $data = $request->all();
         $data['client_id'] = auth()->id();
         $data['status'] = 'new';
-        $data['amount'] = $this->amount_calculate($request);
         $data['is_paid'] = 0;
         $data['delivery_price'] = isset($data['region_id']) ? Region::find($data['region_id'])->delivery_price : 0;
+        $data['products'] = $this->products_reformat($data['products']);
+        $data['amount'] = $this->amount_calculate($data['products'], $data['region_id'], $data['delivery_method']);
 
         foreach ($data['products'] as $item) {
             $product = Product::find($item['product_id']);
@@ -52,7 +54,7 @@ class OrderController extends Controller
 
         DB::beginTransaction();
         try {
-            Order::create($data);
+            $order = Order::create($data);
 
             DB::commit();
         } catch (\Exception $e) {
@@ -65,7 +67,7 @@ class OrderController extends Controller
 
         return response([
             'message' => 'Successfully ordered',
-            'data' => $request->all()
+            'order' => $order
         ]);
     }
 
@@ -101,39 +103,51 @@ class OrderController extends Controller
         ]);
     }
 
-    public function amount_calculate(Request $request)
+    public function amount_calculate($products, $region_id, $delivery_method): int
     {
         $amount = 0;
 
-        foreach ($request->products as $id) {
-            $product = Product::find($id);
-            if($product) {
-                dd($product->discount);
-                if(!$product->discount && !empty($product->discount)) {
-                    if($product->discount->percent != null) {
-                        $inner_amount = $product->price * $product->discount->percent / 100;
-                    } else {
-                        $inner_amount = $product->price - $product->discount->amount;
-                        if($inner_amount < 0) $inner_amount = 0;
-                    }
-
-                    $amount += $inner_amount;
-                }
-
-                $amount += $product->price;
-            }
-
+        foreach ($products as $item) {
+            $amount += $item['price_with_discount'] * $item['count'];
         }
 
         /*
          * dostavka pulini minus qilamiz
          */
-        if(isset($request->region_id)) {
-            $region = Region::find($request->region_id);
+        if(isset($region_id) && $delivery_method == 'courier') {
+            $delivery_price = 0;
 
-            $amount = $amount - $region->delivery_price;
+            $region = Region::find($region_id);
+            if($region) $delivery_price = $region->delivery_price;
+
+            $amount = $amount + $delivery_price;
         }
 
-        return $amount;
+        return (int)$amount;
+    }
+
+    public function products_reformat($products): array
+    {
+        $result = [];
+
+        foreach ($products as $key => $item) {
+            $result[$key] = $item;
+            $product = Product::find($item['product_id'])->toArray();
+            $result[$key]['price'] = $product['price'];
+            if($product['discount']) {
+                if($product['discount']['percent']) {
+                    $result[$key]['price_with_discount'] = $product['price'] * $product['discount']['percent'] / 100;
+                } else if($product['discount']['amount']) {
+                    $result[$key]['price_with_discount'] = $product['price'] - $product['discount']['amount'];
+                    if($result[$key]['price_with_discount'] > 0) $result[$key]['price_with_discount'] = 0;
+                } else {
+                    $result[$key]['price_with_discount'] = $product['price'];
+                }
+            } else {
+                $result[$key]['price_with_discount'] = $product['price'];
+            }
+        }
+
+        return $result;
     }
 }
