@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Products;
 
 use App\Models\Attributes\AttributeOption;
+use App\Models\Category;
 use App\Models\Products\{
     Product,
     ProductInfo,
@@ -71,6 +72,16 @@ class ProductController extends Controller
             'products.*.variations.*.is_popular' => 'nullable|boolean',
             'products.*.variations.*.product_of_the_day' => 'nullable|boolean',
         ]);
+        /*
+         * Category check
+         */
+        $category = Category::find($request->category_id);
+        if(!$category) return response([
+            'message' => 'Category not found',
+        ], 404);
+        if(!$category->parent) return response([
+            'message' => 'Nelzya dobavit na glavnuyu kategoriyu'
+        ], 500);
 
         DB::beginTransaction();
         try {
@@ -151,7 +162,7 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Product  $product 
+     * @param  \App\Models\Product  $product
      * @return \Illuminate\Http\Response
      */
     public function show(ProductInfo $product)
@@ -199,7 +210,7 @@ class ProductController extends Controller
 
             $counter ++;
         }
-        
+
 
         return response([
             'products' => $result,
@@ -252,7 +263,7 @@ class ProductController extends Controller
                                 ? (
                                     $data['name']['ru'] . (
                                                             isset($data['desc']['ru'])
-                                                            ? ' ' . $data['desc']['ru'] 
+                                                            ? ' ' . $data['desc']['ru']
                                                             : ''
                                                         )
                                 )
@@ -375,7 +386,7 @@ class ProductController extends Controller
                             'status' => $variation['status'],
                             'slug' => $this->product_slug_create($product, $additional_for_slug, 0)
                         ]); // is_available ne ispolzuyetsya
-                        
+
                         $qolgan_rasmlar_ids = array_map(function($i) {
                             return $i['id'];
                         }, $qolgan_rasmlar);
@@ -392,7 +403,7 @@ class ProductController extends Controller
                     if(count($new_images_ids) != 0) {
                          foreach($new_images_ids as $new_images_id) {
                             $variation_model->images()->attach($new_images_id);
-                        }   
+                        }
                     }
 
                     /*
@@ -424,7 +435,7 @@ class ProductController extends Controller
                 return response([
                     'message' => 'Ne vibran produkt po umolchaniyu'
                 ]);
-            } 
+            }
             $product->update([
                 'default_product_id' => $default_product_id
             ]);
@@ -489,7 +500,7 @@ class ProductController extends Controller
         /*
             udalim variacii pri obnovlenii informacii produkta
         */
-        
+
         $req_products = $request->products;
         $remaining_products_ids = [];
 
