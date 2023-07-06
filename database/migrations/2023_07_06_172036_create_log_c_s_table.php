@@ -16,6 +16,7 @@ class CreateLogCSTable extends Migration
         Schema::create('log_c_s', function (Blueprint $table) {
             $table->id();
             $table->text('req');
+            $table->string('method');
             $table->longText('res');
             $table->longText('body');
             $table->timestamps();

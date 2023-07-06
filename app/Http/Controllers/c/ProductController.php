@@ -12,6 +12,26 @@ class ProductController extends Controller
     {
         $data = [
             'req' => $request->url(),
+            'method' => $request->method(),
+            'res' => '',
+            'body' => json_encode($request->all())
+        ];
+
+        // obnovlenie i save qilish kerak
+        // type code
+
+        LogC::create($data);
+
+        return response([
+            'message' => 'Success'
+        ]);
+    }
+
+    public function delete(Request $request)
+    {
+        $data = [
+            'req' => $request->url(),
+            'method' => $request->method(),
             'res' => '',
             'body' => json_encode($request->all())
         ];

@@ -16,11 +16,15 @@ class Check1c
      */
     public function handle(Request $request, Closure $next)
     {
+        $data = [
+            'username' => 'for1c',
+            'password' => 'wxaEy&696Zpl'
+        ];
         $str = substr($request->headers->get('authorization'), 6);
         $credentials = base64_decode($str);
         $username = explode( ':', $credentials)[0];
         $password = explode( ':', $credentials)[1];
-        if($username === 'for1c' && $password === 'wxaEy&696Zpl') {
+        if($username === $data['username'] && $password === $data['password']) {
             return $next($request);
         }
 

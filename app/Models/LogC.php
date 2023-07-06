@@ -11,6 +11,7 @@ class LogC extends Model
 
     protected $fillable = [
         'req',
+        'method',
         'res',
         'body',
     ];
