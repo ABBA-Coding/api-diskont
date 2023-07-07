@@ -43,4 +43,12 @@ class Post extends Model
     {
         return $this->img ? (url('/uploads/posts/600') . '/' . $this->img) : null;
     }
+
+    public function translatable(): array
+    {
+        return [
+            'title',
+            'desc',
+        ];
+    }
 }

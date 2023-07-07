@@ -29,6 +29,25 @@ class CategoryController extends Controller
 
         $categories = $categories->paginate($this->PAGINATE);
 
+        $this->without_lang($categories);
+        foreach($categories as $item) {
+            $this->without_lang($item->children);
+            foreach ($item->children as $children) {
+                $this->without_lang($children->attributes);
+                foreach ($children->attributes as $attributes) {
+                    $this->without_lang($attributes->options);
+                }
+
+                $this->without_lang($children->children);
+                foreach ($children->children as $children_1) {
+                    $this->without_lang($children_1->attributes);
+                    foreach ($children_1->attributes as $attributes) {
+                        $this->without_lang($attributes->options);
+                    }
+                }
+            }
+        }
+
         return response([
             'categories' => $categories
         ]);
@@ -66,19 +85,19 @@ class CategoryController extends Controller
         if(isset($request->sort) && $request->sort != '') {
             switch($request->sort) {
                 case 'popular':
-                    // 
+                    //
                     break;
                 case 'cheap_first':
-                    // 
+                    //
                     break;
                 case 'expensive_first':
-                    // 
+                    //
                     break;
                 case 'new':
-                    // 
+                    //
                     break;
                 case 'high_rating':
-                    // 
+                    //
                     break;
             }
         }
@@ -95,13 +114,35 @@ class CategoryController extends Controller
                     $attributes_ids = explode(',', $request->input('attributes'));
                     $qi->whereIn('attribute_options.id', $attributes_ids);
                 });
-            });    
+            });
         }
         $product_infos = $product_infos->with('default_product', 'default_product.images', 'default_product.attribute_options')
             ->get();
 
         $attributes = $category->attributes()->with('options')->get();
 
+        $this->without_lang([$category]);
+        $this->without_lang($category->children);
+        foreach ($category->children as $children) {
+            $this->without_lang($children->attributes);
+            foreach ($children->attributes as $attributes_1) {
+                $this->without_lang($attributes_1->options);
+            }
+
+            $this->without_lang($children->children);
+            foreach ($children->children as $children_1) {
+                $this->without_lang($children_1->attributes);
+                foreach ($children_1->attributes as $attributes_1) {
+                    $this->without_lang($attributes_1->options);
+                }
+            }
+        }
+
+        $this->without_lang($product_infos);
+        $this->without_lang($attributes);
+        foreach ($attributes as $attribute) {
+            $this->without_lang($attribute->options);
+        }
 
         return response([
             'category' => $category,

@@ -55,12 +55,19 @@ class ProductController extends Controller
 
         $products = $products->paginate($this->PAGINATE);
 
+        foreach ($products as $product) {
+            $this->without_lang($product->attribute_options);
+            $this->without_lang($product->characteristic_options);
+            $this->without_lang([$product->info, $product->info->category]);
+            $this->without_lang([$product->info->category->parent, $product->info->category->parent->parent]);
+        }
+
         return response([
             'products' => $products
         ]);
     }
 
-    public function show($slug)
+    public function show(Request $request, $slug)
     {
         $product = Product::where('slug', $slug)
             ->with('info', 'info.brand', 'info.category', 'info.category.parent', 'images', 'characteristic_options', 'characteristic_options.characteristic', 'badges')
@@ -251,10 +258,33 @@ class ProductController extends Controller
         }
         unset($counter);
 
+        $this->without_lang($product->attribute_options);
+        $this->without_lang($product->characteristic_options);
+        $this->without_lang([$product->info, $product->info->category]);
+        foreach ($product->info->products as $product_1) {
+            $this->without_lang($product_1->attribute_options);
+            $this->without_lang([$product_1->info]);
+        }
+        $this->without_lang([$product->info->category->parent, $product->info->category->parent->parent]);
+        $res_without_lang = [];
+        foreach ($res as $re) {
+            $lang = $request->header('lang');
+            if(!$lang) $lang = $this->main_lang;
+
+            $re['title'] = $re['title'][$lang];
+            $options = [];
+            foreach ($re['options'] as $option) {
+                $option['title'] = $option['title'][$lang];
+                $options[] = $option;
+            }
+            $re['options'] = $options;
+
+            $res_without_lang[] = $re;
+        }
 
         return response([
             'product' => $product,
-            'attributes' => $res
+            'attributes' => $res_without_lang
         ]);
     }
 

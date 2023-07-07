@@ -30,4 +30,11 @@ class AttributeOption extends Model
     {
         return $this->belongsToMany(Product::class);
     }
+
+    public function translatable(): array
+    {
+        return [
+            'name',
+        ];
+    }
 }

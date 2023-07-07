@@ -28,4 +28,11 @@ class Showcase extends Model
     {
         return $this->hasMany(Banner::class);
     }
+
+    public function translatable(): array
+    {
+        return [
+            'name',
+        ];
+    }
 }

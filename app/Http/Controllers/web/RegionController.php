@@ -13,6 +13,11 @@ class RegionController extends Controller
         $regions = Region::with('districts')
             ->get();
 
+        $this->without_lang($regions);
+        foreach ($regions as $region) {
+            $this->without_lang($region->districts);
+        }
+
         return response([
             'regions' => $regions
         ]);

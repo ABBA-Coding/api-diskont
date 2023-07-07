@@ -21,6 +21,8 @@ class PostController extends Controller
             ->select('id', 'title', 'desc', 'img', 'slug', 'created_at')
             ->paginate($this->PAGINATE);
 
+        $this->without_lang($posts);
+
         return response([
             'posts' => $posts
         ]);
@@ -36,6 +38,9 @@ class PostController extends Controller
             ->select('id', 'title', 'desc', 'img', 'slug', 'created_at')
             ->limit(4)
             ->get();
+
+        $this->without_lang([$post]);
+        $this->without_lang($other_posts);
 
         return response([
             'post' => $post,

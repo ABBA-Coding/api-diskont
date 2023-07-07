@@ -92,4 +92,12 @@ class Category extends Model
     {
         return $this->icon ? (url('/uploads/categories/icons/600') . '/' . $this->icon) : null;
     }
+
+    public function translatable(): array
+    {
+        return [
+            'name',
+            'desc',
+        ];
+    }
 }

@@ -63,4 +63,12 @@ class ProductInfo extends Model
         if($this->comments->count() == 0) return null;
         return round($this->comments->sum('stars') / $this->comments->count());
     }
+
+    public function translatable(): array
+    {
+        return [
+            'name',
+            'desc',
+        ];
+    }
 }

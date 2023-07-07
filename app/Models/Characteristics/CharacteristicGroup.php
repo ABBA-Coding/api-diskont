@@ -27,4 +27,11 @@ class CharacteristicGroup extends Model
     {
         return $this->belongsToMany(Category::class);
     }
+
+    public function translatable(): array
+    {
+        return [
+            'name',
+        ];
+    }
 }

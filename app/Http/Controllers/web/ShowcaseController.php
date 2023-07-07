@@ -13,6 +13,8 @@ class ShowcaseController extends Controller
         $showcases = Showcase::with('products', 'products.info', 'products.images')
             ->get();
 
+        $this->without_lang($showcases);
+
         return response([
             'showcases' => $showcases
         ]);

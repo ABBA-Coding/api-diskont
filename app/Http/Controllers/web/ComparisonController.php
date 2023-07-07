@@ -22,12 +22,22 @@ class ComparisonController extends Controller
         $category = (isset($request->category) && $request->category != '') ? $request->category : $products[0]->info->category->id;
 
         $characteristic_groups = Category::find($category)->characteristic_groups;
+        $lang = $request->header('lang');
+        if(!$lang) $lang = $this->main_lang;
         $response_characteristics = [];
 
         foreach($characteristic_groups as $group) {
             foreach($group->characteristics as $characteristic) {
                 foreach($products as $product) {
-                    $response_characteristics[$group->name['ru']][$characteristic->name['ru']][$product->id] = $this->get_option_id($characteristic->id, $product->id);
+                    $response_characteristics[$group->name[$lang]][$characteristic->name[$lang]][$product->id] = $this->get_option_id($characteristic->id, $product->id);
+                }
+            }
+        }
+
+        foreach ($response_characteristics as $response_characteristic) {
+            foreach ($response_characteristic as $item) {
+                foreach ($item as $item_1) {
+                    if($item_1) $this->without_lang([$item_1]);
                 }
             }
         }

@@ -72,24 +72,33 @@ class BrandController extends Controller
         if(isset($request->sort) && $request->sort != '') {
             switch($request->sort) {
                 case 'popular':
-                    // 
+                    //
                     break;
                 case 'cheap_first':
-                    // 
+                    //
                     break;
                 case 'expensive_first':
-                    // 
+                    //
                     break;
                 case 'new':
-                    // 
+                    //
                     break;
                 case 'high_rating':
-                    // 
+                    //
                     break;
             }
         }
         $products = $products->with('products')
             ->paginate($this->PAGINATE);
+
+        $this->without_lang($categories);
+        $this->without_lang($products);
+        foreach ($products as $product) {
+//            dd($product);
+            foreach ($product->products as $item) {
+                $this->without_lang([$item->info]);
+            }
+        }
 
         return response([
             'brand' => $brand,

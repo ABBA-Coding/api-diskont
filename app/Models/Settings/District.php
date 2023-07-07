@@ -28,4 +28,11 @@ class District extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    public function translatable(): array
+    {
+        return [
+            'name',
+        ];
+    }
 }

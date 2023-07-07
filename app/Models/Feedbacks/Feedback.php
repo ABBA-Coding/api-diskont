@@ -23,4 +23,11 @@ class Feedback extends Model
     {
         return $this->hasMany(FeedbackImage::class, 'feedback_id')->select('id', 'feedback_id', 'img');
     }
+
+    public function translatable(): array
+    {
+        return [
+            'feedback',
+        ];
+    }
 }

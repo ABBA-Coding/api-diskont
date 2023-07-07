@@ -66,5 +66,6 @@ class Kernel extends HttpKernel
         'abilities' => \Laravel\Sanctum\Http\Middleware\CheckAbilities::class,
         'ability' => \Laravel\Sanctum\Http\Middleware\CheckForAnyAbility::class,
         'check1c' => \App\Http\Middleware\Check1c::class,
+        'set_lang' => \App\Http\Middleware\SetLang::class,
     ];
 }

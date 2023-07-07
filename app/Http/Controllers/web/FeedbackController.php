@@ -22,6 +22,8 @@ class FeedbackController extends Controller
             ->with('images')
             ->paginate($this->PAGINATE);
 
+        $this->without_lang($feedbacks);
+
         return response([
             'feedbacks' => $feedbacks
         ]);

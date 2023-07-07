@@ -82,6 +82,11 @@ class OrderController extends Controller
             ->with('info', 'images')
             ->get();
 
+        foreach ($products as $product) {
+//            dd($product);
+            $this->without_lang([$product->info]);
+        }
+
         return response([
             'products' => $products
         ]);

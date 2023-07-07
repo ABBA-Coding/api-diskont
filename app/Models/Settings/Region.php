@@ -29,4 +29,11 @@ class Region extends Model
     {
         return $this->hasMany(District::class);
     }
+
+    public function translatable(): array
+    {
+        return [
+            'name',
+        ];
+    }
 }

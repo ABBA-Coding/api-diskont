@@ -29,4 +29,11 @@ class Attribute extends Model
     {
         return $this->belongsToMany(Category::class)->select('name', 'parent_id', 'is_popular', 'desc', 'icon', 'img');
     }
+
+    public function translatable(): array
+    {
+        return [
+            'name',
+        ];
+    }
 }

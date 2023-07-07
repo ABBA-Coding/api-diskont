@@ -28,4 +28,11 @@ class Characteristic extends Model
     {
         return $this->hasMany(CharacteristicOption::class)->select('id', 'characteristic_id', 'name');
     }
+
+    public function translatable(): array
+    {
+        return [
+            'name',
+        ];
+    }
 }

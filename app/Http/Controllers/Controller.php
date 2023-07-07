@@ -43,7 +43,7 @@ class Controller extends BaseController
             }
         } else {
             if($slug == $model::find($update_id)->slug || $slug.'-'.$update_id == $model::find($update_id)->slug) return $model::find($update_id)->slug;
-            
+
             $slug = $model::where('slug', $slug)->exists() ? $slug.'-'.$update_id : $slug;
         }
 
@@ -67,7 +67,7 @@ class Controller extends BaseController
             }
         } else {
             if($slug == Product::find($update_id)->slug || $slug.'-'.$update_id == Product::find($update_id)->slug) return Product::find($update_id)->slug;
-            
+
             $slug = Product::where('slug', $slug)->exists() ? $slug.'-'.$update_id : $slug;
         }
 
@@ -92,5 +92,17 @@ class Controller extends BaseController
         }
 
         return $result;
+    }
+
+    public function without_lang($arr)
+    {
+        if(isset($arr[0]) && is_null($arr[0])) return [];
+
+        foreach($arr as $item) {
+            foreach($item->translatable() as $column) {
+                $item->$column = $item->$column[app()->getLocale()] ?? '';
+            }
+        }
+        return $arr;
     }
 }
