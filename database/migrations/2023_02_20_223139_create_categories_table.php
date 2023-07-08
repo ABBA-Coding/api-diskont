@@ -15,8 +15,10 @@ class CreateCategoriesTable extends Migration
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
+            $table->string('c_id')->unique()->nullable();
             $table->text('name');
             $table->bigInteger('parent_id')->nullable();
+            $table->string('parent_c_id')->nullable();
             $table->boolean('is_popular')->default(0);
             $table->mediumText('desc')->nullable();
             $table->string('icon')->nullable();

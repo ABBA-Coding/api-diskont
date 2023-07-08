@@ -15,7 +15,7 @@ class CreateProductsTable extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('info_id');
+            $table->bigInteger('info_id')->nullable();
             $table->string('c_id')->unique()->nullable();
             $table->string('model')->nullable();
             $table->integer('price')->nullable();
@@ -24,6 +24,8 @@ class CreateProductsTable extends Migration
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->boolean('is_available')->default(1);
             $table->string('slug')->unique();
+            $table->text('name')->nullable();
+            $table->text('desc')->nullable();
             $table->timestamps();
         });
     }

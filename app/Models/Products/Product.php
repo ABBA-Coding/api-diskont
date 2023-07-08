@@ -24,6 +24,8 @@ class Product extends Model
         'product_of_the_day',
         'is_available',
         'slug',
+        'name',
+        'desc',
     ];
 
     protected $appends = [
