@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Products;
 
 use App\Models\Attributes\AttributeOption;
 use App\Models\Category;
+use App\Models\Characteristics\Characteristic;
+use App\Models\Characteristics\CharacteristicOption;
 use App\Models\Products\{
     Product,
     ProductInfo,
@@ -66,7 +68,7 @@ class ProductController extends Controller
             'products.*.variations.*.options' => 'required|array',
             'products.*.variations.*.options.*' => 'required|integer',
             'products.*.variations.*.characteristics' => 'required|array',
-            'products.*.variations.*.characteristics.*' => 'required|integer',
+            'products.*.variations.*.characteristics.*' => 'required',
             'products.*.variations.*.price' => 'required|numeric',
             'products.*.variations.*.is_default' => 'required|boolean',
             'products.*.variations.*.is_popular' => 'nullable|boolean',
@@ -137,7 +139,17 @@ class ProductController extends Controller
                     if($variation['is_default']) $default_product_id = $item->id;
 
                     $item->attribute_options()->sync($variation['options']);
-                    $item->characteristic_options()->sync($variation['characteristics']);
+
+                    $characteristics = [];
+                    foreach ($variation['characteristics'] as $characteristicOption) {
+                        $savedCharacteristicOption = CharacteristicOption::create([
+                            'name' => $characteristicOption['name'],
+                            'characteristic_id' => $characteristicOption['characteristic_id']
+                        ]);
+
+                        $characteristics[] = $savedCharacteristicOption->id;
+                    }
+                    $item->characteristic_options()->sync($characteristics);
 
                     if(!empty($product['images'])) $item->images()->sync($images_ids);
                 }
