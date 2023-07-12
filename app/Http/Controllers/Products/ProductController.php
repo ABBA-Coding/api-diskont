@@ -69,6 +69,8 @@ class ProductController extends Controller
             'products.*.variations.*.options.*' => 'required|integer',
             'products.*.variations.*.characteristics' => 'required|array',
             'products.*.variations.*.characteristics.*' => 'required',
+            'products.*.variations.*.characteristics.*.characteristic_id' => 'required|integer',
+            'products.*.variations.*.characteristics.*.name' => 'required',
             'products.*.variations.*.price' => 'required|numeric',
             'products.*.variations.*.is_default' => 'required|boolean',
             'products.*.variations.*.is_popular' => 'nullable|boolean',
@@ -254,7 +256,9 @@ class ProductController extends Controller
             'products.*.variations.*.options' => 'required|array',
             'products.*.variations.*.options.*' => 'required|integer',
             'products.*.variations.*.characteristics' => 'required|array',
-            'products.*.variations.*.characteristics.*' => 'required|integer',
+            'products.*.variations.*.characteristics.*' => 'required',
+            'products.*.variations.*.characteristics.*.characteristic_id' => 'required|integer',
+            'products.*.variations.*.characteristics.*.name' => 'required',
             'products.*.variations.*.price' => 'required|numeric',
             'products.*.variations.*.is_default' => 'required|boolean',
             'products.*.variations.*.is_popular' => 'nullable|boolean',
@@ -407,7 +411,16 @@ class ProductController extends Controller
                         }
                     }
                     $variation_model->attribute_options()->sync($variation['options']);
-                    $variation_model->characteristic_options()->sync($variation['characteristics']);
+                    $characteristics = [];
+                    foreach ($variation['characteristics'] as $characteristicOption) {
+                        $savedCharacteristicOption = CharacteristicOption::create([
+                            'name' => $characteristicOption['name'],
+                            'characteristic_id' => $characteristicOption['characteristic_id']
+                        ]);
+
+                        $characteristics[] = $savedCharacteristicOption->id;
+                    }
+                    $variation_model->characteristic_options()->sync($characteristics);
 
                     /*
                      * yangi rasmlarni save qilamiz
