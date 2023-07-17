@@ -11,6 +11,9 @@ class ShowcaseController extends Controller
     public function get()
     {
         $showcases = Showcase::with('products', 'products.info', 'products.images')
+            ->whereHas('products', function ($q) {
+                $q->where('status', 'active');
+            })
             ->get();
 
         $this->without_lang($showcases);
