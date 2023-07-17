@@ -59,7 +59,14 @@ class ProductController extends Controller
             $this->without_lang($product->attribute_options);
             $this->without_lang($product->characteristic_options);
             $this->without_lang([$product->info, $product->info->category]);
-            $this->without_lang([$product->info->category->parent, $product->info->category->parent->parent]);
+
+            $category = $product->info->category->parent;
+            while($category) {
+                $parent = $category->parent;
+                if($parent) $this->without_lang([$parent]);
+
+                $category = $parent;
+            }
         }
 
         return response([
