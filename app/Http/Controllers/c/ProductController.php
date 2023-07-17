@@ -7,6 +7,7 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\LogC;
 use App\Models\Products\Product;
+use App\Models\Products\ProductInfo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -35,6 +36,7 @@ class ProductController extends Controller
         try {
             $data = $request->all();
             foreach ($data['data'] as $item) {
+                // dd($item);
                 $brand = [
 //                    'c_id' => $item['brand']['id'],
                     'name' => $item['brand']['name'],
@@ -42,44 +44,53 @@ class ProductController extends Controller
                     'slug' => Str::slug($item['brand']['name']),
                     'is_top' => 0
                 ];
-                Brand::updateOrCreate(
+                $saved_brand = Brand::updateOrCreate(
                     ['c_id' => $item['brand']['id']],
                     $brand
                 );
 
-                $category = $item['category'];
-                $parent = $category['parent'];
-                do {
-                    if($parent) {
-                        $parent_c_id = $parent['id'];
-                    } else {
-                        $parent_c_id = $parent;
-                    }
 
-                    $category_1 = [
-//                        'c_id' => $item['category']['id'],
-                        'name' => [
-                            'ru' => $category['name']
-                        ],
-                        'parent_c_id' => $parent_c_id,
-                        'is_popular' => 0,
-                        'position' => 0,
-                        'slug' => Str::slug($category['name'])
-                    ];
-                    Category::updateOrCreate(
-                        ['c_id' => $parent_c_id],
-                        $category_1
-                    );
+                $category_parent = $item['category']['parent'];
+                $category = [
+                    // 'c_id' => $item['category']['id'],
+                    'name' => [
+                        'ru' => $item['category']['name']
+                    ],
+                    'parent_c_id' => $category_parent ? $category_parent['id'] : null,
+                    'is_popular' => 0,
+                    'position' => 0,
+                    'slug' => Str::slug($item['category']['name'])
+                ];
+                $saved_category = Category::updateOrCreate(
+                    ['c_id' => $item['category']['id']],
+                    $category
+                );
+                if($category_parent) {
+                    while($category_parent) {
+                        $category = [
+                            // 'c_id' => $item['category']['id'],
+                            'name' => [
+                                'ru' => $category_parent['name']
+                            ],
+                            'parent_c_id' => $category_parent['parent'] ? $category_parent['parent']['id'] : null,
+                            'is_popular' => 0,
+                            'position' => 0,
+                            'slug' => Str::slug($category_parent['name'])
+                        ];
+                        $parent_categroy = Category::updateOrCreate(
+                            ['c_id' => $category_parent['id']],
+                            $category
+                        );
+                        // set prev categroy parent_id
+                        $saved_category->update(['parent_id' => $parent_categroy->id]);
 
-                    if($parent) {
-                        $category = $parent;
-                        $parent = $category['parent'];
+                        $category_parent = $category_parent['parent'];
                     }
-                } while ($parent);
+                }
+
 
                 $product = [
-                    'info_id' => null,
-//                    'c_id' => $item['id'],
+                   'c_id' => $item['id'],
                     'price' => $item['price'],
                     'is_popular' => 0,
                     'product_of_the_day' => 0,
@@ -90,10 +101,41 @@ class ProductController extends Controller
                     'name' => $item['name'],
                     'desc' => $item['desc'],
                 ];
-                Product::updateOrCreate(
-                    ['c_id' => $item['id']],
-                    $product
-                );
+                if(!Product::where('c_id', $item['id'])->exists()) {
+                    $saved_product = Product::create($product);
+
+                    $product_info = [
+                        'name' => [
+                            'ru' => $item['name'],
+                        ],
+                        'desc' => [
+                            'ru' => $item['desc'],
+                        ],
+                        'for_search' => $item['name'].' '.$item['desc'],
+                        'brand_id' => $saved_brand->id,
+                        'category_id' => $saved_category->id,
+                        'default_product_id' => $saved_product->id,
+                    ];
+                    $saved_product_info = ProductInfo::create($product_info);
+                    // set product info_id
+                    $saved_product->update(['info_id' => $saved_product_info->id]);
+                } else {
+                    $saved_product = Product::where('c_id', $item['id'])->first()->update($product);
+
+                    $product_info = [
+                        'name' => [
+                            'ru' => $item['name'],
+                        ],
+                        'desc' => [
+                            'ru' => $item['desc'],
+                        ],
+                        'for_search' => $item['name'].' '.$item['desc'],
+                        'brand_id' => $saved_brand->id,
+                        'category_id' => $saved_category->id,
+                        'default_product_id' => $saved_product->id,
+                    ];
+                    $saved_product->info->update($product_info);
+                }
             }
 
             // save log
