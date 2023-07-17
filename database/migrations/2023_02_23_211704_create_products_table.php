@@ -24,8 +24,8 @@ class CreateProductsTable extends Migration
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->boolean('is_available')->default(1);
             $table->string('slug')->unique();
-            $table->text('name')->nullable();
-            $table->text('desc')->nullable();
+//            $table->text('name')->nullable();
+//            $table->text('desc')->nullable();
             $table->timestamps();
         });
     }

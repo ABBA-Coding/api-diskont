@@ -98,8 +98,8 @@ class ProductController extends Controller
                     'is_available' => 1,
                     'slug' => Str::slug($item['id'], '-'),
 
-                    'name' => $item['name'],
-                    'desc' => $item['desc'],
+//                    'name' => $item['name'],
+//                    'desc' => $item['desc'],
                 ];
                 if(!Product::where('c_id', $item['id'])->exists()) {
                     $saved_product = Product::create($product);
