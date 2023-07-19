@@ -26,7 +26,9 @@ use App\Http\Controllers\{
     CommentController,
     BannerController,
     Settings\RegionController,
-    Settings\DistrictController};
+    Settings\DistrictController,
+    PromotionController
+};
 use App\Http\Controllers\Faqs\{
     FaqCategoryController,
     FaqController,
@@ -103,4 +105,6 @@ Route::prefix('admin')->group(function() {
 
     Route::apiResource('product_badges', ProductBadgeController::class);
     Route::apiResource('discounts', DiscountController::class);
+
+    Route::apiResource('promotions', PromotionController::class);
 });
