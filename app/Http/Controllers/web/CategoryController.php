@@ -17,7 +17,18 @@ class CategoryController extends Controller
 
     public function index(Request $request)
     {
-        if($request->all && $request->all == 1) return Category::whereNull('parent_id')->with('children')->get();
+        if($request->all && $request->all == 1) {
+            $categories = Category::whereNull('parent_id')->with('children')->get();
+
+            $this->without_lang($categories);
+            foreach ($categories as $value) {
+                $this->children_without_lang($value);
+            }
+
+            return response([
+                'categories' => $categories
+            ]);
+        }
 
         if(isset($request->limit) && $request->limit != '' && $request->limit < 41) $this->set_paginate($request->limit);
         $categories = Category::whereNull('parent_id')
@@ -124,21 +135,22 @@ class CategoryController extends Controller
         $attributes = $category->attributes()->with('options')->get();
 
         $this->without_lang([$category]);
-        $this->without_lang($category->children);
-        foreach ($category->children as $children) {
-            $this->without_lang($children->attributes);
-            foreach ($children->attributes as $attributes_1) {
-                $this->without_lang($attributes_1->options);
-            }
+        $this->children_without_lang($category);
+        // $this->without_lang($category->children);
+        // foreach ($category->children as $children) {
+        //     $this->without_lang($children->attributes);
+        //     foreach ($children->attributes as $attributes_1) {
+        //         $this->without_lang($attributes_1->options);
+        //     }
 
-            $this->without_lang($children->children);
-            foreach ($children->children as $children_1) {
-                $this->without_lang($children_1->attributes);
-                foreach ($children_1->attributes as $attributes_1) {
-                    $this->without_lang($attributes_1->options);
-                }
-            }
-        }
+        //     $this->without_lang($children->children);
+        //     foreach ($children->children as $children_1) {
+        //         $this->without_lang($children_1->attributes);
+        //         foreach ($children_1->attributes as $attributes_1) {
+        //             $this->without_lang($attributes_1->options);
+        //         }
+        //     }
+        // }
 
         $this->without_lang($product_infos);
         $this->without_lang($attributes);
@@ -160,6 +172,20 @@ class CategoryController extends Controller
 
         foreach($category->children as $child) {
             $this->getAllChildren($child, $children);
+        }
+    }
+
+    public function children_without_lang($category)
+    {
+        while(count($category->children) > 0) {
+            $this->without_lang($category->children);
+            foreach ($category->children as $value) {
+                $this->without_lang($value->attributes);
+                foreach ($value->attributes as $attribute) {
+                    $this->without_lang($attribute->options);
+                }
+                return self::children_without_lang($value);
+            }
         }
     }
 }
