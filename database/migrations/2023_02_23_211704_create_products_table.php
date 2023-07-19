@@ -19,6 +19,12 @@ class CreateProductsTable extends Migration
             $table->string('c_id')->unique()->nullable();
             $table->string('model')->nullable();
             $table->integer('price')->nullable();
+            $table->integer('installment_price_6')->nullable();
+            $table->integer('installment_price_12')->nullable();
+            $table->integer('installment_price_18')->nullable();
+            $table->integer('installment_price_24')->nullable();
+            $table->integer('installment_price_36')->nullable();
+            $table->integer('stock')->default(0);
             $table->boolean('is_popular')->default(0);
             $table->boolean('product_of_the_day')->default(0);
             $table->enum('status', ['active', 'inactive'])->default('active');

@@ -59,33 +59,35 @@ class ProductController extends Controller
                     'parent_c_id' => $category_parent ? $category_parent['id'] : null,
                     'is_popular' => 0,
                     'position' => 0,
-                    'slug' => Str::slug($item['category']['name'])
+                    'slug' => $item['category']['id']
                 ];
-                $saved_category = Category::updateOrCreate(
+                $child = Category::updateOrCreate(
                     ['c_id' => $item['category']['id']],
                     $category
                 );
-                if($category_parent) {
-                    while($category_parent) {
-                        $category = [
-                            // 'c_id' => $item['category']['id'],
-                            'name' => [
-                                'ru' => $category_parent['name']
-                            ],
-                            'parent_c_id' => $category_parent['parent'] ? $category_parent['parent']['id'] : null,
-                            'is_popular' => 0,
-                            'position' => 0,
-                            'slug' => Str::slug($category_parent['name'])
-                        ];
-                        $parent_categroy = Category::updateOrCreate(
-                            ['c_id' => $category_parent['id']],
-                            $category
-                        );
-                        // set prev categroy parent_id
-                        $saved_category->update(['parent_id' => $parent_categroy->id]);
+                $child->update(['slug' => $this->create_slug(Category::class, $item['category']['name'], $child->id)]);
+                $first = $child;
+                while($category_parent) {
+                    $category = [
+                        // 'c_id' => $item['category']['id'],
+                        'name' => [
+                            'ru' => $category_parent['name']
+                        ],
+                        'parent_c_id' => $category_parent['parent'] ? $category_parent['parent']['id'] : null,
+                        'is_popular' => 0,
+                        'position' => 0,
+                        'slug' => $category_parent['id']
+                    ];
+                    $parent_category = Category::updateOrCreate(
+                        ['c_id' => $category_parent['id']],
+                        $category
+                    );
+                    $parent_category->update(['slug' => $this->create_slug(Category::class, $category_parent['name'], $parent_category->id)]);
+                    // set prev categroy parent_id
+                    $child->update(['parent_id' => $parent_category->id]);
 
-                        $category_parent = $category_parent['parent'];
-                    }
+                    $category_parent = $category_parent['parent'];
+                    $child = $parent_category;
                 }
 
 
@@ -97,6 +99,12 @@ class ProductController extends Controller
                     'status' => 'inactive',
                     'is_available' => 1,
                     'slug' => Str::slug($item['id'], '-'),
+                    'stock' => $item['stock'],
+                    'installment_price_6' => $item['installment_price_6'],
+                    'installment_price_12' => $item['installment_price_12'],
+                    'installment_price_18' => $item['installment_price_18'],
+                    'installment_price_24' => $item['installment_price_24'],
+                    'installment_price_36' => $item['installment_price_36'],
 
 //                    'name' => $item['name'],
 //                    'desc' => $item['desc'],
@@ -113,14 +121,15 @@ class ProductController extends Controller
                         ],
                         'for_search' => $item['name'].' '.$item['desc'],
                         'brand_id' => $saved_brand->id,
-                        'category_id' => $saved_category->id,
+                        'category_id' => $first->id,
                         'default_product_id' => $saved_product->id,
                     ];
                     $saved_product_info = ProductInfo::create($product_info);
                     // set product info_id
                     $saved_product->update(['info_id' => $saved_product_info->id]);
                 } else {
-                    $saved_product = Product::where('c_id', $item['id'])->first()->update($product);
+                    $saved_product = Product::where('c_id', $item['id'])->first();
+                    $saved_product->update($product);
 
                     $product_info = [
                         'name' => [
@@ -131,7 +140,7 @@ class ProductController extends Controller
                         ],
                         'for_search' => $item['name'].' '.$item['desc'],
                         'brand_id' => $saved_brand->id,
-                        'category_id' => $saved_category->id,
+                        'category_id' => $first->id,
                         'default_product_id' => $saved_product->id,
                     ];
                     $saved_product->info->update($product_info);
@@ -178,5 +187,16 @@ class ProductController extends Controller
         return response([
             'message' => 'Success'
         ]);
+    }
+
+    public function create_slug($model, $text, $model_id = 0)
+    {
+        $slug = Str::slug($text, '-');
+
+        while($model::where([['id', '!=', $model_id], ['slug', $slug]])->exists()) {
+            $slug = $slug = $slug.'-1';
+        }
+        
+        return $slug;
     }
 }
