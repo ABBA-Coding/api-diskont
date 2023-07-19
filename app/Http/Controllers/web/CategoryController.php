@@ -17,6 +17,8 @@ class CategoryController extends Controller
 
     public function index(Request $request)
     {
+        if($request->all && $request->all == 1) return Category::whereNull('parent_id')->with('children')->get();
+
         if(isset($request->limit) && $request->limit != '' && $request->limit < 41) $this->set_paginate($request->limit);
         $categories = Category::whereNull('parent_id')
             ->orderBy('position')
