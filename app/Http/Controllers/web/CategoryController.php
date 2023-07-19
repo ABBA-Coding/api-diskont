@@ -43,22 +43,8 @@ class CategoryController extends Controller
         $categories = $categories->paginate($this->PAGINATE);
 
         $this->without_lang($categories);
-        foreach($categories as $item) {
-            $this->without_lang($item->children);
-            foreach ($item->children as $children) {
-                $this->without_lang($children->attributes);
-                foreach ($children->attributes as $attributes) {
-                    $this->without_lang($attributes->options);
-                }
-
-                $this->without_lang($children->children);
-                foreach ($children->children as $children_1) {
-                    $this->without_lang($children_1->attributes);
-                    foreach ($children_1->attributes as $attributes) {
-                        $this->without_lang($attributes->options);
-                    }
-                }
-            }
+        foreach ($categories as $value) {
+            $this->children_without_lang($value);
         }
 
         return response([
@@ -136,21 +122,7 @@ class CategoryController extends Controller
 
         $this->without_lang([$category]);
         $this->children_without_lang($category);
-        // $this->without_lang($category->children);
-        // foreach ($category->children as $children) {
-        //     $this->without_lang($children->attributes);
-        //     foreach ($children->attributes as $attributes_1) {
-        //         $this->without_lang($attributes_1->options);
-        //     }
-
-        //     $this->without_lang($children->children);
-        //     foreach ($children->children as $children_1) {
-        //         $this->without_lang($children_1->attributes);
-        //         foreach ($children_1->attributes as $attributes_1) {
-        //             $this->without_lang($attributes_1->options);
-        //         }
-        //     }
-        // }
+        $this->parent_without_lang($category);
 
         $this->without_lang($product_infos);
         $this->without_lang($attributes);
@@ -186,6 +158,18 @@ class CategoryController extends Controller
                 }
                 return self::children_without_lang($value);
             }
+        }
+    }
+
+    public function parent_without_lang($category)
+    {
+        while($category->parent) {
+            $this->without_lang([$category->parent]);
+            $this->without_lang($category->parent->attributes);
+            foreach ($category->parent->attributes as $attribute) {
+                $this->without_lang($attribute->options);
+            }
+            return self::children_without_lang($category->parent);
         }
     }
 }

@@ -225,6 +225,10 @@ class ProductController extends Controller
             $counter ++;
         }
 
+        if(empty($result)) {
+            $result[0]['variations'][0] = [];
+            $result[0]['images'][0] = [];
+        }
 
         return response([
             'products' => $result,
