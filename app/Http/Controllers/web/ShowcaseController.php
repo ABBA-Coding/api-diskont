@@ -17,6 +17,11 @@ class ShowcaseController extends Controller
             ->get();
 
         $this->without_lang($showcases);
+        foreach ($showcases as $value) {
+            foreach ($value->products as $product) {
+                $this->without_lang([$product->info]);
+            }
+        }
 
         return response([
             'showcases' => $showcases

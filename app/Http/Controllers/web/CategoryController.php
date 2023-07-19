@@ -115,7 +115,10 @@ class CategoryController extends Controller
                 });
             });
         }
-        $product_infos = $product_infos->with('default_product', 'default_product.images', 'default_product.attribute_options')
+        $product_infos = $product_infos->whereHas('products', function ($q) {
+            $q->where('status', 'active');
+        })
+            ->with('default_product', 'default_product.images', 'default_product.attribute_options')
             ->get();
 
         $attributes = $category->attributes()->with('options')->get();

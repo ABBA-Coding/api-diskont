@@ -266,14 +266,20 @@ class ProductController extends Controller
         }
         unset($counter);
 
-        $this->without_lang($product->attribute_options);
-        $this->without_lang($product->characteristic_options);
+        if(count($product->attribute_options) > 0) {
+            $this->without_lang($product->attribute_options);
+        }
+        if(count($product->characteristic_options) > 0) {
+            $this->without_lang($product->characteristic_options);
+        }
         $this->without_lang([$product->info, $product->info->category]);
         foreach ($product->info->products as $product_1) {
-            $this->without_lang($product_1->attribute_options);
+            if(count($product_1->attribute_options) > 0) {
+                $this->without_lang($product_1->attribute_options);
+            }
             $this->without_lang([$product_1->info]);
         }
-        $this->without_lang([$product->info->category->parent, $product->info->category->parent->parent]);
+        $this->parent_without_lang($product->info->category);
         $res_without_lang = [];
         foreach ($res as $re) {
             $lang = $request->header('lang');
@@ -294,6 +300,14 @@ class ProductController extends Controller
             'product' => $product,
             'attributes' => $res_without_lang
         ]);
+    }
+
+    function parent_without_lang($category)
+    {
+        if($category) $this->without_lang([$category]);
+        while($category->parent) {
+            return $this->parent_without_lang($category->parent);
+        }
     }
 
     function combs($arrays) {

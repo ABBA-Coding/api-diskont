@@ -2,6 +2,7 @@
 
 namespace App\Models\Products;
 
+use App\Models\ExchangeRate;
 use App\Models\Discount;
 use App\Models\Showcase;
 use App\Models\Attributes\AttributeOption;
@@ -36,6 +37,7 @@ class Product extends Model
 
     protected $appends = [
         'discount',
+        'real_price',
     ];
 
     public function getDiscountAttribute()
@@ -67,6 +69,11 @@ class Product extends Model
             ->whereJsonContains('ids', $this->info->brand_id)
             ->latest()
             ->first();
+    }
+
+    public function getRealPriceAttribute()
+    {
+        return $this->price * ExchangeRate::latest()->first()->exchange_rate;
     }
 
     public function info()

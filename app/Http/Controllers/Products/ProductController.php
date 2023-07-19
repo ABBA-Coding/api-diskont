@@ -33,7 +33,9 @@ class ProductController extends Controller
         $data = $request->all();
         if(isset($data['search']) && $data['search'] != '') {
             $products = $products->where('name', 'like', '%'.$data['search'].'%')->orWhere('for_search', 'like', '%'.$data['search'].'%')
-                ->with('products.images');
+                ->orWhereHas('category', function ($q) use ($data) {
+                    $q->where('name', 'like', '%'.$data['search'].'%')->orWhere('for_search', 'like', '%'.$data['search'].'%');
+                })->with('category', 'brand', 'products', 'products.images', 'category.characteristic_groups', 'category.characteristic_groups.characteristics');
         } else {
             $products = $products->with('category', 'brand', 'products', 'products.images', 'category.characteristic_groups', 'category.characteristic_groups.characteristics');
         }
@@ -226,8 +228,8 @@ class ProductController extends Controller
         }
 
         if(empty($result)) {
-            $result[0]['variations'][0] = [];
-            $result[0]['images'][0] = [];
+            $result[0]['variations'][0] = $product->products()->where('id', $product->products[0]->id)->with('attribute_options', 'characteristic_options')->first();
+            // $result[0]['images'][0] = [];
         }
 
         return response([
@@ -259,10 +261,10 @@ class ProductController extends Controller
             'products.*.variations.*' => 'required|array',
             'products.*.variations.*.options' => 'required|array',
             'products.*.variations.*.options.*' => 'required|integer',
-            'products.*.variations.*.characteristics' => 'required|array',
-            'products.*.variations.*.characteristics.*' => 'required',
-            'products.*.variations.*.characteristics.*.characteristic_id' => 'required|integer',
-            'products.*.variations.*.characteristics.*.name' => 'required',
+            // 'products.*.variations.*.characteristics' => 'required|array',
+            // 'products.*.variations.*.characteristics.*' => 'required',
+            // 'products.*.variations.*.characteristics.*.characteristic_id' => 'required|integer',
+            // 'products.*.variations.*.characteristics.*.name' => 'required',
             'products.*.variations.*.price' => 'required|numeric',
             'products.*.variations.*.is_default' => 'required|boolean',
             'products.*.variations.*.is_popular' => 'nullable|boolean',
@@ -378,7 +380,7 @@ class ProductController extends Controller
                         if(!$variation_model) $not_saved_products_id[] = $variation['id'];
                         $variation_model->update([
                             // 'info_id' => $product->id,
-                            'price' => intval($variation['price']),
+                            // 'price' => intval($variation['price']),
                             'is_popular' => $variation['is_popular'],
                             'product_of_the_day' => $variation['product_of_the_day'],
                             'status' => $variation['status'],

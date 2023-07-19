@@ -16,3 +16,12 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return 'API for e-shop NDC.uz';
 });
+
+// Route::get('iuwebiuerwv', function() {
+// 	$categories = App\Models\Category::all();
+// 	foreach ($categories as $value) {
+// 		$text = $value->name['ru'];
+// 		$value->update(['for_search' => $text]);
+// 	}
+// 	dd($categories);
+// });
