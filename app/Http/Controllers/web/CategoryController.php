@@ -21,9 +21,16 @@ class CategoryController extends Controller
             $categories = Category::whereNull('parent_id')->with('children')->get();
 
             $this->without_lang($categories);
-            foreach ($categories as $value) {
-                $this->children_without_lang($value);
+            foreach ($categories as $category2) {
+            	$this->without_lang($category2->children);
+
+            	if(count($category2->children) > 0) {
+            		foreach ($category2->children as $category3) {
+            			$this->without_lang($category3->children);
+	            	}
+            	}
             }
+
 
             return response([
                 'categories' => $categories
@@ -152,16 +159,45 @@ class CategoryController extends Controller
 
     public function children_without_lang($category)
     {
-        while(count($category->children) > 0) {
-            $this->without_lang($category->children);
-            foreach ($category->children as $value) {
-                $this->without_lang($value->attributes);
-                foreach ($value->attributes as $attribute) {
-                    $this->without_lang($attribute->options);
-                }
-                return self::children_without_lang($value);
-            }
-        }
+        // $this->without_lang($category->children);
+        
+        // while(count($category->children) > 0) {
+        //     foreach ($category->children as $value) {
+        //         $this->without_lang($value->attributes);
+        //         foreach ($value->attributes as $attribute) {
+        //             $this->without_lang($attribute->options);
+        //         }
+        //         return $this->children_without_lang($value);
+        //     }
+        // }
+
+   //      $this->without_lang($categories);
+   //      foreach ($categories as $category) {
+			// if(!empty($category->children)) {
+			// 	return $this->children_without_lang($category->children);
+			// }
+   //      }
+
+        // while(count($category->children) > 0) {
+        //     $this->without_lang($category->children);
+
+        //     foreach ($category->children as $value) {
+        //         return $this->children_without_lang($value);
+        //     }
+        // }
+
+        $this->without_lang($category->children);
+
+    	if(count($category->children) > 0) {
+    		foreach ($category->children as $category_inner) {
+    			$this->without_lang($category_inner->children);
+
+    			$this->without_lang($category_inner->attributes);
+	            foreach ($category_inner->attributes as $attribute) {
+	                $this->without_lang($attribute->options);
+	            }
+        	}
+    	}
     }
 
     public function parent_without_lang($category)

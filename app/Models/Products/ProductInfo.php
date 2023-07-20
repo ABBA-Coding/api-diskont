@@ -55,13 +55,20 @@ class ProductInfo extends Model
 
 
     protected $appends = [
-        'stars'
+        'stars',
+        'stock',
     ];
 
     public function getStarsAttribute()
     {
         if($this->comments->count() == 0) return null;
         return round($this->comments->sum('stars') / $this->comments->count());
+    }
+
+    public function getStockAttribute()
+    {
+        // dd($this->products->sum('stock'));
+        return Product::where('info_id', $this->id)->get()->sum('stock');
     }
 
     public function translatable(): array

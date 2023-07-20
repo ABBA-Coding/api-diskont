@@ -13,6 +13,7 @@ class Showcase extends Model
     protected $fillable = [
         'name',
         'for_search',
+        'slug',
     ];
 
     protected $casts = [

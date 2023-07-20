@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,10 +19,10 @@ Route::get('/', function () {
 });
 
 // Route::get('iuwebiuerwv', function() {
-// 	$categories = App\Models\Category::all();
+// 	$categories = App\Models\Showcase::all();
 // 	foreach ($categories as $value) {
 // 		$text = $value->name['ru'];
-// 		$value->update(['for_search' => $text]);
+// 		$value->update(['slug' => Str::slug($text)]);
 // 	}
 // 	dd($categories);
 // });
