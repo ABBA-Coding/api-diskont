@@ -6,6 +6,7 @@ use App\Models\{
     Products\Product,
     SmsHistory
 };
+use Http;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -19,11 +20,32 @@ class Controller extends BaseController
 
     public function send_sms($phone_number, $text)
     {
-        SmsHistory::create([
+        $username = 'besttechno';
+        $password = 'XGDv|Vlqh9)z';
+        $base_url = 'http://91.204.239.44/broker-api/send';
+
+
+        $sms_history = SmsHistory::create([
             'phone_number' => $phone_number,
             'text' => $text,
             'sent' => 0
         ]);
+        // send message
+        $data = [
+            'messages' => [
+                'recipient' => $phone_number,
+                'message-id' => $sms_history->id,
+                'sms' => [
+                    'originator' => '3700',
+                    'content' => [
+                        'text' => $text
+                    ]
+                ]
+            ]
+        ];
+        $res = Http::withBasicAuth($username, $password)
+            ->post($base_url, $data);
+
         return true;
     }
 

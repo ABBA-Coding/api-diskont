@@ -28,8 +28,8 @@ class AuthController extends Controller
 
         if(isset($request->forget) && $request->forget == 1) {
             Cache::add($request->phone_number, $cache_variables[1], $sms_active_time);
-//            $generated_code = $this->generate_code();
-            $generated_code = 111111;
+           $generated_code = $this->generate_code();
+            // $generated_code = 111111;
             $sent = $this->send_sms($request->phone_number, $sms_texts['sms_for_forget'] . $generated_code);
             Cache::add($request->phone_number. 'code', $generated_code, $sms_active_time);
             if (!$sent) {
@@ -49,8 +49,8 @@ class AuthController extends Controller
                 ->first();
             if(!$user_exist || !$user_exist->password_updated) {
                 Cache::add($request->phone_number, $cache_variables[0], $sms_active_time);
-    //            $generated_code = $this->generate_code();
-                $generated_code = 111111;
+               $generated_code = $this->generate_code();
+                // $generated_code = 111111;
                 $sent = $this->send_sms($request->phone_number, $sms_texts['sms_send'] . $generated_code);
                 Cache::add($request->phone_number. 'code', $generated_code, $sms_active_time);
                 if (!$sent) {
