@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             RegionSeeder::class,
             UserSeeder::class,
             ShowcaseSeeder::class,
+            ExchangeRateSeeder::class,
         ]);
     }
 }
