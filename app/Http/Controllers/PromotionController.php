@@ -52,6 +52,7 @@ class PromotionController extends Controller
         }
 
         $data['for_search'] = $this->for_search($request, ['name', 'desc', 'sticker_text', 'short_name']);
+        $data['slug'] = $this->to_slug($request, Promotion::class, 'name', $this->main_lang);
 
         DB::beginTransaction();
         try {
@@ -79,7 +80,13 @@ class PromotionController extends Controller
      */
     public function show(Promotion $promotion)
     {
-        //
+        $promotion = Promotion::where('id', $promotion->id)
+            ->with('products')
+            ->first();
+
+        return response([
+            'promotion' => $promotion,
+        ]);
     }
 
     /**
@@ -114,6 +121,7 @@ class PromotionController extends Controller
         }
 
         $data['for_search'] = $this->for_search($request, ['name', 'desc', 'sticker_text', 'short_name']);
+        $data['slug'] = $this->to_slug($request, Promotion::class, 'name', $this->main_lang);
 
         DB::beginTransaction();
         try {

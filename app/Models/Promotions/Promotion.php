@@ -4,6 +4,7 @@ namespace App\Models\Promotions;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Products\Product;
 
 class Promotion extends Model
 {
@@ -26,6 +27,7 @@ class Promotion extends Model
         'product_card_text_color',
         'product_card_back_color',
         'for_search',
+        'slug',
     ];
 
     protected $casts = [
@@ -34,6 +36,11 @@ class Promotion extends Model
         'desc' => 'array',
         'product_card_text' => 'array',
     ];
+
+    public function products()
+    {
+        return $this->belongsToMany(Product::class);
+    }
 
 
 
@@ -54,41 +61,41 @@ class Promotion extends Model
 
     public function getLgBannerAttribute()
     {
-        return $this->img ? (url('/uploads/promotions/banners') . '/' . $this->img) : null;
+        return $this->banner ? (url('/uploads/promotions/banners') . '/' . $this->banner) : null;
     }
     public function getSmBannerAttribute()
     {
-        return $this->img ? (url('/uploads/promotions/banners/200') . '/' . $this->img) : null;
+        return $this->banner ? (url('/uploads/promotions/banners/200') . '/' . $this->banner) : null;
     }
     public function getMdBannerAttribute()
     {
-        return $this->img ? (url('/uploads/promotions/banners/600') . '/' . $this->img) : null;
+        return $this->banner ? (url('/uploads/promotions/banners/600') . '/' . $this->banner) : null;
     }
 
     public function getLgStickerAttribute()
     {
-        return $this->img ? (url('/uploads/promotions/banners') . '/' . $this->img) : null;
+        return $this->sticker ? (url('/uploads/promotions/banners') . '/' . $this->sticker) : null;
     }
     public function getSmStickerAttribute()
     {
-        return $this->img ? (url('/uploads/promotions/banners/200') . '/' . $this->img) : null;
+        return $this->sticker ? (url('/uploads/promotions/banners/200') . '/' . $this->sticker) : null;
     }
     public function getMdStickerAttribute()
     {
-        return $this->img ? (url('/uploads/promotions/banners/600') . '/' . $this->img) : null;
+        return $this->sticker ? (url('/uploads/promotions/banners/600') . '/' . $this->sticker) : null;
     }
 
     public function getLgShortNameIconAttribute()
     {
-        return $this->img ? (url('/uploads/promotions/banners') . '/' . $this->img) : null;
+        return $this->short_name_icon ? (url('/uploads/promotions/banners') . '/' . $this->short_name_icon) : null;
     }
     public function getSmShortNameIconAttribute()
     {
-        return $this->img ? (url('/uploads/promotions/banners/200') . '/' . $this->img) : null;
+        return $this->short_name_icon ? (url('/uploads/promotions/banners/200') . '/' . $this->short_name_icon) : null;
     }
     public function getMdShortNameIconAttribute()
     {
-        return $this->img ? (url('/uploads/promotions/banners/600') . '/' . $this->img) : null;
+        return $this->short_name_icon ? (url('/uploads/promotions/banners/600') . '/' . $this->short_name_icon) : null;
     }
 
 

@@ -15,6 +15,8 @@ use App\Http\Controllers\web\{
     FeedbackController,
     SearchController,
     ComparisonController,
+    BarController,
+    PromotionController,
 };
 
 
@@ -67,4 +69,12 @@ Route::middleware('set_lang')->group(function () {
     Route::post('order/one_click', [OrderController::class, 'one_click']);
     Route::get('showcases', [ShowcaseController::class, 'get']);
     Route::post('comparison', [ComparisonController::class, 'comparison']);
+    Route::prefix('bars')->group(function() {
+        Route::get('/', [BarController::class, 'index']);
+        Route::get('/{slug}', [BarController::class, 'show']);
+    });
+    Route::prefix('promotions')->group(function() {
+        Route::get('/', [PromotionController::class, 'index']);
+        Route::get('/{slug}', [PromotionController::class, 'show']);
+    });
 });

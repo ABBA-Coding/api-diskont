@@ -5,6 +5,7 @@ namespace App\Models\Products;
 use App\Models\ExchangeRate;
 use App\Models\Discount;
 use App\Models\Showcase;
+use App\Models\Promotion;
 use App\Models\Attributes\AttributeOption;
 use App\Models\Characteristics\CharacteristicOption;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -104,5 +105,10 @@ class Product extends Model
     public function badges(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(ProductBadge::class);
+    }
+
+    public function promotions()
+    {
+        return $this->belongsToMany(Promotion::class);
     }
 }
