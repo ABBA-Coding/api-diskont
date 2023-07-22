@@ -68,6 +68,7 @@ Route::middleware('set_lang')->group(function () {
     Route::post('get_products', [OrderController::class, 'get_products']);
     Route::post('order/one_click', [OrderController::class, 'one_click']);
     Route::get('showcases', [ShowcaseController::class, 'get']);
+    Route::get('showcases/{slug}', [ShowcaseController::class, 'show']);
     Route::post('comparison', [ComparisonController::class, 'comparison']);
     Route::prefix('bars')->group(function() {
         Route::get('/', [BarController::class, 'index']);
