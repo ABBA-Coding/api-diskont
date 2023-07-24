@@ -29,37 +29,48 @@ class Banner extends Model
 
     public function getLgImgAttribute()
     {
-        $img = $this->img;
+        return $this->img ? url('/uploads/banners/200') . '/' . $this->img : null;
+        // $img = $this->img;
 
-        foreach($img as $key => $val) {
-            $img[$key] = url('/uploads/banners') . '/' . $img[$key];
-        }
+        // foreach($img as $key => $val) {
+        //     $img[$key] = url('/uploads/banners') . '/' . $img[$key];
+        // }
 
-        return $img;
+        // return $img;
     }
     public function getSmImgAttribute()
     {
-        $img = $this->img;
+        return $this->img ? url('/uploads/banners/200') . '/' . $this->img : null;
+        // $img = $this->img;
 
-        foreach($img as $key => $val) {
-            $img[$key] = url('/uploads/banners/200') . '/' . $img[$key];
-        }
+        // foreach($img as $key => $val) {
+        //     $img[$key] = url('/uploads/banners/200') . '/' . $img[$key];
+        // }
 
-        return $img;
+        // return $img;
     }
     public function getMdImgAttribute()
     {
-        $img = $this->img;
+        return $this->img ? url('/uploads/banners/200') . '/' . $this->img : null;
+        // $img = $this->img;
 
-        foreach($img as $key => $val) {
-            $img[$key] = url('/uploads/banners/600') . '/' . $img[$key];
-        }
+        // foreach($img as $key => $val) {
+        //     $img[$key] = url('/uploads/banners/600') . '/' . $img[$key];
+        // }
 
-        return $img;
+        // return $img;
     }
 
     public function showcase(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Showcase::class);
+    }
+
+    public function translatable(): array
+    {
+        return [
+            'img',
+            'link',
+        ];
     }
 }

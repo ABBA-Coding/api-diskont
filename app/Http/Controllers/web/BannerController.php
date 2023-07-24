@@ -30,6 +30,8 @@ class BannerController extends Controller
 
         $banners = $banners->paginate($this->PAGINATE);
 
+        $this->without_lang($banners);
+
         return response([
             'banners' => $banners
         ]);
