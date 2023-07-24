@@ -34,27 +34,30 @@ class BarController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|array',
-            'name.ru' => 'required|max:500',
-            'icon' => 'nullable|max:255',
-            'text_color' => 'required|max:255',
-            'color1' => 'required|max:255',
-            'color2' => 'required|max:255',
+            'bars' => 'required|array',
+            'bars.*.name' => 'required|array',
+            'bars.*.name.ru' => 'required|max:500',
+            'bars.*.icon' => 'nullable|max:255',
+            'bars.*.text_color' => 'required|max:255',
+            'bars.*.color1' => 'required|max:255',
+            'bars.*.color2' => 'required|max:255',
         ]);
         $data = $request->all();
 
-        if($request->icon && Storage::disk('public')->exists('/uploads/temp/' . explode('/', $request->icon)[count(explode('/', $request->icon)) - 1])) {
-            $explode_img = explode('/', $request->icon);
-            Storage::disk('public')->move('/uploads/temp/' . $explode_img[count($explode_img) - 1], '/uploads/bars/' . $explode_img[count($explode_img) - 1]);
-            Storage::disk('public')->move('/uploads/temp/200/' . $explode_img[count($explode_img) - 1], '/uploads/bars/200/' . $explode_img[count($explode_img) - 1]);
-            Storage::disk('public')->move('/uploads/temp/600/' . $explode_img[count($explode_img) - 1], '/uploads/bars/600/' . $explode_img[count($explode_img) - 1]);
-            $data['icon'] = $explode_img[count($explode_img) - 1];
-        }
-
         DB::beginTransaction();
         try {
-            $data['for_search'] = $this->for_search($request, ['name']);
-            $bar = Bar::create($data);
+            foreach ($data['bars'] as $value) {
+                if($value['icon'] && Storage::disk('public')->exists('/uploads/temp/' . explode('/', $value['icon'])[count(explode('/', $value['icon'])) - 1])) {
+                    $explode_img = explode('/', $data['icon']);
+                    Storage::disk('public')->move('/uploads/temp/' . $explode_img[count($explode_img) - 1], '/uploads/bars/' . $explode_img[count($explode_img) - 1]);
+                    Storage::disk('public')->move('/uploads/temp/200/' . $explode_img[count($explode_img) - 1], '/uploads/bars/200/' . $explode_img[count($explode_img) - 1]);
+                    Storage::disk('public')->move('/uploads/temp/600/' . $explode_img[count($explode_img) - 1], '/uploads/bars/600/' . $explode_img[count($explode_img) - 1]);
+                    $value['icon'] = $explode_img[count($explode_img) - 1];
+                }
+
+                $value['for_search'] = $this->for_search($request, ['name']);
+                Bar::create($value);
+            }
 
             DB::commit();
         } catch (\Exception $e) {
@@ -66,7 +69,7 @@ class BarController extends Controller
         }
 
         return response([
-            'bar' => $bar
+            'req' => $request->all()
         ]);
     }
 
@@ -91,31 +94,37 @@ class BarController extends Controller
     public function update(Request $request, Bar $bar)
     {
         $request->validate([
-            'name' => 'required|array',
-            'name.ru' => 'required|max:500',
-            'icon' => 'nullable|max:255',
-            'text_color' => 'required|max:255',
-            'color1' => 'required|max:255',
-            'color2' => 'required|max:255',
+            'bars' => 'required|array',
+            'bars.*.name' => 'required|array',
+            'bars.*.name.ru' => 'required|max:500',
+            'bars.*.icon' => 'nullable|max:255',
+            'bars.*.text_color' => 'required|max:255',
+            'bars.*.color1' => 'required|max:255',
+            'bars.*.color2' => 'required|max:255',
         ]);
         $data = $request->all();
 
-        if($request->icon) {
-            if(Storage::disk('public')->exists('/uploads/temp/' . explode('/', $request->icon)[count(explode('/', $request->icon)) - 1])) {
-                $explode_img = explode('/', $request->icon);
-                Storage::disk('public')->move('/uploads/temp/' . $explode_img[count($explode_img) - 1], '/uploads/bars/' . $explode_img[count($explode_img) - 1]);
-                Storage::disk('public')->move('/uploads/temp/200/' . $explode_img[count($explode_img) - 1], '/uploads/bars/200/' . $explode_img[count($explode_img) - 1]);
-                Storage::disk('public')->move('/uploads/temp/600/' . $explode_img[count($explode_img) - 1], '/uploads/bars/600/' . $explode_img[count($explode_img) - 1]);
-                $data['icon'] = $explode_img[count($explode_img) - 1];
-            } else if(Storage::disk('public')->exists('/uploads/bars/' . explode('/', $request->icon)[count(explode('/', $request->icon)) - 1])) {
-                $data['icon'] = $bar->icon;
-            }
-        }
-
         DB::beginTransaction();
         try {
-            $data['for_search'] = $this->for_search($request, ['name']);
-            $bar->update($data);
+            foreach ($data['bars'] as $value) {
+                if(Bar::where('id', $value['id'])->exists()) {
+                    $item = Bar::find($value['id']);
+                    if($value['icon']) {
+                        if(Storage::disk('public')->exists('/uploads/temp/' . explode('/', $value['icon'])[count(explode('/', $value['icon'])) - 1])) {
+                            $explode_img = explode('/', $value['icon']);
+                            Storage::disk('public')->move('/uploads/temp/' . $explode_img[count($explode_img) - 1], '/uploads/bars/' . $explode_img[count($explode_img) - 1]);
+                            Storage::disk('public')->move('/uploads/temp/200/' . $explode_img[count($explode_img) - 1], '/uploads/bars/200/' . $explode_img[count($explode_img) - 1]);
+                            Storage::disk('public')->move('/uploads/temp/600/' . $explode_img[count($explode_img) - 1], '/uploads/bars/600/' . $explode_img[count($explode_img) - 1]);
+                            $value['icon'] = $explode_img[count($explode_img) - 1];
+                        } else if(Storage::disk('public')->exists('/uploads/bars/' . explode('/', $value['icon'])[count(explode('/', $value['icon'])) - 1])) {
+                            $value['icon'] = $item->icon;
+                        }
+                    }
+
+                    $data['for_search'] = $this->for_search($request, ['name']);
+                    $item->update($value);
+                }
+            }
 
             DB::commit();
         } catch (\Exception $e) {
@@ -127,7 +136,7 @@ class BarController extends Controller
         }
 
         return response([
-            'bar' => $bar
+            'req' => $request->all()
         ]);
     }
 

@@ -38,7 +38,7 @@ class BannerController extends Controller
             'img' => 'array|required',
             'img.' . $this->main_lang => 'required',
             'link' => 'nullable|array',
-            'type' => 'required|in:main,promo,small',
+            'type' => 'required|in:main,promo,small,top,medium,bottom',
             'showcase_id' => 'nullable|integer',
         ]);
 
@@ -90,7 +90,7 @@ class BannerController extends Controller
             'img' => 'array|required',
             'img.' . $this->main_lang => 'required',
             'link' => 'nullable|array',
-            'type' => 'required|in:main,promo,small',
+            'type' => 'required|in:main,promo,small,top,medium,bottom',
             'showcase_id' => 'nullable|integer',
         ]);
 
@@ -146,6 +146,9 @@ class BannerController extends Controller
             'main' => 'main',
             'promo' => 'promo',
             'small' => 'small',
+            'top' => 'top',
+            'medium' => 'medium',
+            'bottom' => 'bottom',
         ];
         return response([
             'types' => $types

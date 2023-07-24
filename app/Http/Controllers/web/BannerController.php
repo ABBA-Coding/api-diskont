@@ -16,9 +16,9 @@ class BannerController extends Controller
 
     public function index(Request $request)
     {
-        $request->validate([
-            'type' => 'required|in:main,promo,small',
-        ]);
+        // $request->validate([
+        //     'type' => 'required|in:main,promo,small,top,medium,bottom',
+        // ]);
         if(isset($request->limit) && $request->limit != '' && $request->limit < 41) $this->set_paginate($request->limit);
 
         $banners = Banner::latest()
