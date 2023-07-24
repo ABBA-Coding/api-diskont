@@ -12,6 +12,7 @@ class RegionGroup extends Model
 
     protected $fillable = [
         'name',
+        'is_active',
         'for_search',
     ];
 

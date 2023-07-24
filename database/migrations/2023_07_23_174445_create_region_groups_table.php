@@ -16,7 +16,7 @@ class CreateRegionGroupsTable extends Migration
         Schema::create('region_groups', function (Blueprint $table) {
             $table->id();
             $table->text('name');
-
+            $table->boolean('is_active')->default(1);
             $table->text('for_search')->nullable();
             $table->timestamps();
         });
