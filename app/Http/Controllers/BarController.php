@@ -18,6 +18,7 @@ class BarController extends Controller
     public function index()
     {
         $bars = Bar::latest()
+            ->with('category', 'promotion')
             ->paginate($this->PAGINATE);
 
         return response([
