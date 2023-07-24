@@ -42,9 +42,7 @@ class ShowcaseController extends Controller
                 });
             });
         })->with('parent')->get();
-
-        // $categories = [];
-        // $this->object_reverse($categories);
+        // return response($this->category_reverse($categories));
 
 
         $this->without_lang([$showcase]);
@@ -63,27 +61,38 @@ class ShowcaseController extends Controller
         ]); 
     }
 
-    // function object_reverse($categories)
-    // {
-    //     $reversed = [];
+    function category_reverse($categories)
+    {
+        $reversed = [];
 
-    //     foreach ($categories as $category) {
-    //         $cat = $category;
-    //         while($cat) {
-    //             if(!$cat->parent) {
-    //                 $reversed[] = $cat;
+        foreach ($categories as $key => $category) {
 
+            $temp_category = $category;
+            while($temp_category) {
+                $reversed[$key][] = $temp_category;
 
-    //                 $cat = $cat->parent;
-    //                 unset($cat->parent);
-    //             } else {
-    //                 $cat = $cat->parent;
-    //             }
-    //         }   
-    //     }
+                $temp_category = $temp_category->parent;
+            }
+        }
 
-    //     dd($reversed);
-    // }
+        $result = [];
+        foreach ($reversed as $key => $cat_arr) {
+
+            // $counter = count($cat_arr) - 1;
+            // while($counter) {
+            //     if($counter+1 == count($cat_arr)) {
+            //         $result[$key] = $cat_arr[$counter];
+            //     } else {
+            //         $result[$key]['child'] = $cat_arr[$counter];
+            //     }
+
+            //     $counter --;
+            // }
+            // $result[$key]
+        }
+
+        return $reversed;
+    }
 
     public function parent_without_lang($category)
     {

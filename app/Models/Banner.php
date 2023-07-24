@@ -29,36 +29,42 @@ class Banner extends Model
 
     public function getLgImgAttribute()
     {
-        return $this->img ? url('/uploads/banners/200') . '/' . $this->img : null;
-        // $img = $this->img;
+        if(!$this->img) return null;
+        if(is_string($this->img)) return $this->img ? url('/uploads/banners') . '/' . $this->img : null;
 
-        // foreach($img as $key => $val) {
-        //     $img[$key] = url('/uploads/banners') . '/' . $img[$key];
-        // }
+        $img = $this->img;
 
-        // return $img;
+        foreach($img as $key => $val) {
+            $img[$key] = url('/uploads/banners') . '/' . $img[$key];
+        }
+
+        return $img;
     }
     public function getSmImgAttribute()
     {
-        return $this->img ? url('/uploads/banners/200') . '/' . $this->img : null;
-        // $img = $this->img;
+        if(!$this->img) return null;
+        if(is_string($this->img)) return $this->img ? url('/uploads/banners/200') . '/' . $this->img : null;
 
-        // foreach($img as $key => $val) {
-        //     $img[$key] = url('/uploads/banners/200') . '/' . $img[$key];
-        // }
+        $img = $this->img;
 
-        // return $img;
+        foreach($img as $key => $val) {
+            $img[$key] = url('/uploads/banners/200') . '/' . $img[$key];
+        }
+
+        return $img;
     }
     public function getMdImgAttribute()
     {
-        return $this->img ? url('/uploads/banners/200') . '/' . $this->img : null;
-        // $img = $this->img;
+        if(!$this->img) return null;
+        if(is_string($this->img)) return $this->img ? url('/uploads/banners/600') . '/' . $this->img : null;
 
-        // foreach($img as $key => $val) {
-        //     $img[$key] = url('/uploads/banners/600') . '/' . $img[$key];
-        // }
+        $img = $this->img;
 
-        // return $img;
+        foreach($img as $key => $val) {
+            $img[$key] = url('/uploads/banners/600') . '/' . $img[$key];
+        }
+
+        return $img;
     }
 
     public function showcase(): \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -69,7 +75,6 @@ class Banner extends Model
     public function translatable(): array
     {
         return [
-            'img',
             'link',
         ];
     }

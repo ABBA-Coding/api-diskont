@@ -32,6 +32,11 @@ class BannerController extends Controller
 
         $this->without_lang($banners);
 
+        $lang = $request->header('lang') ?? $this->main_lang;
+        foreach ($banners as $banner) {
+            $banner->img = $banner->img[$lang] ?? null;
+        }
+
         return response([
             'banners' => $banners
         ]);
