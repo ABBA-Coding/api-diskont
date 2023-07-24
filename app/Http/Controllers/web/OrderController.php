@@ -98,6 +98,7 @@ class OrderController extends Controller
             'phone_number' => 'required|numeric|min:998000000001|max:998999999998',
             'name' => 'required|max:255',
             'product_id' => 'required|integer',
+            'count' => 'required|integer'
         ]);
         $data = $request->all();
 

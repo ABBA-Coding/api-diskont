@@ -14,6 +14,7 @@ class OneClickOrder extends Model
         'product_id',
         'phone_number',
         'name',
+        'count',
     ];
 
     public function product()
