@@ -6,7 +6,9 @@
     "license": "MIT",
     "require": {
         "php": "^7.3|^8.0",
+        "ext-simplexml": "*",
         "fruitcake/laravel-cors": "^2.0",
+        "goodoneuz/pay-uz": "^2.2",
         "guzzlehttp/guzzle": "^7.0.1",
         "http-interop/http-factory-guzzle": "^1.2",
         "intervention/image": "^2.7",
@@ -14,8 +16,7 @@
         "laravel/sanctum": "^2.11",
         "laravel/scout": "^9.8",
         "laravel/tinker": "^2.5",
-        "meilisearch/meilisearch-php": "^1.0",
-        "ext-simplexml": "*"
+        "meilisearch/meilisearch-php": "^1.0"
     },
     "require-dev": {
         "facade/ignition": "^2.5",
