@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Showcase;
+use Str;
 use Illuminate\Database\Seeder;
 
 class ShowcaseSeeder extends Seeder
@@ -21,7 +22,8 @@ class ShowcaseSeeder extends Seeder
                     'en' => 'Bestsellers',
                     'uz' => 'Ko\'p sotilganlar'
                 ],
-                'for_search' => 'Бестселлеры'
+                'for_search' => 'Бестселлеры',
+                'slug' => Str::slug('Бестселлеры')
             ],
             [
                 'name' => [
@@ -29,7 +31,8 @@ class ShowcaseSeeder extends Seeder
                     'en' => 'Top products',
                     'uz' => 'Top tovarlar'
                 ],
-                'for_search' => 'Топ товары'
+                'for_search' => 'Топ товары',
+                'slug' => Str::slug('Топ товары')
             ],
             [
                 'name' => [
@@ -37,7 +40,8 @@ class ShowcaseSeeder extends Seeder
                     'en' => 'Sets for gamers',
                     'uz' => 'Gamerlar uchun komplektlar'
                 ],
-                'for_search' => 'Наборы для геймеров'
+                'for_search' => 'Наборы для геймеров',
+                'slug' => Str::slug('Наборы для геймеров')
             ],
             [
                 'name' => [
@@ -45,7 +49,8 @@ class ShowcaseSeeder extends Seeder
                     'en' => 'The cheapest',
                     'uz' => 'Eng arzon'
                 ],
-                'for_search' => 'Самые дешевые'
+                'for_search' => 'Самые дешевые',
+                'slug' => Str::slug('Самые дешевые')
             ],
             [
                 'name' => [
@@ -53,7 +58,8 @@ class ShowcaseSeeder extends Seeder
                     'en' => 'New products',
                     'uz' => 'Yangi tovarlar'
                 ],
-                'for_search' => 'Новые продукты'
+                'for_search' => 'Новые продукты',
+                'slug' => Str::slug('Новые продукты')
             ],
             [
                 'name' => [
@@ -61,7 +67,8 @@ class ShowcaseSeeder extends Seeder
                     'en' => 'Sets for gamers 2',
                     'uz' => 'Gamerlar uchun komplektlar 2'
                 ],
-                'for_search' => 'Наборы для геймеров 2'
+                'for_search' => 'Наборы для геймеров 2',
+                'slug' => Str::slug('Наборы для геймеров 2')
             ],
         ];
         foreach($data as $item) {

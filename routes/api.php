@@ -29,6 +29,7 @@ use App\Http\Controllers\{
     Settings\DistrictController,
     PromotionController,
     BarController,
+    RegionGroupController,
 };
 use App\Http\Controllers\Faqs\{
     FaqCategoryController,
@@ -109,4 +110,5 @@ Route::prefix('admin')->group(function() {
 
     Route::apiResource('promotions', PromotionController::class);
     Route::apiResource('bars', BarController::class);
+    Route::apiResource('region_groups', RegionGroupController::class);
 });
