@@ -42,7 +42,8 @@ class ShowcaseController extends Controller
                 });
             });
         })->with('parent')->get();
-        // return response($this->category_reverse($categories));
+        // $this->category_reverse($categories);
+        return response($this->category_reverse($categories));
 
 
         $this->without_lang([$showcase]);
@@ -77,7 +78,22 @@ class ShowcaseController extends Controller
 
         $result = [];
         foreach ($reversed as $key => $cat_arr) {
+            $result = [];
 
+            for ($i=0; $i<count($cat_arr); $i++) {
+                if($i == 0) $result[$i] = $cat_arr[$i];
+                if(isset($cat_arr[$i+1])) {
+                    $result[$i+1] = $cat_arr[$i+1];
+                    $result[$i+1]['child'] = $cat_arr[$i];
+                }
+            }
+
+            return $result;
+
+            // array_map(function ($arr) {
+
+            //     return 
+            // }, $cat_arr);
             // $counter = count($cat_arr) - 1;
             // while($counter) {
             //     if($counter+1 == count($cat_arr)) {
@@ -91,7 +107,7 @@ class ShowcaseController extends Controller
             // $result[$key]
         }
 
-        return $reversed;
+        return $result;
     }
 
     public function parent_without_lang($category)

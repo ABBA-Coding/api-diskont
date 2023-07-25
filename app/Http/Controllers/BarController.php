@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Bar;
+use App\Models\Category;
+use App\Models\Promotions\Promotion;
 use Illuminate\Support\Facades\Storage;
 use DB;
 use Illuminate\Http\Request;
@@ -178,5 +180,28 @@ class BarController extends Controller
         }
 
         return $result;
+    }
+
+    public function search_cat_promo(Request $request)
+    {
+        $request->validate([
+            'search' => 'required'
+        ]);
+
+        $categories = Category::where('name', 'like', '%'.$request->search.'%')
+            ->orWhere('for_search', 'like', '%'.$request->search.'%')
+            ->limit(16)
+            ->get();
+
+        $promotions = Promotion::where('short_name', 'like', '%'.$request->search.'%')
+            ->orWhere('name', 'like', '%'.$request->search.'%')
+            ->orWhere('for_search', 'like', '%'.$request->search.'%')
+            ->limit(16)
+            ->get();
+
+        return response([
+            'categories' => $categories,
+            'promotions' => $promotions,
+        ]);
     }
 }

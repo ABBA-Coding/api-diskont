@@ -109,6 +109,7 @@ Route::prefix('admin')->group(function() {
     Route::apiResource('discounts', DiscountController::class);
 
     Route::apiResource('promotions', PromotionController::class);
+    Route::get('bars/search', [BarController::class, 'search_cat_promo']);
     Route::apiResource('bars', BarController::class);
     Route::apiResource('region_groups', RegionGroupController::class);
 });

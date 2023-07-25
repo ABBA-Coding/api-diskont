@@ -44,10 +44,10 @@ class PromotionController extends Controller
         foreach (['banner', 'short_name_icon', 'sticker'] as $value) {
             if($request->$value && Storage::disk('public')->exists('/uploads/temp/' . explode('/', $request->$value)[count(explode('/', $request->$value)) - 1])) {
                 $explode_img = explode('/', $request->$value);
-                Storage::disk('public')->move('/uploads/temp/' . $explode_img[count($explode_img) - 1], '/uploads/promotions/'.$value.'s' . $explode_img[count($explode_img) - 1]);
+                Storage::disk('public')->move('/uploads/temp/' . $explode_img[count($explode_img) - 1], '/uploads/promotions/'.$value.'s/' . $explode_img[count($explode_img) - 1]);
                 Storage::disk('public')->move('/uploads/temp/200/' . $explode_img[count($explode_img) - 1], '/uploads/promotions/'.$value.'s/200/' . $explode_img[count($explode_img) - 1]);
                 Storage::disk('public')->move('/uploads/temp/600/' . $explode_img[count($explode_img) - 1], '/uploads/promotions/'.$value.'s/600/' . $explode_img[count($explode_img) - 1]);
-                $date[$value] = $explode_img[count($explode_img) - 1];
+                $data[$value] = $explode_img[count($explode_img) - 1];
             }
         }
 
@@ -107,14 +107,14 @@ class PromotionController extends Controller
         $data = $request->all();
 
         foreach (['banner', 'short_name_icon', 'sticker'] as $value) {
-            if($request->value) {
-                if(Storage::disk('public')->exists('/uploads/temp/' . explode('/', $request->value)[count(explode('/', $request->value)) - 1])) {
-                    $explode_img = explode('/', $request->value);
+            if($request->$value) {
+                if(Storage::disk('public')->exists('/uploads/temp/' . explode('/', $request->$value)[count(explode('/', $request->$value)) - 1])) {
+                    $explode_img = explode('/', $request->$value);
                     Storage::disk('public')->move('/uploads/temp/' . $explode_img[count($explode_img) - 1], '/uploads/promotions/'.$value.'s/' . $explode_img[count($explode_img) - 1]);
                     Storage::disk('public')->move('/uploads/temp/200/' . $explode_img[count($explode_img) - 1], '/uploads/promotions/'.$value.'s/200/' . $explode_img[count($explode_img) - 1]);
                     Storage::disk('public')->move('/uploads/temp/600/' . $explode_img[count($explode_img) - 1], '/uploads/promotions/'.$value.'s/600/' . $explode_img[count($explode_img) - 1]);
                     $data[$value] = $explode_img[count($explode_img) - 1];
-                } else if(Storage::disk('public')->exists('/uploads/promotions/'.$value.'s/' . explode('/', $request->value)[count(explode('/', $request->value)) - 1])) {
+                } else if(Storage::disk('public')->exists('/uploads/promotions/'.$value.'s/' . explode('/', $request->$value)[count(explode('/', $request->$value)) - 1])) {
                     $data[$value] = $promotion->$value;
                 }
             }
