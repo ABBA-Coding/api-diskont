@@ -16,9 +16,9 @@ class SearchController extends Controller
                 ['is_active', 1]
             ])
             ->orWhere('for_search', 'like', '%'.$request->search.'%')
-            ->with('products' => function ($q) {
+            ->with(['products' => function ($q) {
                 $q->where('status', 'active');
-            }, 'products.images')
+            }], 'products.images')
             ->limit(20)
             ->get();
         $categories = Category::where('name', 'like', '%'.$request->search.'%')
