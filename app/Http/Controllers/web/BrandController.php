@@ -88,17 +88,17 @@ class BrandController extends Controller
                     break;
             }
         }
-        $products = $products->with('products')
+        $products = $products->with('default_product', 'default_product.images', 'default_product.attribute_options')
             ->paginate($this->PAGINATE);
 
         $this->without_lang($categories);
         $this->without_lang($products);
-        foreach ($products as $product) {
-//            dd($product);
-            foreach ($product->products as $item) {
-                $this->without_lang([$item->info]);
-            }
-        }
+//         foreach ($products as $product) {
+// //            dd($product);
+//             foreach ($product->products as $item) {
+//                 $this->without_lang([$item->info]);
+//             }
+//         }
 
         return response([
             'brand' => $brand,

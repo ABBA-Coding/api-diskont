@@ -53,6 +53,42 @@ class User extends Authenticatable
         return 'login';
     }
 
+    protected $appends = [
+        'dicoin'
+    ];
+
+    public function getDicoinAttribute()
+    {
+        $total = DicoinHistory::where([
+                ['user_id', $this->id],
+                ['type', 'plus'],
+                ['expired_at', null]
+            ])
+            ->get()
+            ->sum('quantity');
+
+        $used = DicoinHistory::where([
+                ['user_id', $this->id],
+                ['type', 'minus'],
+                ['expired_at', null]
+            ])
+            ->get()
+            ->sum('quantity');
+
+        $last = DicoinHistory::where([
+                ['user_id', $this->id],
+                ['type', 'plus'],
+                ['expired_at', null]
+            ])
+            ->latest()
+            ->first();
+
+        return [
+            'quantity' => $total - $used,
+            'left' => $last ? (180 - ceil(abs(strtotime(date('Y-m-d')) - strtotime($last->created_at)) / 3600 / 24)) : 0
+        ];
+    }
+
     public function comments()
     {
         return $this->hasMany(Comment::class);
@@ -71,5 +107,10 @@ class User extends Authenticatable
     public function orders()
     {
         return $this->hasMany(Orders\Order::class, 'client_id');
+    }
+
+    public function dicoin_history()
+    {
+        return $this->hasMany(Dicoin::class);
     }
 }

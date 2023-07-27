@@ -290,10 +290,25 @@ class ProductController extends Controller
                                                         )
                                 )
                                 : null,
-                'brand_id' => $data['brand_id'],
-                'category_id' => $data['category_id'],
+                // 'brand_id' => $data['brand_id'],
+                // 'category_id' => $data['category_id'],
                 'is_active' => $data['is_active']
             ]);
+
+
+            // proverit variacii na sootvetstviya brenda i kategorii
+            foreach ($data['products'] as $variations) {
+                foreach ($variations['variations'] as $variation) {
+                    $temp_product = Product::find($variation['id']);
+                    if(!$temp_product) return response([
+                        'message' => 'Net takogo produkta'
+                    ], 500);
+
+                    if($temp_product->info->category_id != $product->category_id || $temp_product->info->brand_id != $product->brand_id) return response([
+                        'message' => 'Kategoriya ili brand produkta ne sootvetstvuyet'
+                    ], 500);
+                }
+            }
 
 
             /*
@@ -311,6 +326,7 @@ class ProductController extends Controller
                     $qolgan_rasmlar = array_values(array_filter($variations['images'], function($i) {
                         return $i['id'] != 0;
                     }));
+                    // return response($qolgan_rasmlar);
                     $yangi_rasmlar = array_values(array_filter($variations['images'], function($i) {
                         return $i['id'] == 0;
                     }));
@@ -352,13 +368,13 @@ class ProductController extends Controller
                 $qolgan_variaciyalar_ids = array_merge($qolgan_variaciyalar_ids, $boshqa_ids);
 
                 /*
-                 * o'chirilgan variaciyalarni o'chirish
+                 * o'chirilgan variaciyalarni o'chirish (1c integraciya bo'lmaganida uncomment qilish kerak)
                  */
-                $kerakmas_variaciyalar = $product->products()->whereNotIn('id', $qolgan_variaciyalar_ids)->get();
-                foreach($kerakmas_variaciyalar as $variation) {
-                    // $variation->images()->delete(); // bu yerda rasmning filelarini ham o'chirihs kerak
-                    $variation->delete();
-                }
+                // $kerakmas_variaciyalar = $product->products()->whereNotIn('id', $qolgan_variaciyalar_ids)->get();
+                // foreach($kerakmas_variaciyalar as $variation) {
+                //     // $variation->images()->delete(); // bu yerda rasmning filelarini ham o'chirihs kerak
+                //     $variation->delete();
+                // }
 
                 /*
                  * variations save
@@ -377,9 +393,15 @@ class ProductController extends Controller
 
                     if($variation['id'] != 0) {
                         $variation_model = Product::find($variation['id']);
+
+                        // 1c integraciya uchun
+                        if($variation_model->info->id != $product->id) {
+                            $variation_model->info->delete();
+                        }
+
                         if(!$variation_model) $not_saved_products_id[] = $variation['id'];
                         $variation_model->update([
-                            // 'info_id' => $product->id,
+                            'info_id' => $product->id,
                             // 'price' => intval($variation['price']),
                             'is_popular' => $variation['is_popular'],
                             'product_of_the_day' => $variation['product_of_the_day'],
@@ -393,6 +415,9 @@ class ProductController extends Controller
                         $qolgan_rasmlar_ids = array_map(function($i) {
                             return $i['id'];
                         }, $qolgan_rasmlar);
+
+                        // rasmlarni sinxronizaciya qilamiz
+                        $variation_model->images()->sync($qolgan_rasmlar_ids);
                         /*
                          * kerakmas rasmlarni o'chiramiz
                          */
@@ -420,7 +445,9 @@ class ProductController extends Controller
                     $characteristics = [];
                     foreach ($variation['characteristics'] as $characteristicOption) {
                         $savedCharacteristicOption = CharacteristicOption::create([
-                            'name' => $characteristicOption['name'],
+                            'name' => [
+                            	'ru' => $characteristicOption['name']
+                            ],
                             'characteristic_id' => $characteristicOption['characteristic_id']
                         ]);
 
@@ -458,6 +485,8 @@ class ProductController extends Controller
                      $boshqa_ids[] = $variation_model->id;
                      $qolgan_rasmlar_ids = [];
                 }
+
+                unset($temp_counter);
 
                 $counter ++;
             }
@@ -542,5 +571,31 @@ class ProductController extends Controller
         }
 
         $info->products()->whereNotIn('id', $remaining_products_ids)->delete();
+    }
+
+    public function get_undone_variations(Request $request)
+    {
+        $request->validate([
+            'search' => 'required|max:255',
+            'brand' => 'required|integer',
+            'category' => 'required|integer',
+        ]);
+
+        $products = Product::where('status', 'inactive')
+            ->whereDoesntHave('images')
+            ->whereHas('info', function ($q) use ($request) {
+                $q->where([
+                    ['category_id', $request->category],
+                    ['brand_id', $request->brand],
+                    ['for_search', 'like', '%'.$request->search.'%']
+                ]);
+            })
+            ->orderBy('id', 'DESC')
+            ->limit(16)
+            ->get();
+
+        return response([
+            'products' => $products
+        ]);
     }
 }

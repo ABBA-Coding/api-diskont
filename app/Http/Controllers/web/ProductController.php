@@ -78,7 +78,7 @@ class ProductController extends Controller
     public function show(Request $request, $slug)
     {
         $product = Product::where('slug', $slug)
-            ->with('info', 'info.brand', 'info.category', 'info.category.parent', 'images', 'characteristic_options', 'characteristic_options.characteristic', 'badges')
+            ->with('info', 'info.brand', 'info.category', 'info.category.parent', 'images', 'characteristic_options', 'characteristic_options.characteristic', 'characteristic_options.characteristic.group', 'badges')
             // ->with('info.category.attributes', 'info.category.attributes.options')
             // ->with('attribute_options')
             ->first();
@@ -271,6 +271,11 @@ class ProductController extends Controller
         }
         if(count($product->characteristic_options) > 0) {
             $this->without_lang($product->characteristic_options);
+
+            foreach ($product->characteristic_options as $characteristic_option) {
+                // $this->without_lang([$characteristic_option->characteristic->group]);
+                $this->without_lang([$characteristic_option->characteristic]);
+            }
         }
         $this->without_lang([$product->info, $product->info->category]);
         foreach ($product->info->products as $product_1) {

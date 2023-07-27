@@ -31,7 +31,7 @@ class CharacteristicGroup extends Model
     public function translatable(): array
     {
         return [
-            'name',
+            'name'
         ];
     }
 }

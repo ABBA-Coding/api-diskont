@@ -85,6 +85,7 @@ Route::prefix('admin')->group(function() {
     Route::get('faqs_categories', [FaqCategoryController::class, 'index']);
     Route::apiResource('faqs_categories', FaqCategoryController::class);
 
+    Route::get('products/get_undone_variations', [ProductController::class, 'get_undone_variations']);
     Route::apiResource('products', ProductController::class);
     Route::apiResource('products_infos', ProductInfoController::class);
 

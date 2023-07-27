@@ -35,10 +35,10 @@ Route::any('/pay/{paysys}/{key}/{amount}',function($paysys, $key, $amount){
 });
 
 // Route::get('iuwebiuerwv', function() {
-// 	$categories = App\Models\Showcase::all();
+// 	$categories = App\Models\Category::all();
 // 	foreach ($categories as $value) {
 // 		$text = $value->name['ru'];
-// 		$value->update(['slug' => Str::slug($text)]);
+// 		$value->update(['for_search' => $text]);
 // 	}
 // 	dd($categories);
 // });

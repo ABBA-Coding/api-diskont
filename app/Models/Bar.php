@@ -19,6 +19,7 @@ class Bar extends Model
         'color1',
         'color2',
         'for_search',
+        'position',
     ];
 
     protected $casts = [
