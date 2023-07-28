@@ -11,11 +11,14 @@ class SearchController extends Controller
 {
     public function search(Request $request)
     {
-        $products = ProductInfo::where([
-                ['name', 'like', '%'.$request->search.'%'],
-                ['is_active', 1]
-            ])
-            ->orWhere('for_search', 'like', '%'.$request->search.'%')
+        $products = ProductInfo::where(function ($q) use ($request) {
+        		$q->where('name', 'like', '%'.$request->search.'%')
+        			->orWhere('for_search', 'like', '%'.$request->search.'%');
+        	})
+            ->where('is_active', 1)
+            ->whereHas('products', function ($q) {
+            	$q->where('status', 'active');
+            })
             ->with(['products' => function ($q) {
                 $q->where('status', 'active');
             }], 'products.images')
