@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\DicoinHistory;
+use App\Models\Dicoin;
 use Illuminate\Http\Request;
 
-class DicoinHistoryController extends Controller
+class DicoinController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -13,16 +13,6 @@ class DicoinHistoryController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
     {
         //
     }
@@ -41,21 +31,10 @@ class DicoinHistoryController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\DicoinHistory  $dicoinHistory
+     * @param  \App\Models\Dicoin  $dicoin
      * @return \Illuminate\Http\Response
      */
-    public function show(DicoinHistory $dicoinHistory)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\DicoinHistory  $dicoinHistory
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(DicoinHistory $dicoinHistory)
+    public function show(Dicoin $dicoin)
     {
         //
     }
@@ -64,10 +43,10 @@ class DicoinHistoryController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\DicoinHistory  $dicoinHistory
+     * @param  \App\Models\Dicoin  $dicoin
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, DicoinHistory $dicoinHistory)
+    public function update(Request $request, Dicoin $dicoin)
     {
         //
     }
@@ -75,10 +54,10 @@ class DicoinHistoryController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\DicoinHistory  $dicoinHistory
+     * @param  \App\Models\Dicoin  $dicoin
      * @return \Illuminate\Http\Response
      */
-    public function destroy(DicoinHistory $dicoinHistory)
+    public function destroy(Dicoin $dicoin)
     {
         //
     }

@@ -74,6 +74,7 @@ class ProductController extends Controller
             'products.*.variations.*.characteristics.*.characteristic_id' => 'required|integer',
             'products.*.variations.*.characteristics.*.name' => 'required',
             'products.*.variations.*.price' => 'required|numeric',
+            'products.*.variations.*.dicoin' => 'nullable|integer|min:1|max:99',
             'products.*.variations.*.is_default' => 'required|boolean',
             'products.*.variations.*.is_popular' => 'nullable|boolean',
             'products.*.variations.*.product_of_the_day' => 'nullable|boolean',
@@ -266,6 +267,7 @@ class ProductController extends Controller
             // 'products.*.variations.*.characteristics.*.characteristic_id' => 'required|integer',
             // 'products.*.variations.*.characteristics.*.name' => 'required',
             'products.*.variations.*.price' => 'required|numeric',
+            'products.*.variations.*.dicoin' => 'nullable|integer|min:1|max:99',
             'products.*.variations.*.is_default' => 'required|boolean',
             'products.*.variations.*.is_popular' => 'nullable|boolean',
             'products.*.variations.*.product_of_the_day' => 'nullable|boolean',
@@ -406,6 +408,7 @@ class ProductController extends Controller
                             'is_popular' => $variation['is_popular'],
                             'product_of_the_day' => $variation['product_of_the_day'],
                             'status' => $variation['status'],
+                            'dicoin' => $variation['dicoin'],
                             'slug' => $this->product_slug_create($product, $additional_for_slug, $variation_model->id)
                         ]); // model, c_id, is_available ne izpolzuyetsya
 
@@ -431,6 +434,7 @@ class ProductController extends Controller
                             'is_popular' => $variation['is_popular'],
                             'product_of_the_day' => $variation['product_of_the_day'],
                             'status' => $variation['status'],
+                            'dicoin' => $variation['dicoin'],
                             'slug' => $this->product_slug_create($product, $additional_for_slug, 0)
                         ]); // is_available ne ispolzuyetsya
 

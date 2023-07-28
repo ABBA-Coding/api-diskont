@@ -24,6 +24,11 @@ class District extends Model
         return $this->belongsTo(Region::class);
     }
 
+    public function villages()
+    {
+        return $this->hasMany(Village::class);
+    }
+
     public function users()
     {
         return $this->hasMany(User::class);

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\web;
 
 use App\Models\Orders\Order;
+use App\Models\UserAddress;
 use App\Models\Products\Product;
 use App\Http\Controllers\Controller;
 use Hash;
@@ -17,9 +18,9 @@ class ProfileController extends Controller
              'current_password' => 'sometimes|min:6|max:255',
             'password' => 'required|confirmed|min:6|max:255',
             'phone_number' => 'required|min:998000000001|max:999999999998|numeric',
-            'region_id' => 'nullable|integer',
-            'district_id' => 'nullable|integer',
-            'address' => 'nullable',
+            // 'region_id' => 'nullable|integer',
+            // 'district_id' => 'nullable|integer',
+            // 'address' => 'nullable',
             'email' => 'nullable|max:255',
             'postcode' => 'nullable|max:255',
         ]);
@@ -36,9 +37,9 @@ class ProfileController extends Controller
             'name' => $request->name,
             'password' => $request->password ? Hash::make($request->password) : auth('sanctum')->user()->password,
             'password_updated' => 1,
-            'address' => $request->address,
-            'region_id' => $request->region_id,
-            'district_id' => $request->district_id,
+            // 'address' => $request->address,
+            // 'region_id' => $request->region_id,
+            // 'district_id' => $request->district_id,
             'postcode' => $request->postcode,
             'email' => $request->email,
         ]);
@@ -73,9 +74,21 @@ class ProfileController extends Controller
     {
         $user = auth('sanctum')->user();
 
-        $orders = Order::where('client_id', $user->id)
+        $orders = Order::where('user_id', $user->id)
             ->get();
         $user->orders = $orders;
+
+        $addresses = UserAddress::where('user_id', $user->id)
+            ->with('region', 'district', 'village')
+            ->latest()
+            ->get();
+            
+        foreach ($addresses as $address) {
+            $this->without_lang([$address->region]);
+            $this->without_lang([$address->district]);
+            $this->without_lang([$address->village]);
+        }
+        $user->addresses = $addresses;
 
         foreach($user->orders as $order) {
             /*

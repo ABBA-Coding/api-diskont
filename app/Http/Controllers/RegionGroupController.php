@@ -37,6 +37,7 @@ class RegionGroupController extends Controller
         $request->validate([
             'name' => 'required|array',
             'name.ru' => 'required|max:500',
+            'delivery_price' => 'required|integer',
         ]);
         $data = $request->all();
         $data['for_search'] = $this->for_search($request, ['name']);
@@ -85,6 +86,7 @@ class RegionGroupController extends Controller
         $request->validate([
             'name' => 'required|array',
             'name.ru' => 'required|max:500',
+            'delivery_price' => 'required|integer',
         ]);
         $data = $request->all();
         $data['for_search'] = $this->for_search($request, ['name']);

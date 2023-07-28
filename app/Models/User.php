@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Dicoin\DicoinHistory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -111,6 +112,11 @@ class User extends Authenticatable
 
     public function dicoin_history()
     {
-        return $this->hasMany(Dicoin::class);
+        return $this->hasMany(DicoinHistory::class);
+    }
+
+    public function addresses()
+    {
+        return $this->hasMany(UserAddress::class);
     }
 }

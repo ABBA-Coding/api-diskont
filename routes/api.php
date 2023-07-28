@@ -41,6 +41,7 @@ use App\Http\Controllers\Products\{
     ProductInfoController,
 };
 use App\Http\Controllers\Feedbacks\FeedbackController;
+use App\Http\Controllers\Dicoin\DicoinController;
 
 /*
 |--------------------------------------------------------------------------
@@ -113,4 +114,5 @@ Route::prefix('admin')->group(function() {
     Route::get('bars/search', [BarController::class, 'search_cat_promo']);
     Route::apiResource('bars', BarController::class);
     Route::apiResource('region_groups', RegionGroupController::class);
+    Route::apiResource('dicoin', DicoinController::class);
 });

@@ -15,10 +15,11 @@ class CreateUsersTable extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('region_id')->nullable()->constrained();
-            $table->foreignId('district_id')->nullable()->constrained();
+            // $table->foreignId('region_id')->nullable()->constrained();
+            // $table->foreignId('district_id')->nullable()->constrained();
+            // $table->text('address')->nullable();
             $table->string('name')->nullable();
-            $table->text('address')->nullable();
+            $table->string('surname')->nullable();
             $table->string('postcode')->nullable();
             $table->string('email')->nullable();
             $table->string('login')->unique();

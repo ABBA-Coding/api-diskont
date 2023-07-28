@@ -17,6 +17,7 @@ class CreateRegionGroupsTable extends Migration
             $table->id();
             $table->text('name');
             $table->boolean('is_active')->default(1);
+            $table->integer('delivery_price');
             $table->text('for_search')->nullable();
             $table->timestamps();
         });

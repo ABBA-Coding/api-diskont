@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers\web;
 
+use App\Models\UserAddress;
+use App\Models\User;
+use App\Models\Dicoin\Dicoin;
+use App\Models\RegionGroup;
 use Illuminate\Support\Facades\DB;
 use App\Models\{Products\Product, Orders\Order, Orders\OneClickOrder, Settings\Region};
 use App\Http\Controllers\Controller;
@@ -14,26 +18,25 @@ class OrderController extends Controller
         $request->validate([
             'delivery_method' => 'required|in:pickup,courier',
             'name' => 'required|max:255',
+            'surname' => 'required|max:255',
             'phone_number' => 'required|numeric|min:998000000001|max:998999999999',
-            'region_id' => 'nullable|integer',
-            'district_id' => 'nullable|integer',
-            'address' => 'nullable',
+            'user_address_id' => 'nullable|integer',
+            // 'district_id' => 'nullable|integer',
+            // 'address' => 'nullable',
             'postcode' => 'nullable|max:255',
             'email' => 'nullable|max:255',
             'comments' => 'nullable',
             'payment_method' => 'required|in:cash,payme,uzum,click,payze',
             'products' => 'required',
             'amount' => 'required|numeric',
-
         ]);
-
         $data = $request->all();
-        $data['client_id'] = auth()->id();
+        $data['user_id'] = auth('sanctum')->id();
         $data['status'] = 'new';
         $data['is_paid'] = 0;
-        $data['delivery_price'] = isset($data['region_id']) ? Region::find($data['region_id'])->delivery_price : 0;
+        $data['delivery_price'] = $this->get_delivery_price($request);
         $data['products'] = $this->products_reformat($data['products']);
-        $data['amount'] = $this->amount_calculate($data['products'], $data['region_id'], $data['delivery_method']);
+        // $data['amount'] = $this->amount_calculate($data['products'], $data['region_id'], $data['delivery_method']);
 
         foreach ($data['products'] as $item) {
             $product = Product::find($item['product_id']);
@@ -51,6 +54,13 @@ class OrderController extends Controller
                 $item['price_with_discount'] = $product->price;
             }
         }
+
+        // amount calculate
+        $amount = 0;
+        foreach ($data['products'] as $product) {
+            $amount += $product['price_with_discount'];
+        }
+        $data['amount'] = $amount + $this->get_delivery_price($request);
 
         DB::beginTransaction();
         try {
@@ -109,27 +119,30 @@ class OrderController extends Controller
         ]);
     }
 
-    public function amount_calculate($products, $region_id, $delivery_method): int
+    public function get_delivery_price(Request $request)
     {
-        $amount = 0;
+        $delivery_price = 0;
+        $data = $request->all();
 
-        foreach ($products as $item) {
-            $amount += $item['price_with_discount'] * $item['count'];
-        }
+        if(!$data['user_address_id']) return $delivery_price;
 
-        /*
-         * dostavka pulini minus qilamiz
-         */
-        if(isset($region_id) && $delivery_method == 'courier') {
-            $delivery_price = 0;
+        if($data['delivery_method'] != 'courier') return $delivery_price;
 
-            $region = Region::find($region_id);
-            if($region) $delivery_price = $region->delivery_price;
+        $address = UserAddress::find($data['user_address_id']);
+        if(!$address) return reponse([
+            'message' => 'Resurs udalen'
+        ], 404);
+            
+        $region_group = RegionGroup::whereHas('regions', function ($q) use ($address) {
+                $q->where('id', $address->region_id);
+            })
+            ->first();
 
-            $amount = $amount + $delivery_price;
-        }
+        if(!$region_group) return reponse([
+            'message' => 'Resurs udalen'
+        ], 404);
 
-        return (int)$amount;
+        return $region_group->delivery_price;
     }
 
     public function products_reformat($products): array

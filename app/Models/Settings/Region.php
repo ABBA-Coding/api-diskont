@@ -14,7 +14,7 @@ class Region extends Model
     protected $fillable = [
         'name',
         'for_search',
-        'delivery_price',
+        // 'delivery_price',
         'group_id',
     ];
 

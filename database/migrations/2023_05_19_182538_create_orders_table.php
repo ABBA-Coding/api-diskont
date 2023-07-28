@@ -15,14 +15,12 @@ class CreateOrdersTable extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_id')->constrained('users', 'id');
+            $table->bigInteger('user_id');
             $table->enum('delivery_method', ['pickup', 'courier']);
             $table->text('name');
+            $table->text('surname');
             $table->string('phone_number');
-            $table->foreignId('region_id')->nullable()->constrained();
-            $table->foreignId('district_id')->nullable()->constrained();
-            $table->foreignId('village_id')->nullable()->constrained();
-            $table->text('address')->nullable();
+            $table->bigInteger('user_address_id')->nullable();
             $table->string('postcode')->nullable();
             $table->string('email')->nullable();
             $table->text('comments')->nullable();

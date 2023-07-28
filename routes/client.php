@@ -17,6 +17,7 @@ use App\Http\Controllers\web\{
     ComparisonController,
     BarController,
     PromotionController,
+    UserAddressController,
 };
 
 
@@ -42,6 +43,9 @@ Route::middleware('set_lang')->group(function () {
         });
 
         Route::post('order', [OrderController::class, 'store']);
+        Route::post('addresses', [UserAddressController::class, 'store']);
+        Route::put('addresses/{id}', [UserAddressController::class, 'update']);
+        Route::delete('addresses/{id}', [UserAddressController::class, 'destroy']);
     });
 
     Route::prefix('categories')->group(function() {

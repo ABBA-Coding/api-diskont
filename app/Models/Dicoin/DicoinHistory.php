@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Dicoin;
 
+use App\Models\User;
+use App\Models\Orders\Order;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -24,6 +26,6 @@ class DicoinHistory extends Model
 
     public function order()
     {
-    	return $this->belongsTo(Orders\Order::class);	
+    	return $this->belongsTo(Order::class);	
     }
 }

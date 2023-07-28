@@ -22,7 +22,7 @@ class OrderController extends Controller
     {
         $orders = Order::latest();
         if(isset($request->status) && $request->status != '') $orders = $orders->where('status', $request->status);
-        $orders = $orders->with('client')
+        $orders = $orders->with('user', 'user_address', 'user_address.region', 'user_address.district', 'user_address.village')
             ->paginate($this->PAGINATE);
 
         foreach($orders as $order) {

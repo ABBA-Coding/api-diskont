@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateRegionsTable extends Migration
+class CreateDicoinsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,11 @@ class CreateRegionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('regions', function (Blueprint $table) {
+        Schema::create('dicoins', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('group_id')->nullable();
-            $table->text('name');
-            $table->text('for_search')->nullable();
+            $table->integer('sum_to_dicoin')->default(100000);
+            $table->integer('dicoin_to_sum')->default(10000);
+            $table->integer('dicoin_to_reg')->default(10);
             $table->timestamps();
         });
     }
@@ -29,6 +29,6 @@ class CreateRegionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('regions');
+        Schema::dropIfExists('dicoins');
     }
 }

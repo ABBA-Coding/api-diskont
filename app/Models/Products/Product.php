@@ -32,6 +32,7 @@ class Product extends Model
         'product_of_the_day',
         'is_available',
         'slug',
+        'dicoin',
 //        'name',
 //        'desc',
     ];
