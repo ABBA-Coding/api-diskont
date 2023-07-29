@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Products\Product;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -67,7 +68,28 @@ class Category extends Model
         'lg_icon',
         'md_icon',
         'sm_icon',
+
+        'products_count'
     ];
+
+    public function getProductsCountAttribute()
+    {
+        $ids = $this->children->pluck('id')->toArray();
+        foreach($this->children as $child) {
+            foreach ($child->children->pluck('id')->toArray() as $value) {
+                $ids[] = $value;
+            }
+        }
+        $ids[] = $this->id;
+        $products = Product::where('status', 'active')
+            ->whereHas('info', function ($q) use ($ids) {
+                $q->where('is_active', 1)
+                    ->whereIn('category_id', $ids);
+            })
+            ->get();
+
+        return count($products);
+    }
 
     public function getLgImgAttribute()
     {

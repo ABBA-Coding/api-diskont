@@ -18,6 +18,7 @@ use App\Http\Controllers\web\{
     BarController,
     PromotionController,
     UserAddressController,
+    CommentController,
 };
 
 
@@ -54,6 +55,7 @@ Route::middleware('set_lang')->group(function () {
     });
 
     Route::prefix('products')->group(function() {
+        Route::post('/comments', [CommentController::class, 'store']);
         Route::get('/', [ProductController::class, 'index']);
         Route::get('/{slug}', [ProductController::class, 'show']);
     });

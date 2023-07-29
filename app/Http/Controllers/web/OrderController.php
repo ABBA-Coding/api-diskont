@@ -6,6 +6,7 @@ use App\Models\UserAddress;
 use App\Models\User;
 use App\Models\Dicoin\Dicoin;
 use App\Models\RegionGroup;
+use App\Models\ExchangeRate;
 use Illuminate\Support\Facades\DB;
 use App\Models\{Products\Product, Orders\Order, Orders\OneClickOrder, Settings\Region};
 use App\Http\Controllers\Controller;
@@ -75,9 +76,15 @@ class OrderController extends Controller
             ], 500);
         }
 
+        $redirect_url = null;
+        if($order->payment_method == 'click' || $order->payment_method == 'payme') {
+            $redirect_url = url('/').'/pay/'.$order->payment_method.'/'.$order->id.'/'.$order->amount;
+        }
+
         return response([
             'message' => 'Successfully ordered',
-            'order' => $order
+            'order' => $order,
+            'redirect_url' => $redirect_url
         ]);
     }
 
@@ -148,10 +155,14 @@ class OrderController extends Controller
     public function products_reformat($products): array
     {
         $result = [];
+        $kurs = ExchangeRate::latest()
+            ->first()
+            ->exchange_rate;
 
         foreach ($products as $key => $item) {
             $result[$key] = $item;
             $product = Product::find($item['product_id'])->toArray();
+            $product['price'] = $product['price'] * $kurs;
             $result[$key]['price'] = $product['price'];
             if($product['discount']) {
                 if($product['discount']['percent']) {

@@ -107,7 +107,7 @@ class User extends Authenticatable
 
     public function orders()
     {
-        return $this->hasMany(Orders\Order::class, 'client_id');
+        return $this->hasMany(Orders\Order::class);
     }
 
     public function dicoin_history()

@@ -208,6 +208,7 @@ class CategoryController extends Controller
             foreach ($category->parent->attributes as $attribute) {
                 $this->without_lang($attribute->options);
             }
+
             return self::children_without_lang($category->parent);
         }
     }

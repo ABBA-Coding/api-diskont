@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\web;
 
+use App\Models\Comment;
+use DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -18,7 +20,7 @@ class CommentController extends Controller
         /*
          * 
          */
-        if(!auth()->user()) {
+        if(!auth('sanctum')->user()) {
             return response([
                 'message' => 'Nujno loginitsya chtobi ostavit otziv'
             ], 401);
@@ -27,7 +29,7 @@ class CommentController extends Controller
         DB::beginTransaction();
         try {
             $comment = Comment::create([
-                'user_id' => auth()->id(),
+                'user_id' => auth('sanctum')->id(),
                 'product_info_id' => $request->product_id,
                 'comment' => $request->comment,
                 'stars' => $request->stars,

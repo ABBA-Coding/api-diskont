@@ -5,6 +5,7 @@ namespace App\Models\Orders;
 use App\Models\Dicoin\DicoinHistory;
 use App\Models\User;
 use App\Models\UserAddress;
+use App\Models\Products\Product;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -28,11 +29,30 @@ class Order extends Model
         'is_paid',
         'status',
         'delivery_price',
+        'req_sent',
+        'c_id',
     ];
 
     protected $casts = [
         'products' => 'array',
     ];
+
+    protected $appends = [
+    	'products_info'
+    ];
+
+    public function getProductsInfoAttribute()
+    {
+    	$products = [];
+    	foreach($this->products as $key => $product) {
+            $new_arr = $product;
+
+            $new_arr['product'] = Product::with('info', 'images')->find($product['product_id']);
+
+            $products[$key] = $new_arr;
+        }
+    	return $products;
+    }
 
     public function user()
     {

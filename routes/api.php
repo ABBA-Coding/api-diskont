@@ -42,6 +42,9 @@ use App\Http\Controllers\Products\{
 };
 use App\Http\Controllers\Feedbacks\FeedbackController;
 use App\Http\Controllers\Dicoin\DicoinController;
+use App\Http\Controllers\Clients\{
+    ClientController,
+};
 
 /*
 |--------------------------------------------------------------------------
@@ -115,4 +118,8 @@ Route::prefix('admin')->group(function() {
     Route::apiResource('bars', BarController::class);
     Route::apiResource('region_groups', RegionGroupController::class);
     Route::apiResource('dicoin', DicoinController::class);
+    Route::group(['prefix' => 'clients'], function () {
+        Route::get('/', [ClientController::class, 'index']);
+        Route::get('/{id}', [ClientController::class, 'show']);
+    });
 });
