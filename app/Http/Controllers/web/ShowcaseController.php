@@ -77,35 +77,11 @@ class ShowcaseController extends Controller
         }
 
         $result = [];
-        foreach ($reversed as $key => $cat_arr) {
-            $result = [];
-
-            for ($i=0; $i<count($cat_arr); $i++) {
-                if($i == 0) $result[$i] = $cat_arr[$i];
-                if(isset($cat_arr[$i+1])) {
-                    $result[$i+1] = $cat_arr[$i+1];
-                    $result[$i+1]['child'] = $cat_arr[$i];
-                }
-            }
-
-            return $result;
-
-            // array_map(function ($arr) {
-
-            //     return 
-            // }, $cat_arr);
-            // $counter = count($cat_arr) - 1;
-            // while($counter) {
-            //     if($counter+1 == count($cat_arr)) {
-            //         $result[$key] = $cat_arr[$counter];
-            //     } else {
-            //         $result[$key]['child'] = $cat_arr[$counter];
-            //     }
-
-            //     $counter --;
-            // }
-            // $result[$key]
-        }
+        // foreach ($reversed as $key => $cat_arr) {
+        //     for ($i=0; $i<count($cat_arr); $i++) {
+        //         $result[$key][] = $cat_arr[count($cat_arr) - 1 - $i];
+        //     }
+        // }
 
         return $result;
     }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\web;
 use App\Models\Orders\Order;
 use App\Models\UserAddress;
 use App\Models\Products\Product;
+use App\Models\Comment;
 use App\Http\Controllers\Controller;
 use Hash;
 use Illuminate\Http\Request;
@@ -82,6 +83,12 @@ class ProfileController extends Controller
             ->with('region', 'district', 'village')
             ->latest()
             ->get();
+
+        $comments = Comment::where('user_id', $user->id)
+            ->with('product_info', 'product_info.products', 'product_info.products.images')
+            ->paginate(16);
+
+        $user->comments = $comments;
             
         foreach ($addresses as $address) {
             $this->without_lang([$address->region]);

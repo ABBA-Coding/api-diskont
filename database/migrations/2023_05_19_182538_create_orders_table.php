@@ -26,7 +26,7 @@ class CreateOrdersTable extends Migration
             $table->text('comments')->nullable();
             $table->enum('payment_method', ['cash', 'payme', 'uzum', 'click', 'payze']);
             /*
-             * [{"product_id" => 1, "count" => 2, "price" => 150000, "price_with_discount" => 120000}, ...]
+             * [{"product_id" => 1, "count" => 2, "price" => 150000, "price_with_discount" => 120000, "price_with_dicoins" => 90000}, ...]
              */
             $table->text('products');
             $table->bigInteger('amount');

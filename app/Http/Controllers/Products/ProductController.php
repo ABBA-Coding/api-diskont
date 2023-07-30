@@ -16,6 +16,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class ProductController extends Controller
 {
@@ -27,8 +28,7 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $products = ProductInfo::select('id', 'name', 'desc', 'brand_id', 'category_id', 'default_product_id', 'is_active')
-            ->latest();
+        $products = ProductInfo::latest();
 
         $data = $request->all();
         if(isset($data['search']) && $data['search'] != '') {
@@ -37,7 +37,8 @@ class ProductController extends Controller
                     $q->where('name', 'like', '%'.$data['search'].'%')->orWhere('for_search', 'like', '%'.$data['search'].'%');
                 })->with('category', 'brand', 'products', 'products.images', 'category.characteristic_groups', 'category.characteristic_groups.characteristics');
         } else {
-            $products = $products->with('category', 'brand', 'products', 'products.images', 'category.characteristic_groups', 'category.characteristic_groups.characteristics');
+            // $products = $products->with('category', 'brand', 'products', 'products.images', 'category.characteristic_groups', 'category.characteristic_groups.characteristics');
+            $products = $products->with('category', 'products', 'products.images');
         }
 
         $products = $products->paginate($this->PAGINATE);

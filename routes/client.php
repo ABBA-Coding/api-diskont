@@ -19,6 +19,7 @@ use App\Http\Controllers\web\{
     PromotionController,
     UserAddressController,
     CommentController,
+    DicoinController,
 };
 
 
@@ -84,4 +85,5 @@ Route::middleware('set_lang')->group(function () {
         Route::get('/', [PromotionController::class, 'index']);
         Route::get('/{slug}', [PromotionController::class, 'show']);
     });
+    Route::get('dicoins', [DicoinController::class, 'get']);
 });

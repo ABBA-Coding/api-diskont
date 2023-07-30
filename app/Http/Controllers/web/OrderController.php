@@ -5,6 +5,7 @@ namespace App\Http\Controllers\web;
 use App\Models\UserAddress;
 use App\Models\User;
 use App\Models\Dicoin\Dicoin;
+use App\Models\Dicoin\DicoinHistory;
 use App\Models\RegionGroup;
 use App\Models\ExchangeRate;
 use Illuminate\Support\Facades\DB;
@@ -30,6 +31,7 @@ class OrderController extends Controller
             'payment_method' => 'required|in:cash,payme,uzum,click,payze',
             'products' => 'required',
             'amount' => 'required|numeric',
+            'dicoin' => 'nullable|integer'
         ]);
         $data = $request->all();
         $data['user_id'] = auth('sanctum')->id();
@@ -39,6 +41,10 @@ class OrderController extends Controller
         $data['products'] = $this->products_reformat($data['products']);
         // $data['amount'] = $this->amount_calculate($data['products'], $data['region_id'], $data['delivery_method']);
 
+        $kurs = ExchangeRate::latest()
+            ->first()
+            ->exchange_rate;
+        $total_used_dicoins_amount = 0;
         foreach ($data['products'] as $item) {
             $product = Product::find($item['product_id']);
 
@@ -52,7 +58,11 @@ class OrderController extends Controller
 
                 $item['price_with_discount'] = $inner_amount;
             } else {
-                $item['price_with_discount'] = $product->price;
+                $item['price_with_discount'] = $product->price * $kurs;
+            }
+
+            if($product->dicoin) {
+                $total_used_dicoins_amount += $item['price_with_discount'] * ($product->dicoin / 100);
             }
         }
 
@@ -63,9 +73,37 @@ class OrderController extends Controller
         }
         $data['amount'] = $amount + $this->get_delivery_price($request);
 
+
+        // est li u polzovatelya takoe kolichestvo dicoinov
+        if(auth('sanctum')->user()->dicoin['quantity'] < $data['dicoin']) return response([
+            'message' => 'U vas net takoe kolichestvo dicoinov'
+        ], 400);
+
+        // otnimem summu, kotoriy ispolzoval dicoini
+        if($data['dicoin']) {
+            $which_count_dicoin_use = floor($total_used_dicoins_amount / Dicoin::latest()->first()->dicoin_to_sum);
+            if($data['dicoin'] > $which_count_dicoin_use) {
+                return response([
+                    'message' => 'Vi mojete ispolzovat tolko '.$which_count_dicoin_use.' dicoinov'
+                ], 400);
+            } else {
+                $dicoin_data = [
+                    'user_id' => auth('sanctum')->id(),
+                    'type' => 'minus',
+                    'order_id' => null,
+                    'quantity' => $data['dicoin']
+                ];
+                $dicoin_history = DicoinHistory::create($dicoin_data);
+
+                $data['amount'] = $data['amount'] - ($data['dicoin'] * Dicoin::latest()->first()->dicoin_to_sum);
+            }
+        }
+
         DB::beginTransaction();
         try {
             $order = Order::create($data);
+
+            if($data['dicoin']) $dicoin_history->update(['order_id' => $order->id]);
 
             DB::commit();
         } catch (\Exception $e) {

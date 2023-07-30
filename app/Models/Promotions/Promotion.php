@@ -13,6 +13,7 @@ class Promotion extends Model
     protected $fillable = [
         'name',
         'short_name',
+        'short_name_text_color',
         'product_card_text',
         'desc',
         'short_name_icon',

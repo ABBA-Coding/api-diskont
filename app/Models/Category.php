@@ -33,12 +33,12 @@ class Category extends Model
 
     public function parent()
     {
-        return $this->belongsTo(Category::class, 'parent_id')->with('parent');
+        return $this->belongsTo(Category::class, 'parent_id')->with('parent')->select('id', 'name', 'parent_id', 'slug');
     }
 
     public function children()
     {
-        return $this->hasMany(Category::class, 'parent_id')->with('children', 'attributes', 'attributes.options');
+        return $this->hasMany(Category::class, 'parent_id')->with('children')->select('id', 'name', 'parent_id', 'slug');
     }
 
     public function attributes()

@@ -158,6 +158,8 @@ class OrderController extends Controller
                 if($order->status != 'returned') $this->dicoins_for_order($order, 'minus');
             }
 
+            if($data['status'] == 'canceled' && $order->status != 'canceled') $order->dicoin_history->delete();
+
             $order->update($data);
 
             DB::commit();
