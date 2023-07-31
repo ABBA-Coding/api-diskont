@@ -38,7 +38,7 @@ class ProductController extends Controller
                 })->with('category', 'brand', 'products', 'products.images', 'category.characteristic_groups', 'category.characteristic_groups.characteristics');
         } else {
             // $products = $products->with('category', 'brand', 'products', 'products.images', 'category.characteristic_groups', 'category.characteristic_groups.characteristics');
-            $products = $products->with('category', 'products', 'products.images');
+            $products = $products->with('products', 'products.images');
         }
 
         $products = $products->paginate($this->PAGINATE);

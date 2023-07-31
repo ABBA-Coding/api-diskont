@@ -10,16 +10,15 @@ class RegionController extends Controller
 {
     public function index()
     {
-        $regions = Region::with('districts', 'districts.villages')
+        $regions = Region::whereHas('group', function ($q) {
+	        	$q->where('is_active', 1);
+	        })
+			->with('districts', 'group:id,delivery_price')
             ->get();
 
         $this->without_lang($regions);
         foreach ($regions as $region) {
             $this->without_lang($region->districts);
-
-            foreach($region->districts as $district) {
-                $this->without_lang($district->villages);
-            }
         }
 
         return response([

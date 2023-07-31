@@ -14,7 +14,7 @@ class UserAddressController extends Controller
     	$request->validate([
     		'region_id' => 'required|integer',
     		'district_id' => 'required|integer',
-    		'village_id' => 'required|integer',
+    		'village_id' => 'nullable|integer',
     		'address' => 'required',
     	]);
     	$data = $request->all();
@@ -40,7 +40,7 @@ class UserAddressController extends Controller
     	$request->validate([
     		'region_id' => 'required|integer',
     		'district_id' => 'required|integer',
-    		'village_id' => 'required|integer',
+    		'village_id' => 'nullable|integer',
     		'address' => 'required',
     	]);
     	$data = $request->all();

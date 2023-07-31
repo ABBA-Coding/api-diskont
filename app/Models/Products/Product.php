@@ -44,33 +44,36 @@ class Product extends Model
 
     public function getDiscountAttribute()
     {
-        $product_discount = Discount::where([
-            ['type', 'product'],
-            ['status', 1],
-            ['start', '<=', date('Y-m-d')],
-        ])
-            ->where(function ($q) {
-                $q->where('end', null)
-                    ->orWhere('end', '>=', date('Y-m-d'));
-            })
-            ->whereJsonContains('ids', $this->id)
-            ->latest()
-            ->first();
+        $discounts_count = count($this->discounts);
+        $product_discount = isset($this->discounts[0]) ? $this->discounts[$discounts_count - 1] : null;
+        // $product_discount = Discount::where([
+        //     ['type', 'product'],
+        //     ['status', 1],
+        //     ['start', '<=', date('Y-m-d')],
+        // ])
+        //     ->where(function ($q) {
+        //         $q->where('end', null)
+        //             ->orWhere('end', '>=', date('Y-m-d'));
+        //     })
+        //     ->latest()
+        //     ->first();
+
+        // dd($product_discount);
 
         if($product_discount) return $product_discount;
 
-        return Discount::where([
-            ['type', 'brand'],
-            ['status', 1],
-            ['start', '<=', date('Y-m-d')]
-        ])
-            ->where(function ($q) {
-                $q->where('end', null)
-                    ->orWhere('end', '>=', date('Y-m-d'));
-            })
-            ->whereJsonContains('ids', $this->info->brand_id)
-            ->latest()
-            ->first();
+        // return Discount::where([
+        //     ['type', 'brand'],
+        //     ['status', 1],
+        //     ['start', '<=', date('Y-m-d')]
+        // ])
+        //     ->where(function ($q) {
+        //         $q->where('end', null)
+        //             ->orWhere('end', '>=', date('Y-m-d'));
+        //     })
+        //     ->whereJsonContains('ids', $this->info->brand_id)
+        //     ->latest()
+        //     ->first();
     }
 
     public function getRealPriceAttribute()
@@ -111,5 +114,10 @@ class Product extends Model
     public function promotions()
     {
         return $this->belongsToMany(Promotion::class);
+    }
+
+    public function discounts()
+    {
+        return $this->belongsToMany(Discount::class)->withPivot('percent', 'amount');
     }
 }

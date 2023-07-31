@@ -37,7 +37,10 @@ class OrderController extends Controller
         $data['user_id'] = auth('sanctum')->id();
         $data['status'] = 'new';
         $data['is_paid'] = 0;
-        $data['delivery_price'] = $this->get_delivery_price($request);
+        if(!$this->get_delivery_price($request)['success']) return response([
+            'message' => $this->get_delivery_price($request)['message']
+        ], 400);
+        $data['delivery_price'] = $this->get_delivery_price($request)['delivery_price'];
         $data['products'] = $this->products_reformat($data['products']);
         // $data['amount'] = $this->amount_calculate($data['products'], $data['region_id'], $data['delivery_method']);
 
@@ -71,7 +74,7 @@ class OrderController extends Controller
         foreach ($data['products'] as $product) {
             $amount += $product['price_with_discount'];
         }
-        $data['amount'] = $amount + $this->get_delivery_price($request);
+        $data['amount'] = $amount + $this->get_delivery_price($request)['delivery_price'];
 
 
         // est li u polzovatelya takoe kolichestvo dicoinov
@@ -164,30 +167,41 @@ class OrderController extends Controller
         ]);
     }
 
-    public function get_delivery_price(Request $request)
+    public function get_delivery_price(Request $request): array
     {
         $delivery_price = 0;
         $data = $request->all();
 
-        if(!$data['user_address_id']) return $delivery_price;
+        if(!$data['user_address_id']) return [
+            'success' => 1,
+            'delivery_price' => $delivery_price
+        ];
 
-        if($data['delivery_method'] != 'courier') return $delivery_price;
+        if($data['delivery_method'] != 'courier') return [
+            'success' => 1,
+            'delivery_price' => $delivery_price
+        ];
 
         $address = UserAddress::find($data['user_address_id']);
-        if(!$address) return reponse([
+        if(!$address) return [
+            'success' => 0,
             'message' => 'Resurs udalen'
-        ], 404);
+        ];
             
         $region_group = RegionGroup::whereHas('regions', function ($q) use ($address) {
                 $q->where('id', $address->region_id);
             })
             ->first();
 
-        if(!$region_group) return reponse([
+        if(!$region_group) return [
+            'success' => 0,
             'message' => 'Resurs udalen'
-        ], 404);
+        ];
 
-        return $region_group->delivery_price;
+        return [
+            'success' => 1,
+            'delivery_price' => $region_group->delivery_price
+        ];
     }
 
     public function products_reformat($products): array

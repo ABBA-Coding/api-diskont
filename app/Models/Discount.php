@@ -13,10 +13,10 @@ class Discount extends Model
     protected $fillable = [
         'title',
         'desc',
-        'percent',
-        'amount',
+        // 'percent',
+        // 'amount',
         'type',
-        'ids',
+        // 'ids',
         'start',
         'end',
         'status',
@@ -30,4 +30,9 @@ class Discount extends Model
         'desc' => 'array',
         'ids' => 'array',
     ];
+
+    public function products()
+    {
+        return $this->belongsToMany(Product::class)->withPivot('percent', 'amount');
+    }
 }

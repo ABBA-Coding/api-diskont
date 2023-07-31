@@ -71,7 +71,11 @@ class RegionGroupController extends Controller
      */
     public function show(RegionGroup $regionGroup)
     {
-        //
+        $group = $regionGroup;
+
+        return response([
+            'group' => $regionGroup
+        ]);
     }
 
     /**

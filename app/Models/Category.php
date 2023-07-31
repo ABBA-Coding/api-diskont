@@ -31,14 +31,15 @@ class Category extends Model
         'desc' => 'array',
     ];
 
+    public function children()
+    {
+        // return $this->hasMany(Category::class, 'parent_id')->with('children')->select('id', 'name', 'parent_id', 'slug');
+        return $this->hasMany(Category::class, 'parent_id')->with('children')->select('id', 'name', 'parent_id', 'slug');
+    }
+
     public function parent()
     {
         return $this->belongsTo(Category::class, 'parent_id')->with('parent')->select('id', 'name', 'parent_id', 'slug');
-    }
-
-    public function children()
-    {
-        return $this->hasMany(Category::class, 'parent_id')->with('children')->select('id', 'name', 'parent_id', 'slug');
     }
 
     public function attributes()

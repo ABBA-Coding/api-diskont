@@ -33,7 +33,7 @@ class PromotionController extends Controller
         	->with('products')
             ->first();
 
-        $this->without_lang([$promotion]);
+        if($promotion) $this->without_lang([$promotion]);
 
         return response([
             'promotion' => $promotion,

@@ -34,7 +34,7 @@ class Region extends Model
 
     public function group()
     {
-        $this->belongsTo(RegionGroup::class, 'group_id');
+        return $this->belongsTo(RegionGroup::class, 'group_id');
     }
 
     public function translatable(): array

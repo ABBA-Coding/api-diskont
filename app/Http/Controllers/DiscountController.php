@@ -19,11 +19,12 @@ class DiscountController extends Controller
     public function index()
     {
         $discounts = Discount::latest()
+            ->with('products')
             ->paginate($this->PAGINATE);
 
-        foreach ($discounts as $discount) {
-            $this->append_data($discount);
-        }
+        // foreach ($discounts as $discount) {
+        //     $this->append_data($discount);
+        // }
 
         return response([
             'discounts' => $discounts,
@@ -41,17 +42,23 @@ class DiscountController extends Controller
         $request->validate([
             'title' => 'required|array',
             'title.ru' => 'required',
-            'percent' => 'nullable|integer',
-            'amount' => 'nullable|integer',
+            'products' => 'required|array',
+            'products.*.percent' => 'nullable|integer',
+            'products.*.amount' => 'nullable|integer',
+            'products.*.id' => 'required|integer',
+            // 'percent' => 'nullable|integer',
+            // 'amount' => 'nullable|integer',
+            // 'ids' => 'array|required',
             'type' => 'required|in:product,brand',
-            'ids' => 'array|required',
             'start' => 'required|date',
             'end' => 'nullable|date',
             'status' => 'required|boolean'
         ]);
-        if(!($request->percent || $request->amount)) return response([
-            'message' => 'Odnovremenno amount i percent ne mojet bit pustim'
-        ], 422);
+        foreach ($request->products as $prouct) {
+            if(!($prouct['percent'] || $prouct['amount'])) return response([
+                'message' => 'Odnovremenno amount i percent ne mojet bit pustim'
+            ], 422);   
+        }
 
         $data = $request->all();
         $data['for_search'] = $data['title']['ru'].(isset($data['desc']['ru']) ? ' '.$data['desc']['ru'] : '');
@@ -59,6 +66,9 @@ class DiscountController extends Controller
         DB::beginTransaction();
         try {
             $discount = Discount::create($data);
+            foreach ($data['products'] as $product) {
+                $discount->products()->attach($product['id'], ['percent' => $product['percent'], 'amount' => $product['amount']]);
+            }
 
             DB::commit();
         } catch (\Exception $e) {
@@ -82,7 +92,9 @@ class DiscountController extends Controller
      */
     public function show(Discount $discount)
     {
-        $this->append_data($discount);
+    	$discount = Discount::where('id', $discount->id)
+    		->with('products')
+			->first();
 
         return response([
             'discount' => $discount,
@@ -101,17 +113,23 @@ class DiscountController extends Controller
         $request->validate([
             'title' => 'required|array',
             'title.ru' => 'required',
-            'percent' => 'nullable|integer',
-            'amount' => 'nullable|integer',
+            'products' => 'required|array',
+            'products.*.percent' => 'nullable|integer',
+            'products.*.amount' => 'nullable|integer',
+            'products.*.id' => 'required|integer',
+            // 'percent' => 'nullable|integer',
+            // 'amount' => 'nullable|integer',
+            // 'ids' => 'array|required',
             'type' => 'required|in:product,brand',
-            'ids' => 'array|required',
             'start' => 'required|date',
             'end' => 'nullable|date',
             'status' => 'required|boolean'
         ]);
-        if(!($request->percent || $request->amount)) return response([
-            'message' => 'Odnovremenno amount i percent ne mojet bit pustim'
-        ], 422);
+        foreach ($request->products as $prouct) {
+            if(!($prouct['percent'] || $prouct['amount'])) return response([
+                'message' => 'Odnovremenno amount i percent ne mojet bit pustim'
+            ], 422);   
+        }
 
         $data = $request->all();
         $data['for_search'] = $data['title']['ru'].(isset($data['desc']['ru']) ? ' '.$data['desc']['ru'] : '');
@@ -119,6 +137,10 @@ class DiscountController extends Controller
         DB::beginTransaction();
         try {
             $discount->update($data);
+            $discount->products()->detach();
+            foreach ($data['products'] as $product) {
+                $discount->products()->attach($product['id'], ['percent' => $product['percent'], 'amount' => $product['amount']]);
+            }
 
             DB::commit();
         } catch (\Exception $e) {
@@ -149,14 +171,14 @@ class DiscountController extends Controller
      * @param Discount $discount
      * @return void
      */
-    public function append_data(Discount $discount): void
-    {
-        if ($discount->type == 'product') {
-            $discount->products = Product::whereIn('id', $discount->ids)->get();
-            $discount->brands = null;
-        } else if ($discount->type == 'brand') {
-            $discount->brands = Brand::whereIn('id', $discount->ids)->get();
-            $discount->products = null;
-        }
-    }
+    // public function append_data(Discount $discount): void
+    // {
+    //     if ($discount->type == 'product') {
+    //         $discount->products = Product::where('id', $discount->pivot->product_id)->get();
+    //         $discount->brands = null;
+    //     } else if ($discount->type == 'brand') {
+    //         $discount->brands = Brand::where('id', $discount->id)->get();
+    //         $discount->products = null;
+    //     }
+    // }
 }

@@ -18,18 +18,19 @@ class CategoryController extends Controller
     public function index(Request $request)
     {
         if($request->all && $request->all == 1) {
-            $categories = Category::whereNull('parent_id')->with('children')->get();
+            // $categories = Category::whereNull('parent_id')->with('children')->get();
+            $categories = Category::whereNull('parent_id')->get();
 
             $this->without_lang($categories);
-            foreach ($categories as $category2) {
-            	$this->without_lang($category2->children);
+            // foreach ($categories as $category2) {
+            // 	$this->without_lang($category2->children);
 
-            	if(count($category2->children) > 0) {
-            		foreach ($category2->children as $category3) {
-            			$this->without_lang($category3->children);
-	            	}
-            	}
-            }
+            // 	if(count($category2->children) > 0) {
+            // 		foreach ($category2->children as $category3) {
+            // 			$this->without_lang($category3->children);
+	           //  	}
+            // 	}
+            // }
 
 
             return response([
