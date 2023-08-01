@@ -80,7 +80,7 @@ class ProfileController extends Controller
         $user->orders = $orders;
 
         $addresses = UserAddress::where('user_id', $user->id)
-            ->with('region', 'district', 'village')
+            ->with('region', 'district')
             ->latest()
             ->get();
 
@@ -93,7 +93,6 @@ class ProfileController extends Controller
         foreach ($addresses as $address) {
             $this->without_lang([$address->region]);
             $this->without_lang([$address->district]);
-            $this->without_lang([$address->village]);
         }
         $user->addresses = $addresses;
 

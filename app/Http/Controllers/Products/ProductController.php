@@ -76,6 +76,8 @@ class ProductController extends Controller
             'products.*.variations.*.characteristics.*.name' => 'required',
             'products.*.variations.*.price' => 'required|numeric',
             'products.*.variations.*.dicoin' => 'nullable|integer|min:1|max:99',
+            // 'products.*.variations.*.promotions' => 'array|required',
+            // 'products.*.variations.*.promotions.*' => 'required|integer',
             'products.*.variations.*.is_default' => 'required|boolean',
             'products.*.variations.*.is_popular' => 'nullable|boolean',
             'products.*.variations.*.product_of_the_day' => 'nullable|boolean',
@@ -595,6 +597,7 @@ class ProductController extends Controller
                     ['for_search', 'like', '%'.$request->search.'%']
                 ]);
             })
+            ->with('info')
             ->orderBy('id', 'DESC')
             ->limit(16)
             ->get();
