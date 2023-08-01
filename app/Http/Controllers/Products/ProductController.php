@@ -147,6 +147,7 @@ class ProductController extends Controller
                     if($variation['is_default']) $default_product_id = $item->id;
 
                     $item->attribute_options()->sync($variation['options']);
+                    $item->promotions()->sync($variation['promotions']);
 
                     $characteristics = [];
                     foreach ($variation['characteristics'] as $characteristicOption) {
@@ -271,12 +272,14 @@ class ProductController extends Controller
             // 'products.*.variations.*.characteristics.*.name' => 'required',
             'products.*.variations.*.price' => 'required|numeric',
             'products.*.variations.*.dicoin' => 'nullable|integer|min:1|max:99',
+            'products.*.variations.*.promotions' => 'array',
+            'products.*.variations.*.promotions.*' => 'integer',
             'products.*.variations.*.is_default' => 'required|boolean',
             'products.*.variations.*.is_popular' => 'nullable|boolean',
             'products.*.variations.*.product_of_the_day' => 'nullable|boolean',
         ]);
         $data = $request->all();
-
+        dd($data);
         DB::beginTransaction();
         try {
             /*
@@ -448,6 +451,7 @@ class ProductController extends Controller
                             $variation_model->images()->attach($qolgan_rasmlar_id);
                         }
                     }
+                    $variation_model->promotions()->sync($variation['promotions']);
                     $variation_model->attribute_options()->sync($variation['options']);
                     $characteristics = [];
                     foreach ($variation['characteristics'] as $characteristicOption) {
