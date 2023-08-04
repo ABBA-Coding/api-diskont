@@ -114,13 +114,13 @@ class FaqCategoryController extends Controller
                 'message' => $e->getMessage()
             ], 500);
         }
-        
+
         return response([
             'message' => __('messages.successfully_deleted')
         ]);
     }
 
-    private function for_search(Request $request, $fields)
+    public function for_search(Request $request, $fields)
     {
         $result = '';
 

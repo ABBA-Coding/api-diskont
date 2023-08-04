@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Admin;
+use App\Models\Roles\Role;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
@@ -25,7 +27,23 @@ class AdminController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'username' => 'required|max:255',
+            'password' => 'required|max:255',
+            'role_id' => 'required|integer'
+        ]);
+        $data = $request->all();
+        $data['password'] = Hash::make($data['password']);
+
+        if(!Role::find($data['role_id'])) return response([
+            'message' => 'Resource not found'
+        ], 400);
+
+        $user = Admin::create($data);
+
+        return response([
+            'user' => $user
+        ]);
     }
 
     /**

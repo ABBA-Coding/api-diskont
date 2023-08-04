@@ -15,10 +15,10 @@ use App\Http\Controllers\Files\{
     UploadController,
     DeleteController,
 };
-use App\Http\Controllers\{
-    DiscountController,
+use App\Http\Controllers\{DiscountController,
     Orders\OneClickOrderController,
     Orders\OrderController,
+    RoleController,
     ShowcaseController,
     CategoryController,
     BrandController,
@@ -30,8 +30,7 @@ use App\Http\Controllers\{
     PromotionController,
     BarController,
     RegionGroupController,
-    BranchController,
-};
+    BranchController};
 use App\Http\Controllers\Faqs\{
     FaqCategoryController,
     FaqController,
@@ -47,6 +46,9 @@ use App\Http\Controllers\Clients\{
     ClientController,
 };
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\PermissionGroupController;
 
 /*
 |--------------------------------------------------------------------------
@@ -64,7 +66,7 @@ Route::prefix('admin')->group(function() {
         Route::post('login', [LoginController::class, 'login']);
     });
 
-    Route::middleware([])->group(function () { // 'auth:sanctum', 'ability:admin'
+    Route::middleware(['auth:sanctum', 'ability:admin', 'role'])->group(function () { // 'auth:sanctum', 'ability:admin'
         Route::get('/characteristics/all', [CharacteristicController::class, 'all']);
         Route::apiResource('characteristics', CharacteristicController::class);
         Route::get('characteristics_groups/all', [CharacteristicGroupController::class, 'all']);
@@ -125,5 +127,9 @@ Route::prefix('admin')->group(function() {
             Route::get('/', [ClientController::class, 'index']);
             Route::get('/{id}', [ClientController::class, 'show']);
         });
+        Route::apiResource('admins', AdminController::class);
+        Route::apiResource('roles', RoleController::class);
+        Route::apiResource('permissions', PermissionController::class);
+        Route::apiResource('permission_groups', PermissionGroupController::class);
     });
 });
