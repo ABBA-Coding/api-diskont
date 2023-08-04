@@ -121,7 +121,7 @@ class CategoryController extends Controller
             ->with('parent', 'attributes', 'attributes.options', 'characteristic_groups', 'characteristic_groups.characteristics', 'characteristic_groups.characteristics.options') // children
             ->first();
 
-        // $category->children = $this->get_children($category);
+        $category->children = $this->get_children($category);
         
         return response([
             'category' => $category

@@ -11,12 +11,13 @@ class ShowcaseController extends Controller
 {
     public function get()
     {
-        $showcases = Showcase::with(['products' => function ($q) {
-            $q->where('status', 'active');
-        }], 'products.info', 'products.images')
-            ->whereHas('products', function ($q) {
+        $showcases = Showcase::whereHas('products', function ($q) {
                 $q->where('status', 'active');
             })
+            ->with(['products' => function ($q) {
+                $q->where('status', 'active')
+                    ->with('images', 'info');
+            }])
             ->get();
 
         $this->without_lang($showcases);
