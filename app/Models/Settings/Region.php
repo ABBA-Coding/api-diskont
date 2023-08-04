@@ -4,6 +4,7 @@ namespace App\Models\Settings;
 
 use App\Models\User;
 use App\Models\RegionGroup;
+use App\Models\Branch;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -35,6 +36,11 @@ class Region extends Model
     public function group()
     {
         return $this->belongsTo(RegionGroup::class, 'group_id');
+    }
+
+    public function branches()
+    {
+        return $this->hasMany(Branch::class);
     }
 
     public function translatable(): array

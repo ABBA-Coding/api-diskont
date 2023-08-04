@@ -22,7 +22,7 @@ class ProductController extends Controller
         if(isset($request->limit) && $request->limit != '' && $request->limit < 41) $this->set_paginate($request->limit);
         $products = Product::select('id', 'info_id', 'model', 'price', 'slug', 'dicoin')
             ->where('status', 'active')
-            ->with('info', 'info.brand', 'info.category', 'images', 'attribute_options', 'badges', 'characteristic_options');
+            ->with('info', 'info.brand', 'images', 'attribute_options', 'badges', 'characteristic_options');
 
         if(isset($request->type) && $request->type != '') {
             switch ($request->type) {
@@ -59,15 +59,15 @@ class ProductController extends Controller
         foreach ($products as $product) {
             $this->without_lang($product->attribute_options);
             $this->without_lang($product->characteristic_options);
-            $this->without_lang([$product->info, $product->info->category]);
+            $this->without_lang([$product->info]);
 
-            $category = $product->info->category->parent;
-            while($category) {
-                $parent = $category->parent;
-                if($parent) $this->without_lang([$parent]);
+            // $category = $product->info->category->parent;
+            // while($category) {
+            //     $parent = $category->parent;
+            //     if($parent) $this->without_lang([$parent]);
 
-                $category = $parent;
-            }
+            //     $category = $parent;
+            // }
         }
 
         return response([
@@ -78,7 +78,7 @@ class ProductController extends Controller
     public function show(Request $request, $slug)
     {
         $product = Product::where('slug', $slug)
-            ->with('info', 'info.brand', 'info.category', 'info.category.parent', 'info.comments.user', 'images', 'characteristic_options', 'characteristic_options.characteristic', 'characteristic_options.characteristic.group', 'badges')
+            ->with('info', 'info.brand', 'info.comments.user', 'images', 'characteristic_options', 'characteristic_options.characteristic', 'characteristic_options.characteristic.group', 'badges')
             // ->with('info.category.attributes', 'info.category.attributes.options')
             // ->with('attribute_options')
             ->first();

@@ -11,7 +11,9 @@ class ShowcaseController extends Controller
 {
     public function get()
     {
-        $showcases = Showcase::with('products', 'products.info', 'products.images')
+        $showcases = Showcase::with(['products' => function ($q) {
+            $q->where('status', 'active');
+        }], 'products.info', 'products.images')
             ->whereHas('products', function ($q) {
                 $q->where('status', 'active');
             })
@@ -32,7 +34,12 @@ class ShowcaseController extends Controller
     public function show($slug)
     {
         $showcase = Showcase::where('slug', $slug)
-            ->with('products', 'products.info', 'products.images')
+            ->with(['products' => function ($q) {
+            $q->where('status', 'active');
+        }], 'products.info', 'products.images')
+            ->whereHas('products', function ($q) {
+                $q->where('status', 'active');
+            })
             ->first();
 
         $categories = Category::whereHas('product_infos', function ($q) use ($slug) {
@@ -43,7 +50,7 @@ class ShowcaseController extends Controller
             });
         })->with('parent')->get();
         // $this->category_reverse($categories);
-        return response($this->category_reverse($categories));
+        // return response($this->category_reverse($categories));
 
 
         $this->without_lang([$showcase]);

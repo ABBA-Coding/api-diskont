@@ -42,3 +42,7 @@ Route::any('/pay/{paysys}/{key}/{amount}',function($paysys, $key, $amount){
 // 	}
 // 	dd($categories);
 // });
+
+Route::get('redis', function () {
+    return response(Cache::store('redis')->get('products/index'));
+});

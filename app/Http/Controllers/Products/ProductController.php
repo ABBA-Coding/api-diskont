@@ -11,15 +11,19 @@ use App\Models\Products\{
     ProductInfo,
     ProductImage,
 };
+use App\Models\Promotions\Promotion;
+use App\Traits\CategoryTrait;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Facades\Cache;
 
 class ProductController extends Controller
 {
+	use CategoryTrait;
+	
     protected $PAGINATE = 16;
     /**
      * Display a listing of the resource.
@@ -38,10 +42,14 @@ class ProductController extends Controller
                 })->with('category', 'brand', 'products', 'products.images', 'category.characteristic_groups', 'category.characteristic_groups.characteristics');
         } else {
             // $products = $products->with('category', 'brand', 'products', 'products.images', 'category.characteristic_groups', 'category.characteristic_groups.characteristics');
-            $products = $products->with('products', 'products.images');
+            $products = $products->with('category', 'products', 'products.images');
         }
 
         $products = $products->paginate($this->PAGINATE);
+
+        if (!Cache::store('redis')->get('products/index')) {
+            Cache::store('redis')->put('products/index', $products, now()->addMinutes(10));
+        }
 
         return response([
             'products' => $products
@@ -193,6 +201,8 @@ class ProductController extends Controller
             ->with('brand', 'category', 'category.parent')
             ->first();
 
+    	// $product->category->children = $this->get_children($product->category);
+
         $variations = $product->products;
         $variation_images = [];
 
@@ -221,7 +231,7 @@ class ProductController extends Controller
                 $result[$counter]['variations'] = Product::whereHas('images', function($q) use ($product_images_ids) {
                     $q->whereIn('product_images.id', $product_images_ids);
                 })
-                    ->with('characteristic_options', 'characteristic_options.characteristic', 'attribute_options', 'attribute_options.attribute')
+                    ->with('characteristic_options', 'characteristic_options.characteristic', 'attribute_options', 'attribute_options.attribute', 'promotions')
                     ->get();
                 $variation_images = array_filter($variation_images, function($item) use ($product_images_ids) {
                     return !in_array($item, $product_images_ids);
@@ -233,7 +243,7 @@ class ProductController extends Controller
         }
 
         if(empty($result)) {
-            $result[0]['variations'][0] = $product->products()->where('id', $product->products[0]->id)->with('attribute_options', 'characteristic_options')->first();
+            $result[0]['variations'][0] = $product->products()->where('id', $product->products[0]->id)->with('attribute_options', 'characteristic_options', 'promotions')->first();
             // $result[0]['images'][0] = [];
         }
 
@@ -279,7 +289,7 @@ class ProductController extends Controller
             'products.*.variations.*.product_of_the_day' => 'nullable|boolean',
         ]);
         $data = $request->all();
-        dd($data);
+
         DB::beginTransaction();
         try {
             /*

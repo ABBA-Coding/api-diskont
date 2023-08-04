@@ -5,10 +5,14 @@ namespace App\Http\Controllers\web;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Products\ProductInfo;
+use App\Http\Resources\CategoryResource;
+use App\Traits\CategoryTrait;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
+    use CategoryTrait;
+
     protected $PAGINATE = 16;
     protected function set_paginate($paginate)
     {
@@ -18,19 +22,13 @@ class CategoryController extends Controller
     public function index(Request $request)
     {
         if($request->all && $request->all == 1) {
-            // $categories = Category::whereNull('parent_id')->with('children')->get();
             $categories = Category::whereNull('parent_id')->get();
 
-            $this->without_lang($categories);
-            // foreach ($categories as $category2) {
-            // 	$this->without_lang($category2->children);
+            foreach ($categories as $category) {
+                $category->children = $this->get_children($category, 1);
+            }
 
-            // 	if(count($category2->children) > 0) {
-            // 		foreach ($category2->children as $category3) {
-            // 			$this->without_lang($category3->children);
-	           //  	}
-            // 	}
-            // }
+            $this->without_lang($categories);
 
 
             return response([
@@ -39,10 +37,10 @@ class CategoryController extends Controller
         }
 
         if(isset($request->limit) && $request->limit != '' && $request->limit < 41) $this->set_paginate($request->limit);
+
         $categories = Category::whereNull('parent_id')
             ->orderBy('position')
-            ->select('id', 'name', 'is_popular', 'desc', 'icon', 'icon_svg', 'img', 'slug')
-            ->with('children');
+            ->select('id', 'name', 'is_popular', 'desc', 'icon', 'icon_svg', 'img', 'slug');
 
         if(isset($request->popular) && $request->popular != '' && $request->popular == 1) {
             $categories = $categories->where('is_popular', 1);
@@ -51,20 +49,22 @@ class CategoryController extends Controller
         $categories = $categories->paginate($this->PAGINATE);
 
         $this->without_lang($categories);
-        foreach ($categories as $value) {
-            $this->children_without_lang($value);
+
+        foreach ($categories as $category) {
+            if(is_null($category->parent_id)) $category->products_count = $this->get_products_count($category);
+            
+            $category->children = $this->get_children($category, 1);
         }
 
-        return response([
-            'categories' => $categories
-        ]);
+        return CategoryResource::collection($categories);
     }
 
     public function show(Request $request, $slug)
     {
         $category = Category::where('slug', $slug)
-            ->with('children', 'parent', 'children')
+            ->with('parent')
             ->first();
+        $category->children = $this->get_children($category, 1);
 
         $children = [];
         $this->getAllChildren($category, $children);
@@ -132,7 +132,6 @@ class CategoryController extends Controller
         $attributes = $category->attributes()->with('options')->get();
 
         $this->without_lang([$category]);
-        $this->children_without_lang($category);
         $this->parent_without_lang($category);
 
         $this->without_lang($product_infos);
@@ -158,48 +157,21 @@ class CategoryController extends Controller
         }
     }
 
-    public function children_without_lang($category)
-    {
-        // $this->without_lang($category->children);
-        
-        // while(count($category->children) > 0) {
-        //     foreach ($category->children as $value) {
-        //         $this->without_lang($value->attributes);
-        //         foreach ($value->attributes as $attribute) {
-        //             $this->without_lang($attribute->options);
-        //         }
-        //         return $this->children_without_lang($value);
-        //     }
-        // }
+    // public function children_without_lang($category)
+    // {
+    //     $this->without_lang($category->children);
 
-   //      $this->without_lang($categories);
-   //      foreach ($categories as $category) {
-			// if(!empty($category->children)) {
-			// 	return $this->children_without_lang($category->children);
-			// }
-   //      }
+    // 	if(count($category->children) > 0) {
+    // 		foreach ($category->children as $category_inner) {
+    // 			$this->without_lang($category_inner->children);
 
-        // while(count($category->children) > 0) {
-        //     $this->without_lang($category->children);
-
-        //     foreach ($category->children as $value) {
-        //         return $this->children_without_lang($value);
-        //     }
-        // }
-
-        $this->without_lang($category->children);
-
-    	if(count($category->children) > 0) {
-    		foreach ($category->children as $category_inner) {
-    			$this->without_lang($category_inner->children);
-
-    			$this->without_lang($category_inner->attributes);
-	            foreach ($category_inner->attributes as $attribute) {
-	                $this->without_lang($attribute->options);
-	            }
-        	}
-    	}
-    }
+    // 			$this->without_lang($category_inner->attributes);
+	   //          foreach ($category_inner->attributes as $attribute) {
+	   //              $this->without_lang($attribute->options);
+	   //          }
+    //     	}
+    // 	}
+    // }
 
     public function parent_without_lang($category)
     {
@@ -210,7 +182,7 @@ class CategoryController extends Controller
                 $this->without_lang($attribute->options);
             }
 
-            return self::children_without_lang($category->parent);
+            return self::parent_without_lang($category->parent);
         }
     }
 }

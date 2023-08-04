@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Traits\CategoryTrait;
 use Illuminate\Support\Facades\Storage;
 use DB;
 use Illuminate\Support\Str;
@@ -10,6 +11,8 @@ use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
+    use CategoryTrait;
+    
     protected $PAGINATE = 16;
     /**
      * Display a listing of the resource.
@@ -24,8 +27,12 @@ class CategoryController extends Controller
             ->select('id', 'name', 'is_popular', 'desc', 'parent_id', 'img', 'icon', 'icon_svg', 'slug', 'is_active');
         if($search) $categories = $categories->where('name', 'like', '%'.$search.'%')
             ->orWhere('for_search', 'like', '%'.$search.'%');
-        $categories = $categories->with('children', 'attributes', 'attributes.options', 'characteristic_groups', 'characteristic_groups.characteristics', 'characteristic_groups.characteristics.options')
+        $categories = $categories->with('attributes', 'attributes.options', 'characteristic_groups', 'characteristic_groups.characteristics', 'characteristic_groups.characteristics.options')
             ->paginate($this->PAGINATE);
+
+        foreach ($categories as $category_key => $category_value) {
+            $category_value->children = $this->get_children($category_value);
+        }
 
         return response([
             'categories' => $categories
@@ -111,8 +118,11 @@ class CategoryController extends Controller
     {
         $category = Category::where('id', $category->id)
             ->select('id', 'name', 'is_popular', 'desc', 'parent_id', 'img', 'icon', 'slug', 'is_active')
-            ->with('children', 'attributes', 'attributes.options', 'characteristic_groups', 'characteristic_groups.characteristics', 'characteristic_groups.characteristics.options')
+            ->with('parent', 'attributes', 'attributes.options', 'characteristic_groups', 'characteristic_groups.characteristics', 'characteristic_groups.characteristics.options') // children
             ->first();
+
+        // $category->children = $this->get_children($category);
+        
         return response([
             'category' => $category
         ]);

@@ -51,18 +51,18 @@ class OrderController extends Controller
         foreach ($data['products'] as $item) {
             $product = Product::find($item['product_id']);
 
-            if(!$product->discount && !empty($product->discount)) {
-                if($product->discount->percent != null) {
-                    $inner_amount = $product->price * $product->discount->percent / 100;
-                } else {
-                    $inner_amount = $product->price - $product->discount->amount;
-                    if($inner_amount < 0) $inner_amount = 0;
-                }
+            // if(!$product->discount && !empty($product->discount)) {
+            //     if($product->discount->percent != null) {
+            //         $inner_amount = $product->price * (1 - ($product->discount->percent / 100));
+            //     } else {
+            //         $inner_amount = $product->price - $product->discount->amount;
+            //         if($inner_amount < 0) $inner_amount = 0;
+            //     }
 
-                $item['price_with_discount'] = $inner_amount;
-            } else {
-                $item['price_with_discount'] = $product->price * $kurs;
-            }
+            //     $item['price_with_discount'] = $inner_amount;
+            // } else {
+            //     $item['price_with_discount'] = $product->price * $kurs;
+            // }
 
             if($product->dicoin) {
                 $total_used_dicoins_amount += $item['price_with_discount'] * ($product->dicoin / 100);
@@ -72,7 +72,7 @@ class OrderController extends Controller
         // amount calculate
         $amount = 0;
         foreach ($data['products'] as $product) {
-            $amount += $product['price_with_discount'];
+            $amount += $product['price_with_discount'] * $product['count'];
         }
         $data['amount'] = $amount + $this->get_delivery_price($request)['delivery_price'];
 
@@ -137,12 +137,11 @@ class OrderController extends Controller
         ]);
 
         $products = Product::whereIn('id', $request->products)
-            ->with('info', 'images')
+            ->with('info', 'info.brand', 'info.category', 'images')
             ->get();
 
         foreach ($products as $product) {
-//            dd($product);
-            $this->without_lang([$product->info]);
+            $this->without_lang([$product->info, $product->info->category]);
         }
 
         return response([
@@ -217,10 +216,10 @@ class OrderController extends Controller
             $product['price'] = $product['price'] * $kurs;
             $result[$key]['price'] = $product['price'];
             if($product['discount']) {
-                if($product['discount']['percent']) {
-                    $result[$key]['price_with_discount'] = $product['price'] * $product['discount']['percent'] / 100;
-                } else if($product['discount']['amount']) {
-                    $result[$key]['price_with_discount'] = $product['price'] - $product['discount']['amount'];
+                if($product['discount']['pivot']['percent']) {
+                    $result[$key]['price_with_discount'] = $product['price'] * (1 - ($product['discount']['pivot']['percent'] / 100));
+                } else if($product['discount']['pivot']['amount']) {
+                    $result[$key]['price_with_discount'] = $product['price'] - $product['discount']['pivot']['amount'];
                     if($result[$key]['price_with_discount'] > 0) $result[$key]['price_with_discount'] = 0;
                 } else {
                     $result[$key]['price_with_discount'] = $product['price'];

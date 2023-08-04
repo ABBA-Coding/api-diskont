@@ -5,7 +5,8 @@ namespace App\Models\Products;
 use App\Models\ExchangeRate;
 use App\Models\Discount;
 use App\Models\Showcase;
-use App\Models\Promotion;
+use App\Models\Branch;
+use App\Models\Promotions\Promotion;
 use App\Models\Attributes\AttributeOption;
 use App\Models\Characteristics\CharacteristicOption;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -39,6 +40,7 @@ class Product extends Model
 
     protected $appends = [
         'discount',
+        'discount_price',
         'real_price',
     ];
 
@@ -74,6 +76,25 @@ class Product extends Model
         //     ->whereJsonContains('ids', $this->info->brand_id)
         //     ->latest()
         //     ->first();
+    }
+
+    public function getDiscountPriceAttribute()
+    {
+        $discount_price = null;
+        $kurs = ExchangeRate::latest()
+            ->first()['exchange_rate'];
+
+        $discount = isset($this->discounts[0]) ? $this->discounts[count($this->discounts) - 1] : null;
+
+        if($discount) {
+            if($discount->pivot->percent) {
+                return $this->price * (1 - ($discount->pivot->percent / 100)) * $kurs;
+            }
+
+            return ($this->price - $discount->pivot->amount) * $kurs;
+        }
+
+        return $discount_price;
     }
 
     public function getRealPriceAttribute()

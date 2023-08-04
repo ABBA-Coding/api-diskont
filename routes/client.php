@@ -37,7 +37,7 @@ Route::middleware('set_lang')->group(function () {
         Route::post('logout', [AuthController::class, 'logout']);
     });
 
-    Route::middleware(['auth:sanctum'])->group(function() {
+    Route::middleware(['auth:sanctum', 'ability:client'])->group(function() {
         Route::prefix('profile')->group(function () {
             Route::put('update', [ProfileController::class, 'update']);
             Route::put('edit_name', [ProfileController::class, 'edit_name']);

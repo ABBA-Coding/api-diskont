@@ -94,7 +94,7 @@ class AuthController extends Controller
                 ]);
 
                 return response([
-                    'token' => $user->createToken('auth-token')->plainTextToken
+                    'token' => $user->createToken('auth-token', ['client'])->plainTextToken
                 ]);
             }
         } else if(Cache::has($request->phone_number) && Cache::get($request->phone_number) == 'sms_for_forget') {
@@ -112,7 +112,7 @@ class AuthController extends Controller
                 ]);
 
                 return response([
-                    'token' => $user->createToken('auth-token')->plainTextToken
+                    'token' => $user->createToken('auth-token', ['client'])->plainTextToken
                 ]);
             }
         } else {
@@ -152,7 +152,7 @@ class AuthController extends Controller
             $request->phone_number. 'code'
         ]);
         return response([
-            'token' => $user->createToken('auth-token')->plainTextToken
+            'token' => $user->createToken('auth-token', ['client'])->plainTextToken
         ]);
     }
 

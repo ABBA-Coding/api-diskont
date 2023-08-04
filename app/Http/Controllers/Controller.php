@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\{
     Products\Product,
-    SmsHistory
+    SmsHistory,
+    Category,
 };
 use Http;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -122,7 +123,7 @@ class Controller extends BaseController
 
         foreach($arr as $item) {
             foreach($item->translatable() as $column) {
-                $item->$column = $item->$column[app()->getLocale()] ?? '';
+                $item->$column = is_array($item->$column) ? ($item->$column[app()->getLocale()] ?? '') : $item->$column;
             }
         }
         return $arr;

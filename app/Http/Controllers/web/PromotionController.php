@@ -30,10 +30,15 @@ class PromotionController extends Controller
     public function show($slug)
     {
         $promotion = Promotion::where('slug', $slug)
-        	->with('products')
+        	->with('products', 'products.info', 'products.images')
             ->first();
 
-        if($promotion) $this->without_lang([$promotion]);
+        if($promotion) {
+            $this->without_lang([$promotion]);
+            foreach ($promotion->products as $product) {
+                $this->without_lang([$product->info]);
+            }
+        };
 
         return response([
             'promotion' => $promotion,

@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use App\Models\Products\Product;
+use App\Traits\CategoryTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Category extends Model
 {
-    use HasFactory;
+    use HasFactory, CategoryTrait;
 
     protected $fillable = [
         'c_id',
@@ -30,12 +31,6 @@ class Category extends Model
         'name' => 'array',
         'desc' => 'array',
     ];
-
-    public function children()
-    {
-        // return $this->hasMany(Category::class, 'parent_id')->with('children')->select('id', 'name', 'parent_id', 'slug');
-        return $this->hasMany(Category::class, 'parent_id')->with('children')->select('id', 'name', 'parent_id', 'slug');
-    }
 
     public function parent()
     {
@@ -69,28 +64,7 @@ class Category extends Model
         'lg_icon',
         'md_icon',
         'sm_icon',
-
-        'products_count'
     ];
-
-    public function getProductsCountAttribute()
-    {
-        $ids = $this->children->pluck('id')->toArray();
-        foreach($this->children as $child) {
-            foreach ($child->children->pluck('id')->toArray() as $value) {
-                $ids[] = $value;
-            }
-        }
-        $ids[] = $this->id;
-        $products = Product::where('status', 'active')
-            ->whereHas('info', function ($q) use ($ids) {
-                $q->where('is_active', 1)
-                    ->whereIn('category_id', $ids);
-            })
-            ->get();
-
-        return count($products);
-    }
 
     public function getLgImgAttribute()
     {
