@@ -19,7 +19,7 @@ class RoleMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-//        return $next($request);
+        return $next($request);
         $auth_user = auth()->user();
 
         if($auth_user->tokenCan('admin') && $auth_user->role_id == null) return $next($request);

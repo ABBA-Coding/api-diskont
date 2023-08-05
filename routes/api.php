@@ -30,7 +30,9 @@ use App\Http\Controllers\{DiscountController,
     PromotionController,
     BarController,
     RegionGroupController,
-    BranchController};
+    BranchController,
+    Translates\TranslateController,
+    Translates\TranslateGroupController};
 use App\Http\Controllers\Faqs\{
     FaqCategoryController,
     FaqController,
@@ -132,5 +134,9 @@ Route::prefix('admin')->group(function() {
         Route::apiResource('roles', RoleController::class);
         Route::apiResource('permissions', PermissionController::class);
         Route::apiResource('permission_groups', PermissionGroupController::class);
+        Route::get('translate_groups/all', [TranslateGroupController::class, 'all']);
+        Route::apiResource('translate_groups', TranslateGroupController::class);
+        Route::put('translates/multiple_update', [TranslateController::class, 'multiple_update']);
+        Route::apiResource('translates', TranslateController::class);
     });
 });

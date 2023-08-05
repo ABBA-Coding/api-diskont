@@ -1,8 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\web\{
-    ShowcaseController,
+use App\Http\Controllers\web\{ShowcaseController,
     RegionController,
     OrderController,
     Auth\AuthController,
@@ -17,10 +16,10 @@ use App\Http\Controllers\web\{
     ComparisonController,
     BarController,
     PromotionController,
+    TranslateController,
     UserAddressController,
     CommentController,
-    DicoinController,
-};
+    DicoinController};
 
 
 
@@ -86,4 +85,5 @@ Route::middleware('set_lang')->group(function () {
         Route::get('/{slug}', [PromotionController::class, 'show']);
     });
     Route::get('dicoins', [DicoinController::class, 'get']);
+    Route::get('translates', [TranslateController::class, 'get']);
 });
