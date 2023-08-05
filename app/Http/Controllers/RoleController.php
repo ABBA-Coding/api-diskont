@@ -35,8 +35,8 @@ class RoleController extends Controller
             'name' => 'required|max:255',
             'permissions' => 'required|array',
             'permissions.*' => 'required|integer',
-            'permission_groups' => 'required|array',
-            'permission_groups.*' => 'required|integer'
+            'permission_groups' => 'array',
+            'permission_groups.*' => 'integer'
         ]);
         $data = $request->all();
 
@@ -88,10 +88,10 @@ class RoleController extends Controller
     {
         $request->validate([
             'name' => 'required|max:255',
-            'permissions' => 'required|array',
-            'permissions.*' => 'required|integer',
-            'permission_groups' => 'required|array',
-            'permission_groups.*' => 'required|integer'
+            'permissions' => 'array',
+            'permissions.*' => 'integer',
+            'permission_groups' => 'array',
+            'permission_groups.*' => 'integer'
         ]);
         $data = $request->all();
 

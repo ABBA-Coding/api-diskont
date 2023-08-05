@@ -14,9 +14,9 @@ class Role extends Model
         'name'
     ];
 
-    public function admin()
+    public function admins()
     {
-        return $this->hasOne(Admin::class);
+        return $this->hasMany(Admin::class);
     }
 
     public function permission_groups()

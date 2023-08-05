@@ -35,4 +35,13 @@ class LoginController extends Controller
             'token' => $admin->createToken('auth-token', ['admin'])->plainTextToken
         ]);
     }
+
+    public function logout(Request $request)
+    {
+        auth()->user()->tokens()->delete();
+
+        return response([
+            'message' => 'Successfully logout'
+        ]);
+    }
 }

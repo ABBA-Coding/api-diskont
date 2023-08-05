@@ -64,6 +64,7 @@ use App\Http\Controllers\PermissionGroupController;
 Route::prefix('admin')->group(function() {
     Route::prefix('auth')->group(function () {
         Route::post('login', [LoginController::class, 'login']);
+        Route::post('logout', [LoginController::class, 'logout'])->middleware(['auth:sanctum', 'ability:admin', 'role']);
     });
 
     Route::middleware(['auth:sanctum', 'ability:admin', 'role'])->group(function () { // 'auth:sanctum', 'ability:admin'

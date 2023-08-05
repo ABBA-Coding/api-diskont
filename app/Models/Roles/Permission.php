@@ -11,7 +11,12 @@ class Permission extends Model
 
     protected $fillable = [
         'name',
-        'url'
+        'url',
+        'methods'
+    ];
+
+    protected $casts = [
+        'methods' => 'array'
     ];
 
     public function groups()
