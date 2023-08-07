@@ -34,8 +34,12 @@ class Product extends Model
         'is_available',
         'slug',
         'dicoin',
-//        'name',
+        'name',
 //        'desc',
+    ];
+
+    protected $casts = [
+        'name' => 'array',
     ];
 
     protected $appends = [
@@ -140,5 +144,12 @@ class Product extends Model
     public function discounts()
     {
         return $this->belongsToMany(Discount::class)->withPivot('percent', 'amount');
+    }
+
+    public function translatable(): array
+    {
+        return [
+            'name',
+        ];
     }
 }

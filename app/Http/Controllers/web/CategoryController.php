@@ -4,6 +4,7 @@ namespace App\Http\Controllers\web;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Products\Product;
 use App\Models\Products\ProductInfo;
 use App\Http\Resources\CategoryResource;
 use App\Traits\CategoryTrait;
@@ -52,7 +53,7 @@ class CategoryController extends Controller
 
         foreach ($categories as $category) {
             if(is_null($category->parent_id)) $category->products_count = $this->get_products_count($category);
-            
+
             $category->children = $this->get_children($category, 1);
         }
 
@@ -140,9 +141,28 @@ class CategoryController extends Controller
             $this->without_lang($attribute->options);
         }
 
+        $products = Product::where([
+                ['stock', '>', 0],
+                ['status', 'active']
+            ])
+            ->whereHas('info', function ($q) use ($children_ids) {
+                $q->where([
+                        ['is_active', 1]
+                    ])
+                    ->whereIn('category_id', $children_ids);
+            })
+            ->with('info', 'images')
+            ->get();
+
+        $this->without_lang($products);
+        foreach ($products as $product) {
+            $this->without_lang([$product->info]);
+        }
+//dd($products);
         return response([
             'category' => $category,
             'product_infos' => $product_infos,
+            'products' => $products,
             'attributes' => $attributes,
         ]);
     }

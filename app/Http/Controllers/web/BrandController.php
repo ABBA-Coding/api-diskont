@@ -93,17 +93,48 @@ class BrandController extends Controller
 
         $this->without_lang($categories);
         $this->without_lang($products);
-//         foreach ($products as $product) {
-// //            dd($product);
-//             foreach ($product->products as $item) {
-//                 $this->without_lang([$item->info]);
-//             }
-//         }
+
+
+        $products_new = Product::where([
+                ['stock', '>', 0],
+                ['status', 'active']
+            ])->whereHas('info', function ($q) use ($brand) {
+                $q->where([
+                    ['brand_id', $brand->id],
+                    ['is_active', 1]
+                ]);
+            });
+
+        if(isset($request->min_price) && $request->min_price != '') {
+            $products_new = $products_new->where('price', '>', $request->min_price);
+        }
+        if(isset($request->max_price) && $request->max_price != '') {
+            $products_new = $products_new->where('price', '<', $request->max_price);
+        }
+        if(isset($request->category) && $request->category != '') {
+            $category = Category::where('slug', $request->category)
+                ->first();
+            if($category) {
+                $products_new = $products_new->whereHas('info', function ($q) use ($category) {
+                    $q->where('category_id', $category->id);
+                });
+            } else {
+                return response([
+                    'message' => __('messages.category_not_found')
+                ], 404);
+            }
+        }
+
+        $products_new = $products_new->with('images')
+            ->paginate($this->PAGINATE);
+
+        $this->without_lang($products_new);
 
         return response([
             'brand' => $brand,
             'categories' => $categories,
-            'products' => $products
+            'products' => $products,
+            'products_new' => $products_new
         ]);
     }
 }

@@ -20,9 +20,9 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         if(isset($request->limit) && $request->limit != '' && $request->limit < 41) $this->set_paginate($request->limit);
-        $products = Product::select('id', 'info_id', 'model', 'price', 'slug', 'dicoin')
+        $products = Product::select('id', 'name', 'info_id', 'model', 'price', 'slug', 'dicoin')
             ->where('status', 'active')
-            ->with('info', 'info.brand', 'images', 'attribute_options', 'badges', 'characteristic_options');
+            ->with('info', 'info.brand', 'images', 'attribute_options', 'characteristic_options');
 
         if(isset($request->type) && $request->type != '') {
             switch ($request->type) {
@@ -56,6 +56,7 @@ class ProductController extends Controller
 
         $products = $products->paginate($this->PAGINATE);
 
+        $this->without_lang($products);
         foreach ($products as $product) {
             $this->without_lang($product->attribute_options);
             $this->without_lang($product->characteristic_options);
@@ -78,7 +79,7 @@ class ProductController extends Controller
     public function show(Request $request, $slug)
     {
         $product = Product::where('slug', $slug)
-            ->with('info', 'info.brand', 'info.comments.user', 'images', 'characteristic_options', 'characteristic_options.characteristic', 'characteristic_options.characteristic.group', 'badges')
+            ->with('info', 'info.brand', 'info.comments.user', 'images', 'characteristic_options', 'characteristic_options.characteristic', 'characteristic_options.characteristic.group')
             // ->with('info.category.attributes', 'info.category.attributes.options')
             // ->with('attribute_options')
             ->first();
@@ -300,6 +301,7 @@ class ProductController extends Controller
 
             $res_without_lang[] = $re;
         }
+        $this->without_lang([$product, $product->discount]);
 
         return response([
             'product' => $product,

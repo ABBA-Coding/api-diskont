@@ -35,14 +35,16 @@ Route::any('/pay/{paysys}/{key}/{amount}',function($paysys, $key, $amount){
 });
 
 // Route::get('iuwebiuerwv', function() {
-// 	$categories = App\Models\Category::all();
-// 	foreach ($categories as $value) {
-// 		$text = $value->name['ru'];
-// 		$value->update(['for_search' => $text]);
+// 	$infos = App\Models\Products\ProductInfo::all();
+// 	foreach ($infos as $value) {
+//        foreach ($value->products as $product) {
+//            $product->update(['name' => $value->name]);
+//        }
 // 	}
-// 	dd($categories);
+// 	dd($infos);
 // });
 
-Route::get('redis', function () {
-    return response(Cache::store('redis')->get('products/index'));
-});
+
+//Route::get('redis', function () {
+//    return response(Cache::store('redis')->get('products/index'));
+//});

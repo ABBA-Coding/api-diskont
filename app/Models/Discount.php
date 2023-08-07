@@ -35,4 +35,12 @@ class Discount extends Model
     {
         return $this->belongsToMany(Product::class)->withPivot('percent', 'amount');
     }
+
+    public function translatable(): array
+    {
+        return [
+            'title',
+            'desc',
+        ];
+    }
 }

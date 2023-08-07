@@ -40,6 +40,8 @@ class PromotionController extends Controller
             }
         };
 
+        $this->without_lang($promotion->products);
+
         return response([
             'promotion' => $promotion,
         ]);

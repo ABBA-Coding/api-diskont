@@ -100,6 +100,9 @@ class ProductController extends Controller
                     'is_available' => 1,
                     'slug' => Str::slug($item['id'], '-'),
                     'stock' => $item['stock'],
+                    'name' => [
+                        'ru' => $item['name'],
+                    ],
                     // 'installment_price_6' => $item['installment_price_6'],
                     // 'installment_price_12' => $item['installment_price_12'],
                     // 'installment_price_18' => $item['installment_price_18'],
@@ -196,7 +199,7 @@ class ProductController extends Controller
         while($model::where([['id', '!=', $model_id], ['slug', $slug]])->exists()) {
             $slug = $slug = $slug.'-1';
         }
-        
+
         return $slug;
     }
 }
