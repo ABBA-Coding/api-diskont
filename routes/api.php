@@ -69,7 +69,7 @@ Route::prefix('admin')->group(function() {
         Route::post('logout', [LoginController::class, 'logout'])->middleware(['auth:sanctum', 'ability:admin', 'role']);
     });
 
-    Route::middleware(['auth:sanctum', 'ability:admin', 'role'])->group(function () { // 'auth:sanctum', 'ability:admin'
+    Route::middleware([])->group(function () { // 'auth:sanctum', 'ability:admin', 'role'
         Route::get('/characteristics/all', [CharacteristicController::class, 'all']);
         Route::apiResource('characteristics', CharacteristicController::class);
         Route::get('characteristics_groups/all', [CharacteristicGroupController::class, 'all']);
