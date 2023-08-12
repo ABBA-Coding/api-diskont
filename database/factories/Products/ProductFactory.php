@@ -16,6 +16,11 @@ class ProductFactory extends Factory
     public function definition()
     {
         $status = ['active', 'inactive'];
+        $name = [
+            'ru' => 'ru ' . $this->faker->sentence(4),
+            'uz' => 'uz ' . $this->faker->sentence(4),
+            'en' => 'en ' . $this->faker->sentence(4),
+        ];
 
         return [
             'model' => $this->faker->sentence(1),
@@ -24,6 +29,7 @@ class ProductFactory extends Factory
             'product_of_the_day' => rand(0,1),
             'status' => $status[rand(0,1)],
             'slug' => Str::slug($this->faker->sentence(3), '-'),
+            'name' => $name
         ];
     }
 }
