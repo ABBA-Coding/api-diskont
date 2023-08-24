@@ -75,28 +75,28 @@ class Promotion extends Model
 
     public function getLgStickerAttribute()
     {
-        return $this->sticker ? (url('/uploads/promotions/banners') . '/' . $this->sticker) : null;
+        return $this->sticker ? (url('/uploads/promotions/stickers') . '/' . $this->sticker) : null;
     }
     public function getSmStickerAttribute()
     {
-        return $this->sticker ? (url('/uploads/promotions/banners/200') . '/' . $this->sticker) : null;
+        return $this->sticker ? (url('/uploads/promotions/stickers/200') . '/' . $this->sticker) : null;
     }
     public function getMdStickerAttribute()
     {
-        return $this->sticker ? (url('/uploads/promotions/banners/600') . '/' . $this->sticker) : null;
+        return $this->sticker ? (url('/uploads/promotions/stickers/600') . '/' . $this->sticker) : null;
     }
 
     public function getLgShortNameIconAttribute()
     {
-        return $this->short_name_icon ? (url('/uploads/promotions/banners') . '/' . $this->short_name_icon) : null;
+        return $this->short_name_icon ? (url('/uploads/promotions/short_name_icon') . '/' . $this->short_name_icon) : null;
     }
     public function getSmShortNameIconAttribute()
     {
-        return $this->short_name_icon ? (url('/uploads/promotions/banners/200') . '/' . $this->short_name_icon) : null;
+        return $this->short_name_icon ? (url('/uploads/promotions/short_name_icon/200') . '/' . $this->short_name_icon) : null;
     }
     public function getMdShortNameIconAttribute()
     {
-        return $this->short_name_icon ? (url('/uploads/promotions/banners/600') . '/' . $this->short_name_icon) : null;
+        return $this->short_name_icon ? (url('/uploads/promotions/short_name_icon/600') . '/' . $this->short_name_icon) : null;
     }
 
 

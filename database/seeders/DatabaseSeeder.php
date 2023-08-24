@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             ShowcaseSeeder::class,
             ExchangeRateSeeder::class,
+            AttributeSeeder::class,
         ]);
     }
 }

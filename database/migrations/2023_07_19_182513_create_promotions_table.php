@@ -25,7 +25,7 @@ class CreatePromotionsTable extends Migration
             $table->string('short_name_first_color')->nullable();
             $table->string('short_name_last_color')->nullable();
 
-            $table->text('name');
+            $table->text('name')->nullable();
             $table->text('desc')->nullable();
             $table->date('start_date');
             $table->date('end_date');
@@ -34,6 +34,9 @@ class CreatePromotionsTable extends Migration
             $table->text('product_card_text')->nullable();
             $table->string('product_card_text_color')->default('#ffffff');
             $table->string('product_card_back_color')->default('#000000');
+
+            $table->string('slug');
+            $table->string('short_name_text_color')->default('#ffffff');
 
             $table->text('for_search')->nullable();
 

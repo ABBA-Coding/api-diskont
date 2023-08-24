@@ -53,6 +53,7 @@ class CharacteristicController extends Controller
         try {
             $group = CharacteristicGroup::create([
                 'name' => $request->group,
+                'keywords' => $request->keywords ?? null,
                 'for_search' => $this->for_search($request, ['name'])
             ]);
 
@@ -137,6 +138,7 @@ class CharacteristicController extends Controller
 
             $characteristic_group->update([
                 'name' => $request->group,
+                'keywords' => $request->keywords ?? null,
                 'for_search' => $this->for_search($request, ['name'])
             ]);
 

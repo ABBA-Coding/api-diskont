@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\web;
 
 use App\Http\Controllers\Controller;
+use App\Models\ExchangeRate;
 use App\Models\Category;
 use App\Models\Products\Product;
 use App\Models\Products\ProductInfo;
@@ -15,53 +16,35 @@ class CategoryController extends Controller
     use CategoryTrait;
 
     protected $PAGINATE = 16;
+    protected $PAGE = 1;
     protected function set_paginate($paginate)
     {
         $this->PAGINATE = $paginate;
     }
+    protected function set_page($page)
+    {
+        $this->PAGE = $page;
+    }
 
     public function index(Request $request)
     {
-        if($request->all && $request->all == 1) {
-            $categories = Category::whereNull('parent_id')->get();
+    	// poluchat vse kategorii?
+        if($request->all && $request->all == 1)	return response($this->getAllCategoriesWithChildren(1));
 
-            foreach ($categories as $category) {
-                $category->children = $this->get_children($category, 1);
-            }
-
-            $this->without_lang($categories);
-
-
-            return response([
-                'categories' => $categories
-            ]);
-        }
-
+    	// ustanovit limit
         if(isset($request->limit) && $request->limit != '' && $request->limit < 41) $this->set_paginate($request->limit);
+        if(isset($request->page) && $request->page != '') $this->set_page($request->page);
 
-        $categories = Category::whereNull('parent_id')
-            ->orderBy('position')
-            ->select('id', 'name', 'is_popular', 'desc', 'icon', 'icon_svg', 'img', 'slug');
+        $get_only_popular = isset($request->popular) && $request->popular != '' && $request->popular == 1;
+        $categories = $this->paginateAllCategoriesWithChildren(1, $this->PAGE, $get_only_popular);
 
-        if(isset($request->popular) && $request->popular != '' && $request->popular == 1) {
-            $categories = $categories->where('is_popular', 1);
-        }
-
-        $categories = $categories->paginate($this->PAGINATE);
-
-        $this->without_lang($categories);
-
-        foreach ($categories as $category) {
-            if(is_null($category->parent_id)) $category->products_count = $this->get_products_count($category);
-
-            $category->children = $this->get_children($category, 1);
-        }
-
-        return CategoryResource::collection($categories);
+        return response($categories);
     }
 
     public function show(Request $request, $slug)
     {
+        if(isset($request->limit) && $request->limit != '' && $request->limit < 41) $this->set_paginate($request->limit);
+        
         $category = Category::where('slug', $slug)
             ->with('parent')
             ->first();
@@ -73,19 +56,6 @@ class CategoryController extends Controller
         $children_ids = array_map(function($item) {
             return $item->id;
         }, $children);
-
-
-        $product_infos = ProductInfo::whereIn('category_id', $children_ids);
-        /*
-         * filtr produktov po max i min price
-         */
-        if(isset($request->min_price) && $request->min_price != '' && isset($request->max_price) && $request->max_price != '') {
-            $min_price = (float)$request->min_price;
-            $max_price = (float)$request->max_price;
-            $product_infos = $product_infos->whereHas('default_product', function($q) use ($min_price, $max_price) {
-                $q->whereBetween('price', [$min_price, $max_price]);
-            });
-        }
 
         /*
          * sortirovka produktov
@@ -110,32 +80,11 @@ class CategoryController extends Controller
             }
         }
 
-        /*
-         * sortirovka po attributam
-         */
-        if($request->input('attributes') && $request->input('attributes') != '') {
-            $product_infos = $product_infos->whereHas('products', function($q) use ($request) {
-                $q->whereHas('attribute_options', function($qi) use ($request) {
-                    /*
-                     * str to arr
-                     */
-                    $attributes_ids = explode(',', $request->input('attributes'));
-                    $qi->whereIn('attribute_options.id', $attributes_ids);
-                });
-            });
-        }
-        $product_infos = $product_infos->whereHas('products', function ($q) {
-            $q->where('status', 'active');
-        })
-            ->with('default_product', 'default_product.images', 'default_product.attribute_options')
-            ->get();
-
         $attributes = $category->attributes()->with('options')->get();
 
         $this->without_lang([$category]);
         $this->parent_without_lang($category);
 
-        $this->without_lang($product_infos);
         $this->without_lang($attributes);
         foreach ($attributes as $attribute) {
             $this->without_lang($attribute->options);
@@ -150,18 +99,45 @@ class CategoryController extends Controller
                         ['is_active', 1]
                     ])
                     ->whereIn('category_id', $children_ids);
-            })
-            ->with('info', 'images')
-            ->get();
+            });
 
+        /*
+         * filtr produktov po max i min price
+         */
+        $exchange = ExchangeRate::latest()
+            ->first()['exchange_rate'];
+        if(isset($request->min_price) && $request->min_price != '' && isset($request->max_price) && $request->max_price != '') {
+            $min_price = (float)$request->min_price / $exchange;
+            $max_price = (float)$request->max_price / $exchange;
+            $products = $products->whereBetween('price', [$min_price, $max_price]);
+        }
+
+        /*
+         * sortirovka po attributam
+         */
+        if($request->input('attributes') && $request->input('attributes') != '') {
+            $products = $products->whereHas('attribute_options', function($q) use ($request) {
+               /*
+                * str to arr
+                */
+               $attributes_ids = explode(',', $request->input('attributes'));
+               $q->whereIn('attribute_options.id', $attributes_ids);
+           });
+        }
+
+        $products = $products->with('info', 'images')
+            ->paginate($this->PAGINATE);
+
+        /*
+         * set data lang
+         */
         $this->without_lang($products);
         foreach ($products as $product) {
             $this->without_lang([$product->info]);
         }
-//dd($products);
+
         return response([
             'category' => $category,
-            'product_infos' => $product_infos,
             'products' => $products,
             'attributes' => $attributes,
         ]);

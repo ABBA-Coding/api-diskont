@@ -24,6 +24,8 @@ class CreateBarsTable extends Migration
             $table->string('color1')->default('#000000');
             $table->string('color2')->default('#000000');
 
+            $table->integer('position')->default(1000);
+
             $table->text('for_search')->nullable();
             $table->timestamps();
         });

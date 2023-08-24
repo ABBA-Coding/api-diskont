@@ -18,7 +18,7 @@ class CreateBannersTable extends Migration
             $table->foreignId('showcase_id')->nullable()->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->text('img');
             $table->text('link')->nullable();
-            $table->enum('type', ['main', 'promo', 'top', 'medium', 'small', 'bottom']);
+            $table->enum('type', ['main', 'promo', 'top', 'medium', 'small', 'bottom', 'product_of_the_day', 'type1', 'type2']);
             $table->timestamps();
         });
     }

@@ -11,6 +11,7 @@ class CharacteristicGroup extends Model
 
     protected $fillable = [
         'name',
+        'keywords',
         'for_search',
     ];
 

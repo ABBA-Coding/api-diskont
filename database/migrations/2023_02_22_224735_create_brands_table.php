@@ -19,6 +19,7 @@ class CreateBrandsTable extends Migration
             $table->string('name');
             $table->string('logo')->nullable();
             $table->string('slug')->unique();
+            $table->boolean('is_top')->default(0);
             $table->timestamps();
         });
     }

@@ -44,4 +44,27 @@ class LoginController extends Controller
             'message' => 'Successfully logout'
         ]);
     }
+
+    public function me()
+    {
+        $role = auth()->user()->role;
+
+        $permissions = [];
+        if($role) {
+            foreach ($role->permissions as $key => $value) {
+                $permissions[] = $value;
+            }
+            foreach ($role->permission_groups as $key => $value) {
+                foreach ($value as $key_i => $value_i) {
+                    $permissions[] = $value_i;
+                }   
+            }
+        }
+
+        return response([
+            'user' => auth()->user(),
+            'role' => $role,
+            'permissions' => $permissions
+        ]);
+    }
 }

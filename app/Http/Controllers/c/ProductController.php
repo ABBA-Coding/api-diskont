@@ -36,7 +36,8 @@ class ProductController extends Controller
         try {
             $data = $request->all();
             foreach ($data['data'] as $item) {
-                // dd($item);
+
+            	// obrabotka brenda
                 $brand = [
 //                    'c_id' => $item['brand']['id'],
                     'name' => $item['brand']['name'],
@@ -49,13 +50,14 @@ class ProductController extends Controller
                     $brand
                 );
 
-
+                // obrabotka kategoriy
                 $category_parent = $item['category']['parent'];
                 $category = [
                     // 'c_id' => $item['category']['id'],
                     'name' => [
                         'ru' => $item['category']['name']
                     ],
+                    'for_search' => $item['category']['name'],
                     'parent_c_id' => $category_parent ? $category_parent['id'] : null,
                     'is_popular' => 0,
                     'position' => 0,
@@ -65,7 +67,13 @@ class ProductController extends Controller
                     ['c_id' => $item['category']['id']],
                     $category
                 );
+
+                // ustanovit slug
                 $child->update(['slug' => $this->create_slug(Category::class, $item['category']['name'], $child->id)]);
+
+                // dobavit attribut cvet k kategoriyu
+                if(!DB::table('attribute_category')->where('category_id', $child->id)->where('attribute_id', 1)->exists()) $child->attributes()->attach(1);
+
                 $first = $child;
                 while($category_parent) {
                     $category = [
@@ -73,6 +81,7 @@ class ProductController extends Controller
                         'name' => [
                             'ru' => $category_parent['name']
                         ],
+                        'for_search' => $category_parent['name'],
                         'parent_c_id' => $category_parent['parent'] ? $category_parent['parent']['id'] : null,
                         'is_popular' => 0,
                         'position' => 0,
@@ -82,15 +91,19 @@ class ProductController extends Controller
                         ['c_id' => $category_parent['id']],
                         $category
                     );
+                    // ustanovit slug
                     $parent_category->update(['slug' => $this->create_slug(Category::class, $category_parent['name'], $parent_category->id)]);
                     // set prev categroy parent_id
                     $child->update(['parent_id' => $parent_category->id]);
+                    
+                    // dobavit attribut cvet k kategoriyu
+                    if(!DB::table('attribute_category')->where('category_id', $parent_category->id)->where('attribute_id', 1)->exists()) $parent_category->attributes()->attach(1);
 
                     $category_parent = $category_parent['parent'];
                     $child = $parent_category;
                 }
 
-
+                // obrabotka produkta
                 $product = [
                    'c_id' => $item['id'],
                     'price' => $item['price'],
@@ -103,6 +116,7 @@ class ProductController extends Controller
                     'name' => [
                         'ru' => $item['name'],
                     ],
+                    'for_search' => $item['name'],
                     // 'installment_price_6' => $item['installment_price_6'],
                     // 'installment_price_12' => $item['installment_price_12'],
                     // 'installment_price_18' => $item['installment_price_18'],
@@ -132,6 +146,10 @@ class ProductController extends Controller
                     $saved_product->update(['info_id' => $saved_product_info->id]);
                 } else {
                     $saved_product = Product::where('c_id', $item['id'])->first();
+                    $product['status'] = $saved_product->status;
+                    $product['slug'] = $saved_product->slug;
+                    $product['is_popular'] = $saved_product->is_popular;
+                    $product['product_of_the_day'] = $saved_product->product_of_the_day;
                     $saved_product->update($product);
 
                     $product_info = [

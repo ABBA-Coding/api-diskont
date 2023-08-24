@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 class PermissionGroupController extends Controller
 {
+    private $PAGINATE = 16;
     /**
      * Display a listing of the resource.
      *
@@ -16,7 +17,13 @@ class PermissionGroupController extends Controller
      */
     public function index()
     {
-        //
+        $groups = PermissionGroup::latest()
+            ->with('permissions')
+            ->paginate($this->PAGINATE);
+
+        return response([
+            'groups' => $groups
+        ]);
     }
 
     /**
@@ -61,7 +68,13 @@ class PermissionGroupController extends Controller
      */
     public function show(PermissionGroup $permissionGroup)
     {
-        //
+        $group = PermissionGroup::where('id', $permissionGroup->id)
+            ->with('permissions')
+            ->first();
+
+        return response([
+            'group' => $group
+        ]);
     }
 
     /**

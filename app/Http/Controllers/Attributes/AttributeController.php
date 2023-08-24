@@ -179,8 +179,10 @@ class AttributeController extends Controller
     public function destroy(Attribute $attribute)
     {
         DB::beginTransaction();
-
         try {
+            if($attribute->id == 1) return response([
+                'message' => 'Forbidden'
+            ], 403);
             $attribute->options()->delete();
             $attribute->delete();
 

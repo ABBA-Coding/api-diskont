@@ -19,6 +19,7 @@ class CommentController extends Controller
         $comments = Comment::latest()
             ->select('id', 'user_id', 'product_info_id', 'comment', 'stars')
             ->with('user', 'product_info')
+            // ->get();
             ->paginate($this->PAGINATE);
 
         return response([

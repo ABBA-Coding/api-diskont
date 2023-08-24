@@ -125,7 +125,7 @@ class BrandController extends Controller
             }
         }
 
-        $products_new = $products_new->with('images')
+        $products_new = $products_new->with('images', 'promotions')
             ->paginate($this->PAGINATE);
 
         $this->without_lang($products_new);

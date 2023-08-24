@@ -32,24 +32,46 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $products = ProductInfo::latest();
+        // $products = ProductInfo::latest();
+
+        // $data = $request->all();
+        // if(isset($data['search']) && $data['search'] != '') {
+        //     $products = $products->where('name', 'like', '%'.$data['search'].'%')->orWhere('for_search', 'like', '%'.$data['search'].'%')
+        //         ->orWhereHas('category', function ($q) use ($data) {
+        //             $q->where('name', 'like', '%'.$data['search'].'%')->orWhere('for_search', 'like', '%'.$data['search'].'%');
+        //         })->with('category', 'brand', 'products', 'products.images', 'category.characteristic_groups', 'category.characteristic_groups.characteristics');
+        // } else {
+        //     // $products = $products->with('category', 'brand', 'products', 'products.images', 'category.characteristic_groups', 'category.characteristic_groups.characteristics');
+        //     $products = $products->with('category', 'products', 'products.images');
+        // }
+
+        // $products = $products->paginate($this->PAGINATE);
+
+
+
+        /* 
+         * start new variant
+         */
+        $products = Product::latest();
 
         $data = $request->all();
         if(isset($data['search']) && $data['search'] != '') {
             $products = $products->where('name', 'like', '%'.$data['search'].'%')->orWhere('for_search', 'like', '%'.$data['search'].'%')
-                ->orWhereHas('category', function ($q) use ($data) {
-                    $q->where('name', 'like', '%'.$data['search'].'%')->orWhere('for_search', 'like', '%'.$data['search'].'%');
-                })->with('category', 'brand', 'products', 'products.images', 'category.characteristic_groups', 'category.characteristic_groups.characteristics');
+                ->with('info.category', 'info.brand', 'info.products', 'info.products.images');
         } else {
             // $products = $products->with('category', 'brand', 'products', 'products.images', 'category.characteristic_groups', 'category.characteristic_groups.characteristics');
-            $products = $products->with('category', 'products', 'products.images');
+            $products = $products->with('info', 'info.category', 'info.products', 'info.products.images');
         }
+        if(isset($data['status']) && $data['status'] != '') $products = $products->where('status', trim($data['status']));
 
         $products = $products->paginate($this->PAGINATE);
+        /* 
+         * end new variant
+         */
 
-        if (!Cache::store('redis')->get('products/index')) {
-            Cache::store('redis')->put('products/index', $products, now()->addMinutes(10));
-        }
+        // if (!Cache::store('redis')->get('products/index')) {
+        //     Cache::store('redis')->put('products/index', $products, now()->addMinutes(10));
+        // }
 
         return response([
             'products' => $products
@@ -194,16 +216,16 @@ class ProductController extends Controller
      * @param  \App\Models\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function show(ProductInfo $product)
+    public function show(Product $product)
     {
-        $product = ProductInfo::where('id', $product->id)
+        $info = ProductInfo::where('id', $product->info->id)
             ->select('id', 'name', 'desc', 'brand_id', 'category_id', 'is_active')
             ->with('brand', 'category', 'category.parent')
             ->first();
 
-    	// $product->category->children = $this->get_children($product->category);
+    	// $info->category->children = $this->get_children($info->category);
 
-        $variations = $product->products;
+        $variations = $info->products;
         $variation_images = [];
 
         foreach($variations as $variation) {
@@ -243,13 +265,18 @@ class ProductController extends Controller
         }
 
         if(empty($result)) {
-            $result[0]['variations'][0] = $product->products()->where('id', $product->products[0]->id)->with('attribute_options', 'characteristic_options', 'promotions')->first();
+            $result[0]['variations'][0] = $info->products()->where('id', $info->products[0]->id)->with('attribute_options', 'characteristic_options', 'promotions')->first();
             // $result[0]['images'][0] = [];
         }
 
+        $product = Product::where('id', $product->id)
+            ->with('info.category.parent')
+            ->first();
+
         return response([
             'products' => $result,
-            'info' => $product,
+            'info' => $info,
+            'product' => $product,
         ]);
     }
 
@@ -260,13 +287,14 @@ class ProductController extends Controller
      * @param  \App\Models\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, ProductInfo $product)
+    public function update(Request $request, Product $product)
     {
         $request->validate([
             'name' => 'required|array',
             'name.' . $this->main_lang => 'required',
             'model' => 'nullable|max:255',
-            'is_active' => 'required|integer',
+            // 'is_active' => 'required|integer',
+            'status' => 'required|in:active,inactive',
             'desc' => 'required|array',
             'brand_id' => 'nullable|integer',
             'category_id' => 'required|integer',
@@ -293,6 +321,15 @@ class ProductController extends Controller
         DB::beginTransaction();
         try {
             /*
+             * product name save
+             */
+            $product->update([
+                'name' => $data['name'],
+                'status' => 'active',
+                'for_search' => $data['name']['ru'] ?? ''
+            ]);
+            $product = $product->info;
+            /*
              * product info save
              */
             $default_product_id = null;
@@ -310,7 +347,7 @@ class ProductController extends Controller
                                 : null,
                 // 'brand_id' => $data['brand_id'],
                 // 'category_id' => $data['category_id'],
-                'is_active' => $data['is_active']
+                'is_active' => 1,
             ]);
 
 
@@ -423,7 +460,7 @@ class ProductController extends Controller
                             // 'price' => intval($variation['price']),
                             'is_popular' => $variation['is_popular'],
                             'product_of_the_day' => $variation['product_of_the_day'],
-                            'status' => $variation['status'],
+                            'status' => $variation_model->status,
                             'dicoin' => $variation['dicoin'],
                             'slug' => $this->product_slug_create($product, $additional_for_slug, $variation_model->id)
                         ]); // model, c_id, is_available ne izpolzuyetsya
@@ -462,7 +499,23 @@ class ProductController extends Controller
                         }
                     }
                     $variation_model->promotions()->sync($variation['promotions']);
+
+                    // attribute options
+                    // if(!isset($variation['options'])) $variation['options'] = []; 
+                    // $attributes = [];
+                    // foreach ($variation['options'] as $attributeOption) {
+                    //     $savedAttributeOption = AttributeOption::create([
+                    //         'name' => [
+                    //             'ru' => $attributeOption['name']
+                    //         ],
+                    //         'attribute_id' => $attributeOption['attribute_id']
+                    //     ]);
+
+                    //     $attributes[] = $savedAttributeOption->id;
+                    // }
                     $variation_model->attribute_options()->sync($variation['options']);
+
+                    // characteristic options
                     $characteristics = [];
                     foreach ($variation['characteristics'] as $characteristicOption) {
                         $savedCharacteristicOption = CharacteristicOption::create([
@@ -602,16 +655,18 @@ class ProductController extends Controller
             'category' => 'required|integer',
         ]);
 
-        $products = Product::where('status', 'inactive')
-            ->whereDoesntHave('images')
+        $products = Product::where(function($q) use ($request) {
+                $q->where('name', 'like', '%'.$request->search.'%')
+                    ->orWhere('for_search', 'like', '%'.$request->search.'%');
+            })
+            // ->whereDoesntHave('images')
             ->whereHas('info', function ($q) use ($request) {
                 $q->where([
                     ['category_id', $request->category],
                     ['brand_id', $request->brand],
-                    ['for_search', 'like', '%'.$request->search.'%']
                 ]);
             })
-            ->with('info')
+            ->with('info', 'images')
             ->orderBy('id', 'DESC')
             ->limit(16)
             ->get();

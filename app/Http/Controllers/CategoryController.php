@@ -14,6 +14,12 @@ class CategoryController extends Controller
     use CategoryTrait;
     
     protected $PAGINATE = 16;
+    protected $PAGE = 1;
+
+    protected function setPage($page)
+    {
+        $this->PAGE = $page;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -21,21 +27,19 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
-        $search = isset($request->search) && $request->search != '' ? $request->search : null;
-        $categories = Category::latest()
-            ->whereNull('parent_id')
-            ->select('id', 'name', 'is_popular', 'desc', 'parent_id', 'img', 'icon', 'icon_svg', 'slug', 'is_active');
-        if($search) $categories = $categories->where('name', 'like', '%'.$search.'%')
-            ->orWhere('for_search', 'like', '%'.$search.'%');
-        $categories = $categories->with('attributes', 'attributes.options', 'characteristic_groups', 'characteristic_groups.characteristics', 'characteristic_groups.characteristics.options')
-            ->paginate($this->PAGINATE);
+        // set page
+        if(isset($request->page) && $request->page != '') $this->setPage($request->page);
 
-        foreach ($categories as $category_key => $category_value) {
-            $category_value->children = $this->get_children($category_value);
-        }
+        // search
+        $search = null;
+        if(isset($request->search) && $request->search != '') $search = $request->search;
+        
+        
+        // $categories = $categories->with('attributes', 'attributes.options', 'characteristic_groups', 'characteristic_groups.characteristics', 'characteristic_groups.characteristics.options')
+        //     ->paginate($this->PAGINATE);
 
         return response([
-            'categories' => $categories
+            'categories' => $this->paginateAllCategoriesWithChildren(0, $this->PAGE, 0, $search, 0)
         ]);
     }
 
@@ -142,7 +146,7 @@ class CategoryController extends Controller
             'name.ru' => 'required|max:255',
             'parent_id' => 'nullable|integer',
             // 'attributes' => 'required|array',
-            'group_characteristics' => 'required|array',
+            'group_characteristics' => 'array',
             'icon' => 'nullable|max:255',
             'icon_svg' => 'nullable',
             'img' => 'nullable|max:255',

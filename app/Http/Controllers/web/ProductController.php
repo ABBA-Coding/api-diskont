@@ -3,14 +3,22 @@
 namespace App\Http\Controllers\web;
 
 use DB;
+use App\Models\Branch;
+use App\Models\Category;
+use App\Models\ExchangeRate;
+use App\Models\Characteristics\CharacteristicGroup;
 use App\Models\Attributes\AttributeOption;
 use App\Models\Attributes\Attribute;
 use App\Models\Products\Product;
+use App\Traits\CategoryTrait;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
+    use CategoryTrait;
+
     protected $PAGINATE = 16;
     protected function set_paginate($paginate)
     {
@@ -19,56 +27,78 @@ class ProductController extends Controller
 
     public function index(Request $request)
     {
+        // set items size
         if(isset($request->limit) && $request->limit != '' && $request->limit < 41) $this->set_paginate($request->limit);
-        $products = Product::select('id', 'name', 'info_id', 'model', 'price', 'slug', 'dicoin')
-            ->where('status', 'active')
-            ->with('info', 'info.brand', 'images', 'attribute_options', 'characteristic_options');
 
-        if(isset($request->type) && $request->type != '') {
-            switch ($request->type) {
+        // get products
+        $products = Product::select('id', 'name', 'info_id', 'model', 'price', 'slug', 'dicoin', 'is_popular')
+            ->where('status', 'active');
+
+        // filter with category
+        if(isset($request->category) && $request->category != '') {
+
+            $category = Category::where('slug', $request->category)
+                ->first();
+            if($category) {
+                $category->children = $this->get_children($category, 1);
+                
+                $ids = [$category->id];
+                foreach($category->children as $child) {
+                    $ids[] = $child->id;
+                    if(isset($child->children)) $ids = array_merge($ids, $child->children->pluck('id')->toArray());
+                }
+            }
+
+            $products = $products->whereHas('info', function ($q) use ($ids) {
+                $q->whereHas('category', function($qi) use ($ids) {
+                    $qi->whereIn('id', $ids);
+                });
+            });
+        }
+
+        // filter with showcase
+        if(isset($request->showcase) && $request->showcase != '') {
+            
+            $products = $products->whereHas('showcases', function($q) use ($request) {
+                $q->where('slug', $request->showcase);
+            });
+        }
+
+        // filter with prices
+        $exchange_rate = ExchangeRate::latest()
+            ->first()['exchange_rate'];
+
+        if(isset($request->min_price) && $request->min_price != '' && isset($request->max_price) && $request->max_price != '') {
+            $products  = $products->whereBetween('price', [$request->min_price / $exchange_rate, $request->max_price / $exchange_rate]);
+        }
+
+        // sortirovka
+        if(isset($request->sort) && $request->sort != '') {
+            switch ($request->sort) {
                 case 'popular':
-                    $products = $products->orderBy('is_popular');
+                    $products = $products->orderBy('is_popular', 'desc');
                     break;
 
-                case 'new':
-                    $products = $products->orderBy('created_at');
+                case 'expensive':
+                    $products = $products->orderBy('price', 'desc');
                     break;
 
-                case 'products_of_the_day':
-                    $products = $products->where('product_of_the_day', 1);
-                    break;
-
-                case 'bestsellers':
-                    // code...
-                    break;
-
-                default:
-                    // code...
+                case 'cheap':
+                    $products = $products->orderBy('price');
                     break;
             }
         }
 
-        if(isset($request->category) && $request->category != '') {
-            $products = $products->whereHas('info', function ($q) use ($request) {
-                $q->where('category_id', $request->category);
-            });
-        }
+        // get products
+        $products = $products->with('info', 'info.brand', 'images', 'attribute_options', 'characteristic_options', 'promotions')
+            ->paginate($this->PAGINATE);
 
-        $products = $products->paginate($this->PAGINATE);
-
+        // without lang
         $this->without_lang($products);
         foreach ($products as $product) {
             $this->without_lang($product->attribute_options);
             $this->without_lang($product->characteristic_options);
             $this->without_lang([$product->info]);
-
-            // $category = $product->info->category->parent;
-            // while($category) {
-            //     $parent = $category->parent;
-            //     if($parent) $this->without_lang([$parent]);
-
-            //     $category = $parent;
-            // }
         }
 
         return response([
@@ -79,7 +109,7 @@ class ProductController extends Controller
     public function show(Request $request, $slug)
     {
         $product = Product::where('slug', $slug)
-            ->with('info', 'info.brand', 'info.comments.user', 'images', 'characteristic_options', 'characteristic_options.characteristic', 'characteristic_options.characteristic.group')
+            ->with('info', 'info.brand', 'info.comments.user', 'images', 'characteristic_options', 'characteristic_options.characteristic', 'characteristic_options.characteristic.group', 'promotions')
             // ->with('info.category.attributes', 'info.category.attributes.options')
             // ->with('attribute_options')
             ->first();
@@ -132,7 +162,7 @@ class ProductController extends Controller
         /*
             produktning mavjud variaciyalari
         */
-        $siblings = $product->info->products;
+        $siblings = $product->info->products->where('status', 'active');
         $real_combinations = [];
         $counter = 0;
         foreach($siblings as $sibling) {
@@ -148,7 +178,8 @@ class ProductController extends Controller
             produktning mumkin b6lgan hamma variaciyalari
         */
         $attributes = [];
-        $siblings = $product->info->products;
+        $siblings = $product->info->products->where('status', 'active');
+        // dd($siblings);
         foreach($siblings as $sibling) {
             foreach($sibling->attribute_options as $attribute_option) {
                 $attributes[] = [
@@ -157,9 +188,8 @@ class ProductController extends Controller
                 ];
             }
         }
-        // return response($attributes);
+
         $attributes = array_unique($attributes, SORT_REGULAR);
-        // return response($attributes);
 
         $result_attributes = [];
         $counter = 0;
@@ -234,38 +264,39 @@ class ProductController extends Controller
         /*
             qolgan variaciyalarni ham q6wamiz
         */
+        if(isset($result_attributes[0])) { // oshibkadan keyin qo'shildi
+            $first_attribute = $result_attributes[0];
+            $temp = [];
+            $counter = count($res[0]['options']);
 
-        $first_attribute = $result_attributes[0];
-        $temp = [];
-        $counter = count($res[0]['options']);
-
-        $slugs_array = [];
-        foreach($res as $item) {
-            foreach($item['options'] as $option) {
-                $slugs_array[] = $option['slug'];
+            $slugs_array = [];
+            foreach($res as $item) {
+                foreach($item['options'] as $option) {
+                    $slugs_array[] = $option['slug'];
+                }
             }
-        }
-        $slugs_array = array_unique($slugs_array);
-        // return response($slugs_array);
+            $slugs_array = array_unique($slugs_array);
+            // return response($slugs_array);
 
-        if(count($first_attribute['options']) > count($res[0]['options'])) {
-            foreach($this->combs($result_attributes) as $variants) {
-                foreach($real_combinations as $real_combination) {
-                    // return response($real_combination);
-                    if(empty(array_diff($variants, $real_combination['options'])) && !in_array($real_combination['slug'], $slugs_array)) {
-                        $res[0]['title'] = $first_attribute['title'];
-                        $res[0]['options'][$counter]['title'] = AttributeOption::find($real_combination['options'][0])->name;
-                        $res[0]['options'][$counter]['slug'] = $real_combination['slug'];
-                        // return response($current_product_options_ids);
-                        $res[0]['options'][$counter]['active'] = false;
-                        $res[0]['options'][$counter]['available'] = true;
+            if(count($first_attribute['options']) > count($res[0]['options'])) {
+                foreach($this->combs($result_attributes) as $variants) {
+                    foreach($real_combinations as $real_combination) {
+                        // return response($real_combination);
+                        if(empty(array_diff($variants, $real_combination['options'])) && !in_array($real_combination['slug'], $slugs_array)) {
+                            $res[0]['title'] = $first_attribute['title'];
+                            $res[0]['options'][$counter]['title'] = AttributeOption::find($real_combination['options'][0])->name;
+                            $res[0]['options'][$counter]['slug'] = $real_combination['slug'];
+                            // return response($current_product_options_ids);
+                            $res[0]['options'][$counter]['active'] = false;
+                            $res[0]['options'][$counter]['available'] = true;
 
-                        $counter ++;
+                            $counter ++;
+                        }
                     }
                 }
             }
+            unset($counter);
         }
-        unset($counter);
 
         if(count($product->attribute_options) > 0) {
             $this->without_lang($product->attribute_options);
@@ -301,11 +332,14 @@ class ProductController extends Controller
 
             $res_without_lang[] = $re;
         }
-        $this->without_lang([$product, $product->discount]);
+        $this->without_lang([$product]);
+        if($product->discount) $this->without_lang([$product->discount]);
 
         return response([
             'product' => $product,
-            'attributes' => $res_without_lang
+            'attributes' => $res_without_lang,
+            'characteristics' => $this->getProductCharacteristics($product),
+            'branches' => $this->getProductBranches($request->lat, $request->lon),
         ]);
     }
 
@@ -342,5 +376,53 @@ class ProductController extends Controller
         }
 
         return $result;
+    }
+
+    public function getProductCharacteristics(Product $product)
+    {
+        $characteristics = CharacteristicGroup::whereHas('characteristics', function($q) use ($product) {
+            $q->whereHas('options', function($qi) use ($product) {
+                $qi->whereHas('products', function ($qi2) use ($product) {
+                    $qi2->where('products.id', $product->id);
+                });
+            });
+        })
+            ->with(['characteristics.options' => function($q) use ($product) {
+                $q->whereHas('products', function ($qi) use ($product) {
+                    $qi->where('products.id', $product->id);
+                });
+            }])
+            ->get();
+
+        $this->without_lang($characteristics);
+        foreach($characteristics as $characteristic_group) {
+            $this->without_lang($characteristic_group->characteristics);
+            foreach($characteristic_group->characteristics as $characteristic) {
+                $this->without_lang($characteristic->options);
+            }
+        }
+
+        return $characteristics;
+    }
+
+    public function getProductBranches($lat, $lon)
+    {
+        if(is_null($lat) || is_null($lon)) {
+            $branches = Branch::all();
+        } else {
+            $res = Http::get('https://nominatim.openstreetmap.org/reverse?format=json&lat='.$lat.'&lon='.$lon.'&zoom=6&accept-language=ru');
+            $res_arr = $res->json();
+
+            $branches = Branch::whereHas('region', function($q) use ($res_arr) {
+                $q->whereHas('branchCity', function($qi) use ($res_arr) {
+                    $qi->where('name', 'like', '%'.(isset($res_arr['address']['city']) ? $res_arr['address']['city'] : $res_arr['address']['state']).'%');
+                });
+            })
+                ->get();
+        }
+
+        $this->without_lang($branches);
+
+        return $branches;
     }
 }

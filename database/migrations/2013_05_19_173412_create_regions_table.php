@@ -17,6 +17,7 @@ class CreateRegionsTable extends Migration
             $table->id();
             $table->bigInteger('group_id')->nullable();
             $table->text('name');
+            $table->integer('delivery_price')->nullable();
             $table->text('for_search')->nullable();
             $table->timestamps();
         });

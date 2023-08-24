@@ -16,6 +16,7 @@ class CreateShowcasesTable extends Migration
         Schema::create('showcases', function (Blueprint $table) {
             $table->id();
             $table->text('name');
+            $table->string('slug')->unique();
             $table->text('for_search')->nullable();
             $table->timestamps();
         });

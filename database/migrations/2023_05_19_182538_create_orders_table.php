@@ -36,6 +36,9 @@ class CreateOrdersTable extends Migration
              */
             $table->enum('status', ['new', 'canceled', 'accepted', 'done', 'returned', 'pending']);
 
+            $table->boolean('req_sent')->default(0); // otpravlen li zapros na sklad dlya snyatie produkcii
+            $table->string('c_id')->nullable();
+
             $table->integer('delivery_price')->default(0);
             $table->timestamps();
         });

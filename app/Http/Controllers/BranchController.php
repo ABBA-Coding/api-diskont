@@ -66,6 +66,7 @@ class BranchController extends Controller
     public function show(Branch $branch)
     {
         $branch = Branch::where('id', $branch->id)
+            ->with('region')
             ->first();
 
         return response([

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddIsTopColumnInBrandsTable extends Migration
+class CreateBranchCitiesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,11 @@ class AddIsTopColumnInBrandsTable extends Migration
      */
     public function up()
     {
-        Schema::table('brands', function (Blueprint $table) {
-            $table->boolean('is_top')->default(0);
+        Schema::create('branch_cities', function (Blueprint $table) {
+            $table->id();
+            $table->bigInteger('region_id');
+            $table->string('name');
+            $table->timestamps();
         });
     }
 
@@ -25,8 +28,6 @@ class AddIsTopColumnInBrandsTable extends Migration
      */
     public function down()
     {
-        Schema::table('brands', function (Blueprint $table) {
-            $table->dropColumn('is_top');
-        });
+        Schema::dropIfExists('branch_cities');
     }
 }

@@ -67,6 +67,7 @@ Route::prefix('admin')->group(function() {
     Route::prefix('auth')->group(function () {
         Route::post('login', [LoginController::class, 'login']);
         Route::post('logout', [LoginController::class, 'logout'])->middleware(['auth:sanctum', 'ability:admin', 'role']);
+        Route::post('me', [LoginController::class, 'me'])->middleware(['auth:sanctum', 'ability:admin', 'role']);
     });
 
     Route::middleware([])->group(function () { // 'auth:sanctum', 'ability:admin', 'role'

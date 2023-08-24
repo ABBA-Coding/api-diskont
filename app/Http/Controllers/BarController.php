@@ -20,7 +20,7 @@ class BarController extends Controller
     public function index()
     {
         $bars = Bar::latest()
-            ->with('category', 'promotion')
+            ->with('category', 'category.parent', 'promotion')
             ->orderBy('position')
             ->paginate($this->PAGINATE);
 
@@ -170,6 +170,7 @@ class BarController extends Controller
         $categories = Category::where('name', 'like', '%'.$request->search.'%')
             ->orWhere('for_search', 'like', '%'.$request->search.'%')
             ->limit(16)
+            ->with('parent')
             ->get();
 
         $promotions = Promotion::where('short_name', 'like', '%'.$request->search.'%')

@@ -35,6 +35,7 @@ class Product extends Model
         'slug',
         'dicoin',
         'name',
+        'for_search',
 //        'desc',
     ];
 
@@ -95,7 +96,7 @@ class Product extends Model
                 return $this->price * (1 - ($discount->pivot->percent / 100)) * $kurs;
             }
 
-            return ($this->price - $discount->pivot->amount) * $kurs;
+            return ($this->price * $kurs) - $discount->pivot->amount;
         }
 
         return $discount_price;

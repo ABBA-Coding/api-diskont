@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Promotions\Promotion;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use DB;
 use Illuminate\Http\Request;
 
@@ -34,10 +35,11 @@ class PromotionController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|array',
-            'name.ru' => 'required',
             'start_date' => 'required|date',
             'end_date' => 'required|date',
+        ]);
+        if(is_null($request->sticker) && !isset($request->name)) return response([
+            'message' => 'Zapolnite odin iz poley: sticker, name'
         ]);
         $data = $request->all();
 
@@ -52,12 +54,15 @@ class PromotionController extends Controller
         }
 
         $data['for_search'] = $this->for_search($request, ['name', 'desc', 'sticker_text', 'short_name']);
-        $data['slug'] = $this->to_slug($request, Promotion::class, 'name', $this->main_lang);
+        $data['slug'] = is_null($request->sticker) ? $this->to_slug($request, Promotion::class, 'name', $this->main_lang) : Str::random(40);
+        if(is_null($data['name'])) $data['name'] = ['ru' => ''];
 
         DB::beginTransaction();
         try {
             $promotion = Promotion::create($data);
-
+            if(!is_null($request->sticker)) $promotion->update([
+                'slug' => $promotion->id
+            ]);
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -99,10 +104,11 @@ class PromotionController extends Controller
     public function update(Request $request, Promotion $promotion)
     {
         $request->validate([
-            'name' => 'required|array',
-            'name.ru' => 'required',
             'start_date' => 'required|date',
             'end_date' => 'required|date',
+        ]);
+        if(is_null($request->sticker) && !isset($request->name)) return response([
+            'message' => 'Zapolnite odin iz poley: sticker, name'
         ]);
         $data = $request->all();
 
@@ -121,11 +127,15 @@ class PromotionController extends Controller
         }
 
         $data['for_search'] = $this->for_search($request, ['name', 'desc', 'sticker_text', 'short_name']);
-        $data['slug'] = $this->to_slug($request, Promotion::class, 'name', $this->main_lang);
+        $data['slug'] = is_null($request->sticker) ? $this->to_slug($request, Promotion::class, 'name', $this->main_lang) : Str::random(40);
+        if(is_null($data['name'])) $data['name'] = ['ru' => ''];
 
         DB::beginTransaction();
         try {
             $promotion->update($data);
+            if(!is_null($request->sticker)) $promotion->update([
+                'slug' => $promotion->id
+            ]);
 
             DB::commit();
         } catch (\Exception $e) {

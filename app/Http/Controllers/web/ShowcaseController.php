@@ -4,11 +4,14 @@ namespace App\Http\Controllers\web;
 
 use App\Models\Showcase;
 use App\Models\Category;
+use App\Traits\CategoryTrait;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class ShowcaseController extends Controller
 {
+    use CategoryTrait;
+    
     public function get()
     {
         $showcases = Showcase::whereHas('products', function ($q) {
@@ -16,7 +19,7 @@ class ShowcaseController extends Controller
             })
             ->with(['products' => function ($q) {
                 $q->where('status', 'active')
-                    ->with('images', 'info');
+                    ->with('images', 'info', 'promotions');
             }])
             ->get();
 
@@ -36,18 +39,10 @@ class ShowcaseController extends Controller
     {
         $showcase = Showcase::where('slug', $slug)
             ->with(['products' => function ($q) {
-            $q->where([
-                ['status', 'active'],
-                ['stock', '>', 0]
-            ]);
-        }], 'products.info', 'products.images')
-            ->whereHas('products', function ($q) {
-                $q->where([
-                    ['status', 'active'],
-                    ['stock', '>', 0]
-                ]);
-            })
-            ->first();
+                $q->where('status', 'active')
+                    ->with('images', 'info', 'promotions');
+            }])
+            ->first(); 
 
         $categories = Category::whereHas('product_infos', function ($q) use ($slug) {
             $q->whereHas('products', function ($qi) use ($slug) {
@@ -70,64 +65,5 @@ class ShowcaseController extends Controller
             'showcase' => $showcase,
             'categories' => $categories,
         ]);
-    }
-
-    function category_reverse($categories): array
-    {
-        $result = [];
-        foreach ($categories as $key => $category) {
-            $this->parent_without_lang($category);
-
-            $to_1_lvl = [];
-            $counter = 0;
-            while($category) {
-                $to_1_lvl[$counter]['id'] = $category->id;
-                $to_1_lvl[$counter]['name'] = $category->name;
-                $to_1_lvl[$counter]['desc'] = $category->desc;
-                $to_1_lvl[$counter]['icon'] = $category->icon;
-                $to_1_lvl[$counter]['icon_svg'] = $category->icon_svg;
-                $to_1_lvl[$counter]['sm_img'] = $category->sm_img;
-                $to_1_lvl[$counter]['md_img'] = $category->md_img;
-                $to_1_lvl[$counter]['lg_img'] = $category->lg_img;
-                $to_1_lvl[$counter]['slug'] = $category->slug;
-
-                $category = $category->parent;
-
-                $counter ++;
-            }
-            unset($counter);
-            $to_1_lvl = array_reverse($to_1_lvl);
-
-            $counter = 0;
-            foreach ($to_1_lvl as $item) {
-                if($counter == 0) $result[$key] = $item;
-                else if (isset($result[$key]['children'][0]['children'][0])){
-                    $result[$key]['children'][0]['children'][0]['children'][0] = $item;
-                }
-                else if (isset($result[$key]['children'][0])){
-                    $result[$key]['children'][0]['children'][0] = $item;
-                }
-                else if (!isset($result[$key]['children'])) {
-                    $result[$key]['children'][0] = $item;
-                }
-
-                $counter ++;
-            }
-            unset($counter);
-        }
-
-        return $result;
-    }
-
-    public function parent_without_lang($category)
-    {
-        while($category->parent) {
-            $this->without_lang([$category->parent]);
-            $this->without_lang($category->parent->attributes);
-            foreach ($category->parent->attributes as $attribute) {
-                $this->without_lang($attribute->options);
-            }
-            return self::parent_without_lang($category->parent);
-        }
     }
 }

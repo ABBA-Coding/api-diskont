@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
+	protected $PAGINATE = 16;
     /**
      * Display a listing of the resource.
      *
@@ -16,7 +17,13 @@ class AdminController extends Controller
      */
     public function index()
     {
-        //
+        $users = Admin::latest()
+        	->paginate($this->PAGINATE)
+        	->except(1);
+
+    	return response([
+    		'users' => $users
+    	]);
     }
 
     /**
@@ -54,7 +61,9 @@ class AdminController extends Controller
      */
     public function show(Admin $admin)
     {
-        //
+        return response([
+        	'user' => $admin
+        ]);
     }
 
     /**
@@ -66,7 +75,24 @@ class AdminController extends Controller
      */
     public function update(Request $request, Admin $admin)
     {
-        //
+    	$request->validate([
+            'username' => 'required|max:255',
+            'password' => 'required|max:255',
+            'role_id' => 'required|integer'
+        ]);
+        $data = $request->all();
+        if($admin->id == 1) $data['role_id'] = null;
+        $data['password'] = Hash::make($data['password']);
+
+        if(!Role::find($data['role_id'])) return response([
+            'message' => 'Resource not found'
+        ], 400);
+
+        $admin->update($data);
+
+        return response([
+            'user' => $admin
+        ]);
     }
 
     /**
@@ -77,6 +103,14 @@ class AdminController extends Controller
      */
     public function destroy(Admin $admin)
     {
-        //
+        if($admin->id == 1) return response([
+        	'message' => 'Forbidden'
+        ], 403);
+
+    	$admin->delete();
+
+    	return response([
+    		'message' => 'Successfully deleted'
+    	]);
     }
 }

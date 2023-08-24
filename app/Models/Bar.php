@@ -28,7 +28,7 @@ class Bar extends Model
 
     public function category()
     {
-        return $this->belongsTo(Category::class)->select('id', 'slug');
+        return $this->belongsTo(Category::class)->select('id', 'slug', 'name', 'parent_id');
     }
 
     public function promotion()
