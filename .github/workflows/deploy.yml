@@ -1,0 +1,41 @@
+name: Production deploy Diskont
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    env:
+      TARGET_FOLDER: "/var/www/api.diskont.uz"
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: GIT pulling from github repository
+      uses: appleboy/scp-action@master
+      with:
+        HOST: ${{ secrets.HOST }}
+        USERNAME: ${{ secrets.USERNAME }}
+        PORT: ${{ secrets.PORT }}
+        KEY: ${{ secrets.KEY }}
+        source: "."
+        target: "${{ env.TARGET_FOLDER }}"
+
+    - name: Command using from script
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        USERNAME: ${{ secrets.USERNAME }}
+        PORT: ${{ secrets.PORT }}
+        KEY: ${{ secrets.KEY }}
+        script_stop: true
+        script: |
+          git --work-tree="${{ env.TARGET_FOLDER }}" --git-dir="${{ env.TARGET_FOLDER }}/.git" clean -f .
+          /usr/local/bin/composer update --working-dir=${{ env.TARGET_FOLDER }} --no-interaction
+          /usr/bin/php8.1 -d=project.directory="${{ env.TARGET_FOLDER }}" "${{ env.TARGET_FOLDER }}/artisan" migrate
+          sh /home/devops/deploy.sh "${{ github.event.head_commit.message }}" "api.diskont.uz deploy"
