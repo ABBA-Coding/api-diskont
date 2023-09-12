@@ -230,10 +230,10 @@ class OrderController extends Controller
         }
 
         // send request to 1c
-        $username = 'web_admin';
-        $password = 'gO7ziwyk';
+        $username = env('C_USERNAME');
+        $password = env('C_PASSWORD');
         $url_old = 'http://80.80.212.224:8080/Diskont/hs/web';
-        $url = 'http://80.80.212.224:8080/diskont_test/hs/web';
+        $url = env('C_BASE_URL');
 
         $req = Http::withBasicAuth($username, $password)
             ->post($url, $data);
@@ -276,10 +276,10 @@ class OrderController extends Controller
         ];
 
         // send request to 1c
-        $username = 'web_admin';
-        $password = 'gO7ziwyk';
-        $url_old = 'http://80.80.212.224:8080/Diskont/hs/web';
-        $url = 'http://80.80.212.224:8080/diskont_test/hs/web';
+        $username = env('C_USERNAME');
+        $password = env('C_PASSWORD');
+        $url_old = 'http://80.80.212.224:8080/Diskont/hs/web'; // http://80.80.212.224:8080/diskont_test/hs/web
+        $url = env('C_BASE_URL');
 
         $req = Http::withBasicAuth($username, $password)
             ->post($url, $data);
