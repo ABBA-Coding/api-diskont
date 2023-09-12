@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Dicoin;
 
 use App\Models\Dicoin\Dicoin;
+use App\Models\BarabanItem;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
 class DicoinController extends Controller
@@ -13,8 +15,12 @@ class DicoinController extends Controller
         $dicoin = Dicoin::latest()
             ->first();
 
+        $items = BarabanItem::select('count', 'position')
+            ->get();
+
          return response([
-            'dicoin' => $dicoin
+            'dicoin' => $dicoin,
+            'items' => $items
         ]);   
     }
 
@@ -29,8 +35,43 @@ class DicoinController extends Controller
 
         $dicoin = Dicoin::create($data);
 
+
+        // baraban items
+        $request->validate([
+            'items' => 'required|array',
+            'items.*' => 'required',
+            'items.*.position' => 'required',
+            'items.*count' => 'required',
+        ]);
+
+        $data = $request->all();
+
+        if(count($data['items']) != 12) return response([
+            'message' => 'Kolichestvo poley barabana 12'
+        ], 422);
+
+        DB::beginTransaction();
+        try {
+            $items = BarabanItem::all();
+            foreach($items as $item) {
+                $item->delete();
+            }
+            foreach ($data['items'] as $key => $value) {
+                BarabanItem::create($value);
+            }
+
+            DB::commit();
+        } catch(\Exception $e) {
+            DB::rollBack();
+
+            return response([
+                'message' => $e->getMessage()
+            ], 500);
+        }
+
         return response([
-            'dicoin' => $dicoin
+            'dicoin' => $dicoin,
+            'message' => 'Items successfully updated'
         ]);
     }
 

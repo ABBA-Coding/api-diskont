@@ -32,26 +32,6 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        // $products = ProductInfo::latest();
-
-        // $data = $request->all();
-        // if(isset($data['search']) && $data['search'] != '') {
-        //     $products = $products->where('name', 'like', '%'.$data['search'].'%')->orWhere('for_search', 'like', '%'.$data['search'].'%')
-        //         ->orWhereHas('category', function ($q) use ($data) {
-        //             $q->where('name', 'like', '%'.$data['search'].'%')->orWhere('for_search', 'like', '%'.$data['search'].'%');
-        //         })->with('category', 'brand', 'products', 'products.images', 'category.characteristic_groups', 'category.characteristic_groups.characteristics');
-        // } else {
-        //     // $products = $products->with('category', 'brand', 'products', 'products.images', 'category.characteristic_groups', 'category.characteristic_groups.characteristics');
-        //     $products = $products->with('category', 'products', 'products.images');
-        // }
-
-        // $products = $products->paginate($this->PAGINATE);
-
-
-
-        /* 
-         * start new variant
-         */
         $products = Product::latest();
 
         $data = $request->all();
@@ -59,15 +39,11 @@ class ProductController extends Controller
             $products = $products->where('name', 'like', '%'.$data['search'].'%')->orWhere('for_search', 'like', '%'.$data['search'].'%')
                 ->with('info.category', 'info.brand', 'info.products', 'info.products.images');
         } else {
-            // $products = $products->with('category', 'brand', 'products', 'products.images', 'category.characteristic_groups', 'category.characteristic_groups.characteristics');
             $products = $products->with('info', 'info.category', 'info.products', 'info.products.images');
         }
         if(isset($data['status']) && $data['status'] != '') $products = $products->where('status', trim($data['status']));
 
         $products = $products->paginate($this->PAGINATE);
-        /* 
-         * end new variant
-         */
 
         // if (!Cache::store('redis')->get('products/index')) {
         //     Cache::store('redis')->put('products/index', $products, now()->addMinutes(10));
@@ -674,5 +650,50 @@ class ProductController extends Controller
         return response([
             'products' => $products
         ]);
+    }
+
+    public function variation_delete(Request $request, $id)
+    {
+        $product = Product::find($id);
+
+        if(!$product) return response([
+            'message' => 'Product not found'
+        ], 404);
+
+        DB::beginTransaction();
+        try {
+
+            if(!$product->info) return response([
+                'message' => 'Ne sushestvuet info obyekt dlya etogo produkta'
+            ], 404);
+
+            $info = [
+                'name' => $product->name,
+                'for_search' => $product->for_search,
+                'desc' => [
+                    'ru' => null
+                ],
+                'brand_id' => $product->info->brand_id,
+                'category_id' => $product->info->category_id,
+                'is_active' => 1,
+                'default_product_id' => $id,
+            ];
+            $product_new_info = ProductInfo::create($info);
+
+            $product->update([
+                'status' => 'inactive',
+                'info_id' => $product_new_info->id
+            ]);
+
+            $product->images()->detach();
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response([
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 }

@@ -21,7 +21,7 @@ class RegionController extends Controller
     public function index()
     {
         $regions = Region::latest()
-            ->with('districts')
+            ->with('districts', 'group')
             ->paginate($this->PAGINATE);
 
         return response([
@@ -71,7 +71,7 @@ class RegionController extends Controller
     public function show(Region $region)
     {
         $region = Region::where('id', $region->id)
-            ->with('districts')
+            ->with('districts', 'group')
             ->first();
 
         return response([

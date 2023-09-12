@@ -42,6 +42,10 @@ class OrderController extends Controller
         ], 400);
         $data['delivery_price'] = $this->get_delivery_price($request)['delivery_price'];
         $data['products'] = $this->products_reformat($data['products']);
+
+        if(!$this->check_products($data['products'])) return response([
+            'message' => 'Netu takoe kolichestvo produktov v sklade'
+        ], 400);
         // $data['amount'] = $this->amount_calculate($data['products'], $data['region_id'], $data['delivery_method']);
 
         $kurs = ExchangeRate::latest()
@@ -220,7 +224,7 @@ class OrderController extends Controller
                     $result[$key]['price_with_discount'] = $product['price'] * (1 - ($product['discount']['pivot']['percent'] / 100));
                 } else if($product['discount']['pivot']['amount']) {
                     $result[$key]['price_with_discount'] = $product['price'] - $product['discount']['pivot']['amount'];
-                    if($result[$key]['price_with_discount'] > 0) $result[$key]['price_with_discount'] = 0;
+                    if($result[$key]['price_with_discount'] < 0) $result[$key]['price_with_discount'] = 0;
                 } else {
                     $result[$key]['price_with_discount'] = $product['price'];
                 }
@@ -230,5 +234,29 @@ class OrderController extends Controller
         }
 
         return $result;
+    }
+
+    // est li takoe kol-vo tovarov na sklade
+    function check_products($products)
+    {
+        /*
+            $products = [
+                [
+                    "count" => 4
+                    "product_id" => 237
+                    "price" => 4437500
+                    "price_with_discount" => 4437500
+                ],
+                ...
+            ];
+        */
+
+        foreach ($products as $key => $product) {
+
+            $model = Product::find($product['product_id']);
+            if(!$model || $model->stock < $product['count']) return false;
+        }
+
+        return true;
     }
 }

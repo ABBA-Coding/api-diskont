@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\web\Auth;
 
+use App\Models\Dicoin\DicoinHistory;
+use App\Models\Dicoin\Dicoin;
 use App\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
@@ -80,6 +82,9 @@ class AuthController extends Controller
             'sms_code' => 'required|min:100000|max:999999|integer',
         ]);
 
+        $user_exist = User::where('login', $request->phone_number)
+        	->first();
+
         if(Cache::has($request->phone_number) && Cache::get($request->phone_number) == 'sms_send') {
             if(Cache::has($request->phone_number. 'code') && Cache::get($request->phone_number. 'code') == $request->sms_code) {
                 $user = User::updateOrCreate([
@@ -92,6 +97,8 @@ class AuthController extends Controller
                     $request->phone_number,
                     $request->phone_number. 'code'
                 ]);
+
+                $this->dicoin_to_reg($user, $user_exist);
 
                 return response([
                     'token' => $user->createToken('auth-token', ['client'])->plainTextToken
@@ -110,6 +117,8 @@ class AuthController extends Controller
                     $request->phone_number,
                     $request->phone_number. 'code'
                 ]);
+
+                $this->dicoin_to_reg($user, $user_exist);
 
                 return response([
                     'token' => $user->createToken('auth-token', ['client'])->plainTextToken
@@ -190,5 +199,25 @@ class AuthController extends Controller
         foreach($caches as $item) {
             Cache::forget($item);
         }
+    }
+
+    private function dicoin_to_reg(User $user, $user_exist)
+    {
+    	if(is_null($user_exist)) {
+
+    		$dicoin_to_reg = Dicoin::latest()
+    			->first()['dicoin_to_reg'];
+
+    		$data = [
+    			'user_id' => $user->id,
+    			'type' => 'plus',
+    			'order_id' => null,
+    			'quantity' => $dicoin_to_reg,
+    			'expired_at' => null,
+    		];
+
+
+    		DicoinHistory::create($data);
+    	}
     }
 }

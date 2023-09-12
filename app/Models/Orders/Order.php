@@ -38,8 +38,14 @@ class Order extends Model
     ];
 
     protected $appends = [
-    	'products_info'
+    	'products_info',
+        'price_with_dicoin'
     ];
+
+    public function getPriceWithDicoinAttribute()
+    {
+        return 0;
+    }
 
     public function getProductsInfoAttribute()
     {

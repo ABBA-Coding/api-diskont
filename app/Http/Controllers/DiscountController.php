@@ -16,10 +16,13 @@ class DiscountController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $discounts = Discount::latest()
-            ->with('products')
+        $discounts = Discount::latest();
+
+        if(isset($request->status) && $request->status != '') $discounts = $discounts->where('status', $request->status);
+
+        $discounts = $discounts->with('products')
             ->paginate($this->PAGINATE);
 
         // foreach ($discounts as $discount) {
@@ -164,7 +167,13 @@ class DiscountController extends Controller
      */
     public function destroy(Discount $discount)
     {
-        //
+        $discount->update([
+            'status' => 0
+        ]);
+
+        return response([
+            'message' => 'Successfully deleted'
+        ]);
     }
 
     /**

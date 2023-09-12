@@ -82,7 +82,13 @@ class FeedbackController extends Controller
      */
     public function show(Feedback $feedback)
     {
-        //
+    	$feedback = Feedback::where('id', $feedback->id)
+    		->with('images')
+    		->first();
+
+        return response([
+        	'feedback' => $feedback
+        ]);
     }
 
     /**

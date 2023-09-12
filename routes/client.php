@@ -19,7 +19,11 @@ use App\Http\Controllers\web\{ShowcaseController,
     TranslateController,
     UserAddressController,
     CommentController,
-    DicoinController};
+    DicoinController,
+    InfoController,
+    BranchController,
+    FaqController,
+};
 
 
 
@@ -41,6 +45,7 @@ Route::middleware('set_lang')->group(function () {
             Route::put('update', [ProfileController::class, 'update']);
             Route::put('edit_name', [ProfileController::class, 'edit_name']);
             Route::get('me', [ProfileController::class, 'me']);
+            Route::get('dicoins', [ProfileController::class, 'dicoins']);
         });
 
         Route::post('order', [OrderController::class, 'store']);
@@ -86,4 +91,7 @@ Route::middleware('set_lang')->group(function () {
     });
     Route::get('dicoins', [DicoinController::class, 'get']);
     Route::get('translates', [TranslateController::class, 'get']);
+    Route::get('info', [InfoController::class, 'get']);
+    Route::get('branches', [BranchController::class, 'get']);
+    Route::get('faq', [FaqController::class, 'get']);
 });

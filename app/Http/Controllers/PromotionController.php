@@ -6,6 +6,7 @@ use App\Models\Promotions\Promotion;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 
 class PromotionController extends Controller
@@ -37,6 +38,7 @@ class PromotionController extends Controller
         $request->validate([
             'start_date' => 'required|date',
             'end_date' => 'required|date',
+            'name' =>  Rule::requiredIf(is_null($request->sticker)),
         ]);
         if(is_null($request->sticker) && !isset($request->name)) return response([
             'message' => 'Zapolnite odin iz poley: sticker, name'
@@ -106,6 +108,7 @@ class PromotionController extends Controller
         $request->validate([
             'start_date' => 'required|date',
             'end_date' => 'required|date',
+            'name.ru' =>  Rule::requiredIf(is_null($request->sticker)),
         ]);
         if(is_null($request->sticker) && !isset($request->name)) return response([
             'message' => 'Zapolnite odin iz poley: sticker, name'

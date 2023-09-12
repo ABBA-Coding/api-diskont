@@ -15,7 +15,8 @@ use App\Http\Controllers\Files\{
     UploadController,
     DeleteController,
 };
-use App\Http\Controllers\{DiscountController,
+use App\Http\Controllers\{
+    DiscountController,
     Orders\OneClickOrderController,
     Orders\OrderController,
     RoleController,
@@ -32,7 +33,9 @@ use App\Http\Controllers\{DiscountController,
     RegionGroupController,
     BranchController,
     Translates\TranslateController,
-    Translates\TranslateGroupController};
+    Translates\TranslateGroupController,
+    InfoController,
+};
 use App\Http\Controllers\Faqs\{
     FaqCategoryController,
     FaqController,
@@ -139,5 +142,7 @@ Route::prefix('admin')->group(function() {
         Route::apiResource('translate_groups', TranslateGroupController::class);
         Route::put('translates/multiple_update', [TranslateController::class, 'multiple_update']);
         Route::apiResource('translates', TranslateController::class);
+        Route::apiResource('info', InfoController::class);
+        Route::delete('variations/{id}', [ProductController::class, 'variation_delete']);
     });
 });

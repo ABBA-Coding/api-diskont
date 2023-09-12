@@ -16,8 +16,26 @@ class SearchController extends Controller
             ->where(function($q) use ($request) {
                 $q->where('name', 'like', '%'.$request->search.'%')
                     ->orWhere('for_search', 'like', '%'.$request->search.'%');
-            })
-            ->with('images')
+            });
+
+        // sortirovka
+        if(isset($request->sort) && $request->sort != '') {
+            switch ($request->sort) {
+                case 'popular':
+                    $products = $products->orderBy('is_popular', 'desc');
+                    break;
+
+                case 'expensive':
+                    $products = $products->orderBy('price', 'desc');
+                    break;
+
+                case 'cheap':
+                    $products = $products->orderBy('price');
+                    break;
+            }
+        }
+        
+        $products = $products->with('images')
             ->limit(20)
             ->get();
 

@@ -6,6 +6,7 @@ use App\Models\Orders\Order;
 use App\Models\UserAddress;
 use App\Models\Products\Product;
 use App\Models\Comment;
+use App\Models\Dicoin\DicoinHistory;
 use App\Http\Controllers\Controller;
 use Hash;
 use Illuminate\Http\Request;
@@ -116,6 +117,21 @@ class ProfileController extends Controller
 
         return response([
             'user' => $user
+        ]);
+    }
+
+    public function dicoins(Request $request)
+    {
+        $dicoins = DicoinHistory::where([
+                ['user_id', auth('sanctum')->id()]
+            ])
+            ->get();
+        $in = $dicoins->where('type', 'plus');
+        $out = $dicoins->where('type', 'minus');
+
+        return response([
+            'in' => $in,
+            'out' => $out,
         ]);
     }
 }

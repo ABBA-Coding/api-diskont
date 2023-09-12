@@ -25,4 +25,12 @@ class Faq extends Model
     {
         return $this->belongsTo(FaqCategory::class, 'category_id');
     }
+
+    public function translatable(): array
+    {
+        return [
+            'question',
+            'answer',
+        ];
+    }
 }

@@ -17,7 +17,7 @@ class OrderController extends Controller
 {
     protected $PAGINATE = 16;
     /**
-     * Display a listing of the resource. +
+     * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
@@ -73,11 +73,19 @@ class OrderController extends Controller
             ->with('user', 'user_address', 'user_address.region', 'user_address.district', 'user_address.village')
             ->first();
 
+        $history = Order::where('id', '!=', $order->id)
+            ->whereHas('user', function($q) use ($order) {
+                $q->where('id', $order->user->id);
+            })
+            ->with('user', 'user_address', 'user_address.region', 'user_address.district', 'user_address.village')
+            ->paginate($this->PAGINATE);
+
         // status new -> pending
         if($order->status == 'new') $order->update(['status' => 'pending']);
 
         return response([
-            'order' => $order
+            'order' => $order,
+            'history' => $history,
         ]);
     }
 
@@ -136,7 +144,7 @@ class OrderController extends Controller
         DB::beginTransaction();
         try {
             if($data['status'] == 'accepted' && $order->req_sent == 0) {
-                if ($order->payment_method == 'click' || $order->payment_method == 'payme') {
+                if ($order->payment_method == 'click' || $order->payment_method == 'payme' || $order->payment_method == 'cash' || $order->payment_method == 'uzum') {
 
                     $success = $this->req_to_stock($order);
                     if(!$success) return response([
@@ -148,7 +156,7 @@ class OrderController extends Controller
             }
 
             if($data['status'] == 'returned') {
-                if ($order->payment_method == 'click' || $order->payment_method == 'payme') {
+                if ($order->payment_method == 'click' || $order->payment_method == 'payme' || $order->payment_method == 'cash' || $order->payment_method == 'uzum') {
                     $success = $this->return_order($order);
                     if(!$success) return response([
                         'message' => 'Problemi s 1c'
@@ -224,7 +232,8 @@ class OrderController extends Controller
         // send request to 1c
         $username = 'web_admin';
         $password = 'gO7ziwyk';
-        $url = 'http://80.80.212.224:8080/Diskont/hs/web';
+        $url_old = 'http://80.80.212.224:8080/Diskont/hs/web';
+        $url = 'http://80.80.212.224:8080/diskont_test/hs/web';
 
         $req = Http::withBasicAuth($username, $password)
             ->post($url, $data);
@@ -237,6 +246,7 @@ class OrderController extends Controller
         ]);
 
         foreach ($order->products as $key => $product) {
+
             $product_model = Product::find($product['product_id']);
 
             $product_model->update(['stock' => $product_model->stock - $product['count']]);
@@ -251,6 +261,7 @@ class OrderController extends Controller
             'payme' => 'ca5d62d8-26d2-11ee-a232-00155d0b8c00',
             'click' => 'bfff6436-26d2-11ee-a232-00155d0b8c00',
             'uzum' => 'd0ae983f-26d2-11ee-a232-00155d0b8c00',
+            'cash' => '87c7a5df-26d5-11ee-a232-00155d0b8c00',
         ];
 
         return $data[$payment_method];
@@ -267,7 +278,8 @@ class OrderController extends Controller
         // send request to 1c
         $username = 'web_admin';
         $password = 'gO7ziwyk';
-        $url = 'http://80.80.212.224:8080/Diskont/hs/web';
+        $url_old = 'http://80.80.212.224:8080/Diskont/hs/web';
+        $url = 'http://80.80.212.224:8080/diskont_test/hs/web';
 
         $req = Http::withBasicAuth($username, $password)
             ->post($url, $data);

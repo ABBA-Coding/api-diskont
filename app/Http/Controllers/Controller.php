@@ -123,7 +123,7 @@ class Controller extends BaseController
 
         foreach($arr as $item) {
             foreach($item->translatable() as $column) {
-                $item->$column = is_array($item->$column) ? ($item->$column[app()->getLocale()] ?? '') : $item->$column;
+                $item->$column = is_array($item->$column) ? ($item->$column[app()->getLocale()] ?? ($item->$column[$this->main_lang] ?? '')) : $item->$column;
             }
         }
         return $arr;

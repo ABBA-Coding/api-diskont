@@ -19,6 +19,9 @@ class DatabaseSeeder extends Seeder
             ShowcaseSeeder::class,
             ExchangeRateSeeder::class,
             AttributeSeeder::class,
+            DicoinSeeder::class,
+            InfoSeeder::class,
+            BarabanItemSeeder::class,
         ]);
     }
 }

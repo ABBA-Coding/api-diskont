@@ -56,6 +56,16 @@ class ProductController extends Controller
             });
         }
 
+        // filter with brand
+        if(isset($request->brand) && $request->brand != '') {
+
+            $products = $products->whereHas('info', function ($q) use ($request) {
+                $q->whereHas('brand', function($qi) use ($request) {
+                    $qi->where('slug', trim($request->brand));
+                });
+            });
+        }
+
         // filter with showcase
         if(isset($request->showcase) && $request->showcase != '') {
             
@@ -325,7 +335,7 @@ class ProductController extends Controller
             $re['title'] = $re['title'][$lang];
             $options = [];
             foreach ($re['options'] as $option) {
-                $option['title'] = $option['title'][$lang];
+                $option['title'] = isset($option['title'][$lang]) ? $option['title'][$lang] : ($option['title'][$this->main_lang] ?? '');
                 $options[] = $option;
             }
             $re['options'] = $options;

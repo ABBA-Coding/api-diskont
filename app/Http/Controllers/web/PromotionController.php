@@ -31,10 +31,34 @@ class PromotionController extends Controller
         ]);
     }
 
-    public function show($slug)
+    public function show($slug, Request $request)
     {
+        $category_ids = null;
+        if(isset($request->category) && $request->category != '') {
+            $category = Category::where('slug', $request->category)
+                ->first();
+
+            $category_ids = [$category->id];
+
+            foreach($this->get_children($category, 1) ?? [] as $child) {
+                $category_ids[] = $child->id;
+                if(isset($child->children)) {
+                    foreach($child->children ?? [] as $child_i) {
+                        $category_ids[] = $child_i->id;
+                    }
+                }
+            }
+        }
         $promotion = Promotion::where('slug', $slug)
-        	->with('products', 'products.info', 'products.images')
+        	->with(['products' => function($q) use ($request, $category_ids) {
+                if(isset($request->category) && $request->category != '' && !is_null($category_ids)) {
+                    $q->whereHas('info', function($qi) use ($request, $category_ids) {
+                        $qi->whereHas('category', function($qi2) use ($request, $category_ids) {
+                            $qi2->whereIn('id', $category_ids);
+                        });
+                    });
+                }
+            }], 'products.info', 'products.images')
             ->first();
 
         if($promotion) {
