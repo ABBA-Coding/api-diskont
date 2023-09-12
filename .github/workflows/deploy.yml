@@ -3,7 +3,7 @@ name: Production deploy Diskont
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build:
