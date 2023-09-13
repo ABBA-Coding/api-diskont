@@ -38,4 +38,5 @@ jobs:
           git --work-tree="${{ env.TARGET_FOLDER }}" --git-dir="${{ env.TARGET_FOLDER }}/.git" clean -f .
           /usr/local/bin/composer update --working-dir=${{ env.TARGET_FOLDER }} --no-interaction
           /usr/bin/php8.1 -d=project.directory="${{ env.TARGET_FOLDER }}" "${{ env.TARGET_FOLDER }}/artisan" migrate
+          chown -R www-data:www-data ${{ env.TARGET_FOLDER }}
           sh /home/devops/deploy.sh "${{ github.event.head_commit.message }}" "api.diskont.uz deploy"
