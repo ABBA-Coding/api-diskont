@@ -21,7 +21,7 @@ class CharacteristicGroupController extends Controller
     public function all()
     {
         $groups = CharacteristicGroup::latest()
-            ->select('name', 'id')
+            ->select('name', 'id', 'keywords')
             ->get();
 
         return response([
