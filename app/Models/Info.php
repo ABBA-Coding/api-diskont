@@ -16,6 +16,10 @@ class Info extends Model
         'telegram',
         'meta_desc',
         'meta_keywords',
+
+        'instagram',
+        'facebook',
+        'favicon',
     ];
 
     protected $casts = [
@@ -27,6 +31,10 @@ class Info extends Model
         'sm_logo',
         'md_logo',
         'lg_logo',
+
+        'sm_favicon',
+        'md_favicon',
+        'lg_favicon',
     ];
 
     public function getLgLogoAttribute()
@@ -40,6 +48,19 @@ class Info extends Model
     public function getMdLogoAttribute()
     {
         return $this->logo ? (url('/uploads/info/600') . '/' . $this->logo) : null;
+    }
+
+    public function getLgFaviconAttribute()
+    {
+        return $this->favicon ? (url('/uploads/info') . '/' . $this->favicon) : null;
+    }
+    public function getSmFaviconAttribute()
+    {
+        return $this->favicon ? (url('/uploads/info/200') . '/' . $this->favicon) : null;
+    }
+    public function getMdFaviconAttribute()
+    {
+        return $this->favicon ? (url('/uploads/info/600') . '/' . $this->favicon) : null;
     }
 
     public function translatable(): array

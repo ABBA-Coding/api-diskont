@@ -34,17 +34,46 @@ Route::any('/pay/{paysys}/{key}/{amount}',function($paysys, $key, $amount){
     	->redirect($model, $amount, 860, $url);
 });
 
-// Route::get('iuwebiuerwv', function() {
-// 	$products = App\Models\Category::all();
-// 	foreach ($products as $value) {
-// 		if(isset($value->name['ru'])) {
-// 			$value->update([
-// 				'for_search' => $value->name['ru']
-// 			]);
-// 		}
-// 	}
-// 	dd('ok');
-// });
+Route::get('iuwebiuerwv', function() {
+    $infos = App\Models\Products\ProductInfo::all();
+    foreach ($infos as $value) {
+
+        $categoryName = $value->category->name['ru'];
+        $brandName = $value->brand->name;
+        $productName = $value->name['ru'];
+
+        $result = $brandName . ' ' . $categoryName . ' ' . $productName;
+
+        $originalName = $value->name;
+        $originalName['ru'] = $result;
+        $value->update([
+            'name' => $originalName
+        ]);
+
+        if(isset($value->name['ru'])) {
+            $value->update([
+                'for_search' => $value->name['ru']
+            ]);
+        }
+    }
+
+    $products = App\Models\Products\Product::all();
+    foreach ($products as $value) {
+
+        $originalName = $value->name;
+        $originalName['ru'] = $value->info->name['ru'];
+        $value->update([
+            'name' => $originalName
+        ]);
+
+        if(isset($value->name['ru'])) {
+            $value->update([
+                'for_search' => $value->name['ru']
+            ]);
+        }
+    }
+    dd('ok');
+});
 
 
 //Route::get('redis', function () {

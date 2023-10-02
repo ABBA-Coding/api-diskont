@@ -60,6 +60,9 @@ class InfoController extends Controller
             'logo' => 'required|max:255',
             'phone_number' => 'required|max:255',
             'email' => 'nullable|max:255',
+            'telegram' => 'nullable|max:255',
+            'instagram' => 'nullable|max:255',
+            'facebook' => 'nullable|max:255',
         ]);
 
         if($request->logo) {
@@ -73,11 +76,23 @@ class InfoController extends Controller
                 $img = $info->logo;
             }
         }
+        if($request->favicon) {
+            if(Storage::disk('public')->exists('/uploads/temp/' . explode('/', $request->favicon)[count(explode('/', $request->favicon)) - 1])) {
+                $explode_img = explode('/', $request->favicon);
+                Storage::disk('public')->move('/uploads/temp/' . $explode_img[count($explode_img) - 1], '/uploads/info/' . $explode_img[count($explode_img) - 1]);
+                Storage::disk('public')->move('/uploads/temp/200/' . $explode_img[count($explode_img) - 1], '/uploads/info/200/' . $explode_img[count($explode_img) - 1]);
+                Storage::disk('public')->move('/uploads/temp/600/' . $explode_img[count($explode_img) - 1], '/uploads/info/600/' . $explode_img[count($explode_img) - 1]);
+                $img = $explode_img[count($explode_img) - 1];
+            } else if(Storage::disk('public')->exists('/uploads/info/' . explode('/', $request->favicon)[count(explode('/', $request->favicon)) - 1])) {
+                $img = $info->favicon;
+            }
+        }
 
         DB::beginTransaction();
         try {
             $data = $request->all();
             $data['logo'] = isset($img) ? $img : $request->logo;
+            $data['favicon'] = isset($img) ? $img : $request->favicon;
 
             $info->update($data);
 

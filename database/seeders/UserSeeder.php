@@ -15,9 +15,9 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        User::create([
-            'login' => '998913722502',
-            'password' => Hash::make(123123)
-        ]);
+//        User::create([
+//            'login' => '998913722502',
+//            'password' => Hash::make(123123)
+//        ]);
     }
 }

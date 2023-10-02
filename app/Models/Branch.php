@@ -13,6 +13,7 @@ class Branch extends Model
         'name',
         'work_time',
         'phone_number',
+        'link',
         'for_search',
         'region_id',
     ];

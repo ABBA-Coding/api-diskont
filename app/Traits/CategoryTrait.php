@@ -39,7 +39,7 @@ trait CategoryTrait {
         // 2-urovendagi childlar
         foreach ($only_parents as $parent_key => $parent_value) {
             foreach ($parent_value->children as $child_key => $child_value) {
-                
+
                 $children = collect();
                 foreach ($only_children as $only_child_key => $only_child_value) {
                     if($only_child_value->parent_id == $child_value->id) {
@@ -92,7 +92,7 @@ trait CategoryTrait {
         // 2-urovendagi childlar
         foreach ($only_parents as $parent_key => $parent_value) {
             foreach ($parent_value->children as $child_key => $child_value) {
-                
+
                 $children = collect();
                 foreach ($only_children as $only_child_key => $only_child_value) {
                     if($only_child_value->parent_id == $child_value->id) {
@@ -147,7 +147,7 @@ trait CategoryTrait {
         // 2-urovendagi childlar
         foreach ($only_parents as $parent_key => $parent_value) {
             foreach ($parent_value->children as $child_key => $child_value) {
-                
+
                 $children = collect();
                 foreach ($only_children as $only_child_key => $only_child_value) {
                     if($only_child_value->parent_id == $child_value->id) {
@@ -217,7 +217,7 @@ trait CategoryTrait {
     }
 
 
-    
+
     function category_reverse($categories): array
     {
         $result = [];
