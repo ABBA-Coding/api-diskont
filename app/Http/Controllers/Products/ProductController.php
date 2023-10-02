@@ -22,8 +22,8 @@ use Illuminate\Support\Facades\Cache;
 
 class ProductController extends Controller
 {
-	use CategoryTrait;
-	
+    use CategoryTrait;
+
     protected $PAGINATE = 16;
     /**
      * Display a listing of the resource.
@@ -199,7 +199,7 @@ class ProductController extends Controller
             ->with('brand', 'category', 'category.parent')
             ->first();
 
-    	// $info->category->children = $this->get_children($info->category);
+        // $info->category->children = $this->get_children($info->category);
 
         $variations = $info->products;
         $variation_images = [];
@@ -313,14 +313,14 @@ class ProductController extends Controller
                 'name' => $data['name'],
                 'desc' => $data['desc'],
                 'for_search' => isset($data['name']['ru'])
-                                ? (
-                                    $data['name']['ru'] . (
-                                                            isset($data['desc']['ru'])
-                                                            ? ' ' . $data['desc']['ru']
-                                                            : ''
-                                                        )
-                                )
-                                : null,
+                    ? (
+                        $data['name']['ru'] . (
+                        isset($data['desc']['ru'])
+                            ? ' ' . $data['desc']['ru']
+                            : ''
+                        )
+                    )
+                    : null,
                 // 'brand_id' => $data['brand_id'],
                 // 'category_id' => $data['category_id'],
                 'is_active' => 1,
@@ -477,7 +477,7 @@ class ProductController extends Controller
                     $variation_model->promotions()->sync($variation['promotions']);
 
                     // attribute options
-                    // if(!isset($variation['options'])) $variation['options'] = []; 
+                    // if(!isset($variation['options'])) $variation['options'] = [];
                     // $attributes = [];
                     // foreach ($variation['options'] as $attributeOption) {
                     //     $savedAttributeOption = AttributeOption::create([
@@ -496,7 +496,7 @@ class ProductController extends Controller
                     foreach ($variation['characteristics'] as $characteristicOption) {
                         $savedCharacteristicOption = CharacteristicOption::create([
                             'name' => [
-                            	'ru' => $characteristicOption['name']
+                                'ru' => $characteristicOption['name']
                             ],
                             'characteristic_id' => $characteristicOption['characteristic_id']
                         ]);
@@ -509,7 +509,7 @@ class ProductController extends Controller
                      * yangi rasmlarni save qilamiz
                      */
                     if(count($new_images_ids) != 0) {
-                         foreach($new_images_ids as $new_images_id) {
+                        foreach($new_images_ids as $new_images_id) {
                             $variation_model->images()->attach($new_images_id);
                         }
                     }
@@ -532,8 +532,8 @@ class ProductController extends Controller
                     /*
                      * obrabotka qilingan variaciyalar
                      */
-                     $boshqa_ids[] = $variation_model->id;
-                     $qolgan_rasmlar_ids = [];
+                    $boshqa_ids[] = $variation_model->id;
+                    $qolgan_rasmlar_ids = [];
                 }
 
                 unset($temp_counter);
@@ -632,9 +632,9 @@ class ProductController extends Controller
         ]);
 
         $products = Product::where(function($q) use ($request) {
-                $q->where('name', 'like', '%'.$request->search.'%')
-                    ->orWhere('for_search', 'like', '%'.$request->search.'%');
-            })
+            $q->where('name', 'like', '%'.$request->search.'%')
+                ->orWhere('for_search', 'like', '%'.$request->search.'%');
+        })
             // ->whereDoesntHave('images')
             ->whereHas('info', function ($q) use ($request) {
                 $q->where([

@@ -37,7 +37,7 @@ class ProductController extends Controller
             $data = $request->all();
             foreach ($data['data'] as $item) {
 
-            	// obrabotka brenda
+                // obrabotka brenda
                 $brand = [
 //                    'c_id' => $item['brand']['id'],
                     'name' => $item['brand']['name'],
@@ -95,7 +95,7 @@ class ProductController extends Controller
                     $parent_category->update(['slug' => $this->create_slug(Category::class, $category_parent['name'], $parent_category->id)]);
                     // set prev categroy parent_id
                     $child->update(['parent_id' => $parent_category->id]);
-                    
+
                     // dobavit attribut cvet k kategoriyu
                     if(!DB::table('attribute_category')->where('category_id', $parent_category->id)->where('attribute_id', 1)->exists()) $parent_category->attributes()->attach(1);
 
@@ -105,7 +105,7 @@ class ProductController extends Controller
 
                 // obrabotka produkta
                 $product = [
-                   'c_id' => $item['id'],
+                    'c_id' => $item['id'],
                     'price' => $item['price'],
                     'is_popular' => 0,
                     'product_of_the_day' => 0,
@@ -129,9 +129,17 @@ class ProductController extends Controller
                 if(!Product::where('c_id', $item['id'])->exists()) {
                     $saved_product = Product::create($product);
 
+                    // formatirovat product_info->name (category + brand + product_info->name)
+                    $categoryName = $first->name['ru'];
+                    $brandName = $saved_brand->name;
+                    $productName = $item['name'];
+
+                    $result = $brandName . ' ' . $categoryName . ' ' . $productName;
+
+
                     $product_info = [
                         'name' => [
-                            'ru' => $item['name'],
+                            'ru' => $result,
                         ],
                         'desc' => [
                             'ru' => $item['desc'],
@@ -142,8 +150,14 @@ class ProductController extends Controller
                         'default_product_id' => $saved_product->id,
                     ];
                     $saved_product_info = ProductInfo::create($product_info);
-                    // set product info_id
-                    $saved_product->update(['info_id' => $saved_product_info->id]);
+
+                    // set product info_id + name
+                    $originalName = $saved_product->name;
+                    $originalName['ru'] = $result;
+                    $saved_product->update([
+                        'name' => $originalName,
+                        'info_id' => $saved_product_info->id
+                    ]);
                 } else {
                     $saved_product = Product::where('c_id', $item['id'])->first();
                     $product['status'] = $saved_product->status;
@@ -152,9 +166,17 @@ class ProductController extends Controller
                     $product['product_of_the_day'] = $saved_product->product_of_the_day;
                     $saved_product->update($product);
 
+                    // formatirovat product_info->name (category + brand + product_info->name)
+                    $categoryName = $first->name['ru'];
+                    $brandName = $saved_brand->name;
+                    $productName = $item['name'];
+
+                    $result = $brandName . ' ' . $categoryName . ' ' . $productName;
+
+
                     $product_info = [
                         'name' => [
-                            'ru' => $item['name'],
+                            'ru' => $result,
                         ],
                         'desc' => [
                             'ru' => $item['desc'],
@@ -165,6 +187,11 @@ class ProductController extends Controller
                         'default_product_id' => $saved_product->id,
                     ];
                     $saved_product->info->update($product_info);
+
+                    // obnovit product->name
+                    $originalName = $saved_product->name;
+                    $originalName['ru'] = $result;
+                    $saved_product->update(['name' => $originalName]);
                 }
             }
 
