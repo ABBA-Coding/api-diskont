@@ -301,7 +301,7 @@ class ProductController extends Controller
              */
             $product->update([
                 'name' => $data['name'],
-                'status' => 'active',
+                'status' => $data['status'],
                 'for_search' => $data['name']['ru'] ?? ''
             ]);
             $product = $product->info;
