@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Info;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use DB;
 use Illuminate\Http\Request;
 
 class InfoController extends Controller
@@ -67,13 +67,13 @@ class InfoController extends Controller
 
         if($request->logo) {
             if(Storage::disk('public')->exists('/uploads/temp/' . explode('/', $request->logo)[count(explode('/', $request->logo)) - 1])) {
-                $explode_img = explode('/', $request->logo);
-                Storage::disk('public')->move('/uploads/temp/' . $explode_img[count($explode_img) - 1], '/uploads/info/' . $explode_img[count($explode_img) - 1]);
-                Storage::disk('public')->move('/uploads/temp/200/' . $explode_img[count($explode_img) - 1], '/uploads/info/200/' . $explode_img[count($explode_img) - 1]);
-                Storage::disk('public')->move('/uploads/temp/600/' . $explode_img[count($explode_img) - 1], '/uploads/info/600/' . $explode_img[count($explode_img) - 1]);
-                $img = $explode_img[count($explode_img) - 1];
+                $logoOld = explode('/', $request->logo);
+                Storage::disk('public')->move('/uploads/temp/' . $logoOld[count($logoOld) - 1], '/uploads/info/' . $logoOld[count($logoOld) - 1]);
+                Storage::disk('public')->move('/uploads/temp/200/' . $logoOld[count($logoOld) - 1], '/uploads/info/200/' . $logoOld[count($logoOld) - 1]);
+                Storage::disk('public')->move('/uploads/temp/600/' . $logoOld[count($logoOld) - 1], '/uploads/info/600/' . $logoOld[count($logoOld) - 1]);
+                $logo = $logoOld[count($logoOld) - 1];
             } else if(Storage::disk('public')->exists('/uploads/info/' . explode('/', $request->logo)[count(explode('/', $request->logo)) - 1])) {
-                $img = $info->logo;
+                $logo = $info->logo;
             }
         }
         if($request->favicon) {
@@ -82,17 +82,17 @@ class InfoController extends Controller
                 Storage::disk('public')->move('/uploads/temp/' . $explode_img[count($explode_img) - 1], '/uploads/info/' . $explode_img[count($explode_img) - 1]);
                 Storage::disk('public')->move('/uploads/temp/200/' . $explode_img[count($explode_img) - 1], '/uploads/info/200/' . $explode_img[count($explode_img) - 1]);
                 Storage::disk('public')->move('/uploads/temp/600/' . $explode_img[count($explode_img) - 1], '/uploads/info/600/' . $explode_img[count($explode_img) - 1]);
-                $img = $explode_img[count($explode_img) - 1];
+                $favicon = $explode_img[count($explode_img) - 1];
             } else if(Storage::disk('public')->exists('/uploads/info/' . explode('/', $request->favicon)[count(explode('/', $request->favicon)) - 1])) {
-                $img = $info->favicon;
+                $favicon = $info->favicon;
             }
         }
 
         DB::beginTransaction();
         try {
             $data = $request->all();
-            $data['logo'] = isset($img) ? $img : $request->logo;
-            $data['favicon'] = isset($img) ? $img : $request->favicon;
+            $data['logo'] = $logo ?? $request->logo;
+            $data['favicon'] = $favicon ?? $request->favicon;
 
             $info->update($data);
 

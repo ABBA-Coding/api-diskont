@@ -40,7 +40,7 @@ class ComparisonController extends Controller
             foreach($group->characteristics as $characteristic) {
                 $response_characteristics[$counter]['characteristics'][$counter1]['name'] = $characteristic->name[$lang];
 
-                foreach($products as $product) {
+                foreach($products as $productKey => $product) {
                     $response_characteristics[$counter]['characteristics'][$counter1]['products'][] = isset($this->get_option_id($characteristic->id, $product->id)[0]) ? $this->get_option_id($characteristic->id, $product->id)[0] : null;
                     // $response_characteristics[$group->name[$lang]][$characteristic->name[$lang]][$product->id] = $this->get_option_id($characteristic->id, $product->id);
                 }
@@ -54,10 +54,10 @@ class ComparisonController extends Controller
         unset($counter);
 
         $categories = Category::whereHas('product_infos', function($q) use ($products) {
-                $q->whereHas('products', function($qi) use ($products) {
-                    $qi->whereIn('id', $products->pluck('id')->toArray());
-                });
-            })
+            $q->whereHas('products', function($qi) use ($products) {
+                $qi->whereIn('id', $products->pluck('id')->toArray());
+            });
+        })
             ->with('parent')
             ->get();
         $this->without_lang($categories);
@@ -67,17 +67,17 @@ class ComparisonController extends Controller
 
         return response([
             'data' => $response_characteristics,
-            'categories' => $categories
+            'categories' => $categories,
         ]);
     }
 
     public function get_option_id($characteristic_id, $product_id)
     {
         $characteristic_option = CharacteristicOption::whereHas('products', function ($q) use ($product_id) {
-                $q->where('products.id', $product_id);
-            })->whereHas('characteristic', function ($q) use ($characteristic_id) {
-                $q->where('id', $characteristic_id);
-            })->first();
+            $q->where('products.id', $product_id);
+        })->whereHas('characteristic', function ($q) use ($characteristic_id) {
+            $q->where('id', $characteristic_id);
+        })->first();
 
         return !$characteristic_option ? null : $this->without_lang([$characteristic_option]);
     }

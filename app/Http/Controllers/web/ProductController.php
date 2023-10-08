@@ -31,7 +31,7 @@ class ProductController extends Controller
         if(isset($request->limit) && $request->limit != '' && $request->limit < 41) $this->set_paginate($request->limit);
 
         // get products
-        $products = Product::select('id', 'name', 'info_id', 'model', 'price', 'slug', 'dicoin', 'is_popular')
+        $products = Product::select('id', 'name', 'info_id', 'model', 'price', 'slug', 'dicoin', 'is_popular', 'stock')
             ->where('status', 'active');
 
         // filter with category
@@ -41,7 +41,7 @@ class ProductController extends Controller
                 ->first();
             if($category) {
                 $category->children = $this->get_children($category, 1);
-                
+
                 $ids = [$category->id];
                 foreach($category->children as $child) {
                     $ids[] = $child->id;
@@ -68,7 +68,7 @@ class ProductController extends Controller
 
         // filter with showcase
         if(isset($request->showcase) && $request->showcase != '') {
-            
+
             $products = $products->whereHas('showcases', function($q) use ($request) {
                 $q->where('slug', $request->showcase);
             });
