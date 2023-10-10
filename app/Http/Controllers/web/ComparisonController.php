@@ -23,7 +23,10 @@ class ComparisonController extends Controller
         $products = Product::whereIn('id', $request->products)
             ->get();
 
-
+        // products are exist
+        if (!$products->first()) return response([
+            'message' => 'Products not found'
+        ], 404);
         $category = (isset($request->category) && $request->category != '') ? $request->category : $products[0]->info->category->id;
 
         $characteristic_groups = Category::find($category)->characteristic_groups;
