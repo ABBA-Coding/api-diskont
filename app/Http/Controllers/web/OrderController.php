@@ -140,7 +140,11 @@ class OrderController extends Controller
             'products.*' => 'required|integer',
         ]);
 
-        $products = Product::whereIn('id', $request->products)
+        $products = Product::whereIn('id', $request->products);
+        if ($request->input('category') != null && $request->input('category') != '') $products = $products->whereHas('info', function ($q) use ($request) {
+            $q->where('category_id', $request->input('category'));
+        });
+        $products = $products
             ->with('info', 'info.brand', 'info.category', 'images')
             ->get();
 
@@ -190,7 +194,7 @@ class OrderController extends Controller
             'success' => 0,
             'message' => 'Resurs udalen'
         ];
-            
+
         $region_group = RegionGroup::whereHas('regions', function ($q) use ($address) {
                 $q->where('id', $address->region_id);
             })
