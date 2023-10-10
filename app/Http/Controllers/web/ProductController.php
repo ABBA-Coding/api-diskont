@@ -34,6 +34,14 @@ class ProductController extends Controller
         $products = Product::select('id', 'name', 'info_id', 'model', 'price', 'slug', 'dicoin', 'is_popular', 'stock')
             ->where('status', 'active');
 
+        // filter with attributes
+        if($request->input('attributes') !== null && $request->input('attributes') != '') {
+            $attributeIds = explode(',', $request->input('attributes'));
+            $products  = $products->whereHas('attribute_options', function ($q) use ($attributeIds) {
+                $q->whereIn('attribute_options.id', $attributeIds);
+            });
+        }
+
         // filter with category
         if(isset($request->category) && $request->category != '') {
 
@@ -79,7 +87,7 @@ class ProductController extends Controller
             ->first()['exchange_rate'];
 
         if(isset($request->min_price) && $request->min_price != '' && isset($request->max_price) && $request->max_price != '') {
-            $products  = $products->whereBetween('price', [$request->min_price / $exchange_rate, $request->max_price / $exchange_rate]);
+            $products  = $products->whereBetween('price', [intval($request->min_price / $exchange_rate), intval($request->max_price / $exchange_rate)]);
         }
 
         // sortirovka
