@@ -79,15 +79,3 @@ Route::any('/pay/{paysys}/{key}/{amount}',function($paysys, $key, $amount){
 //Route::get('redis', function () {
 //    return response(Cache::store('redis')->get('products/index'));
 //});
-
-
-Route::get('kjsbgviuwerb', function () {
-    $branches = \App\Models\Branch::all();
-    foreach ($branches as $branch) {
-        $branch->update([
-            'phone_number' => [
-                'ru' => $branch->phone_number
-            ]
-        ]);
-    }
-});
