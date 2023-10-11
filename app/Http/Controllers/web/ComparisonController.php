@@ -61,9 +61,9 @@ class ComparisonController extends Controller
         }
         unset($counter);
 
-        $categories = Category::whereHas('product_infos', function($q) use ($products) {
-            $q->whereHas('products', function($qi) use ($products) {
-                $qi->whereIn('id', $products->pluck('id')->toArray());
+        $categories = Category::whereHas('product_infos', function($q) use ($request) {
+            $q->whereHas('products', function($qi) use ($request) {
+                $qi->whereIn('id', $request->input('products'));
             });
         })
             ->with('parent')
