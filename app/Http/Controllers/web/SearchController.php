@@ -34,24 +34,25 @@ class SearchController extends Controller
                     break;
             }
         }
-        
-        $products = $products->with('images')
+
+        $products = $products->with('images', 'promotions')
             ->limit(20)
             ->get();
 
         $categories = Category::where(function($q) use ($request) {
-                $q->where('name', 'like', '%'.$request->search.'%')
-                    ->orWhere('for_search', 'like', '%'.$request->search.'%');
-            })
+            $q->where('name', 'like', '%'.$request->search.'%')
+                ->orWhere('for_search', 'like', '%'.$request->search.'%');
+        })
             ->limit(20)
             ->get();
 
         foreach($products as $product) {
             $this->without_lang([$product]);
+            $this->without_lang($product->promotions);
             $this->without_lang([$product->info]);
         }
         $this->without_lang($categories);
-        
+
         return response([
             'products' => $products,
             'categories' => $categories,

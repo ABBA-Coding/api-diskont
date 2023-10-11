@@ -18,7 +18,7 @@ class PostController extends Controller
     public function index()
     {
         $posts = Post::latest()
-            ->select('id', 'title', 'desc', 'img')
+            ->select('id', 'title', 'desc', 'img', 'created_at')
             ->paginate($this->PAGINATE);
 
         return response([

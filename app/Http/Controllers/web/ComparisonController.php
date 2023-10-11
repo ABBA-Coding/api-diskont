@@ -4,6 +4,7 @@ namespace App\Http\Controllers\web;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Characteristics\CharacteristicGroup;
 use App\Models\Characteristics\CharacteristicOption;
 use App\Models\Products\Product;
 use App\Traits\CategoryTrait;
@@ -19,11 +20,26 @@ class ComparisonController extends Controller
             'products' => 'required|array'
         ]);
 
+        // get categories
+        $categories = Category::whereHas('product_infos', function($q) use ($request) {
+            $q->whereHas('products', function($qi) use ($request) {
+                $qi->whereIn('id', $request->input('products'));
+            });
+        })
+            ->with('parent')
+            ->get();
+
+        $parentCategories = $this->getOnlyParentCategory($categories);
+
+        $requestCategoryId = ($request->input('category') !== null && $request->input('category') != '') ? $request->input('category') : $parentCategories->first()->id;
+
+        $getParentCategoryCategories = $this->getParentCategoryCategories($requestCategoryId, $categories);
+
         // get products
         $products = Product::whereIn('id', $request->input('products'));
         if ($request->input('category') !== null && $request->input('category') != '') {
-            $products = $products->whereHas('info', function ($q) use ($request) {
-                $q->where('category_id', $request->input('category'));
+            $products = $products->whereHas('info', function ($q) use ($getParentCategoryCategories, $request) {
+                $q->whereIn('category_id', $getParentCategoryCategories->pluck('id')->toArray());
             });
         }
         $products = $products->get();
@@ -32,9 +48,11 @@ class ComparisonController extends Controller
         if (!$products->first()) return response([
             'message' => 'Products not found'
         ], 404);
-        $category = ($request->input('category') !== null && $request->input('category') != '') ? $request->input('category') : $products[0]->info->category->id;
 
-        $characteristic_groups = Category::find($category)->characteristic_groups;
+        $characteristic_groups = CharacteristicGroup::whereHas('categories', function ($q) use ($getParentCategoryCategories) {
+            $q->whereIn('categories.id', $getParentCategoryCategories->pluck('id')->toArray());
+        })
+            ->get();
 
         $lang = $request->header('lang');
         if(!$lang) $lang = $this->main_lang;
@@ -48,9 +66,8 @@ class ComparisonController extends Controller
             foreach($group->characteristics as $characteristic) {
                 $response_characteristics[$counter]['characteristics'][$counter1]['name'] = $characteristic->name[$lang];
 
-                foreach($products as $productKey => $product) {
+                foreach($products as $product) {
                     $response_characteristics[$counter]['characteristics'][$counter1]['products'][] = isset($this->get_option_id($characteristic->id, $product->id)[0]) ? $this->get_option_id($characteristic->id, $product->id)[0] : null;
-                    // $response_characteristics[$group->name[$lang]][$characteristic->name[$lang]][$product->id] = $this->get_option_id($characteristic->id, $product->id);
                 }
 
                 $counter1 ++;
@@ -61,25 +78,19 @@ class ComparisonController extends Controller
         }
         unset($counter);
 
-        $categories = Category::whereHas('product_infos', function($q) use ($request) {
-            $q->whereHas('products', function($qi) use ($request) {
-                $qi->whereIn('id', $request->input('products'));
-            });
-        })
-            ->with('parent')
-            ->get();
-        $this->without_lang($categories);
-        foreach($categories as $category) {
+
+        $this->without_lang($parentCategories);
+        foreach($parentCategories as $category) {
             $this->parent_without_lang($category);
         }
 
         return response([
             'data' => $response_characteristics,
-            'categories' => $categories,
+            'categories' => $parentCategories,
         ]);
     }
 
-    public function get_option_id($characteristic_id, $product_id)
+    public function get_option_id($characteristic_id, $product_id): ?array
     {
         $characteristic_option = CharacteristicOption::whereHas('products', function ($q) use ($product_id) {
             $q->where('products.id', $product_id);
@@ -88,5 +99,34 @@ class ComparisonController extends Controller
         })->first();
 
         return !$characteristic_option ? null : $this->without_lang([$characteristic_option]);
+    }
+
+    private function getOnlyParentCategory($categories)
+    {
+        $categories2lvlIds = [];
+        foreach ($categories as $category) {
+            if (!in_array($category->parent_id, $categories2lvlIds)) {
+                $categories2lvlIds[] = $category->parent->id;
+            }
+        }
+
+        $categoriesResult = Category::whereIn('id', $categories2lvlIds)
+            ->with('parent')
+            ->get();
+
+        return $categoriesResult;
+    }
+
+    // berilgan $categories lardan $parentCategory ga tegishlilarini qaytaradi
+    private function getParentCategoryCategories($parentCategoryId, $categories): \Illuminate\Support\Collection
+    {
+        $parentCategory = Category::find($parentCategoryId);
+
+        $parentCategoryCategories = $this->get_children($parentCategory);
+        $parentCategoryCategories = $parentCategoryCategories->filter(function ($item) use ($categories) {
+            return in_array($item->id, $categories->pluck('id')->toArray());
+        })->values();
+
+        return $parentCategoryCategories;
     }
 }

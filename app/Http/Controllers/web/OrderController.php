@@ -3,18 +3,20 @@
 namespace App\Http\Controllers\web;
 
 use App\Models\UserAddress;
-use App\Models\User;
 use App\Models\Dicoin\Dicoin;
 use App\Models\Dicoin\DicoinHistory;
 use App\Models\RegionGroup;
 use App\Models\ExchangeRate;
+use App\Traits\CategoryTrait;
 use Illuminate\Support\Facades\DB;
-use App\Models\{Products\Product, Orders\Order, Orders\OneClickOrder, Settings\Region};
+use App\Models\{Category, Products\Product, Orders\Order, Orders\OneClickOrder};
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
+    use CategoryTrait;
+
     public function store(Request $request)
     {
         $request->validate([
@@ -140,10 +142,23 @@ class OrderController extends Controller
             'products.*' => 'required|integer',
         ]);
 
+        // get categories
+        $categories = Category::whereHas('product_infos', function($q) use ($request) {
+            $q->whereHas('products', function($qi) use ($request) {
+                $qi->whereIn('id', $request->input('products'));
+            });
+        })
+            ->with('parent')
+            ->get();
+
         $products = Product::whereIn('id', $request->products);
-        if ($request->input('category') != null && $request->input('category') != '') $products = $products->whereHas('info', function ($q) use ($request) {
-            $q->where('category_id', $request->input('category'));
-        });
+        if ($request->input('category') != null && $request->input('category') != '') {
+            $getParentCategoryCategories = $this->getParentCategoryCategories($request->input('category'), $categories);
+
+            $products = $products->whereHas('info', function ($q) use ($getParentCategoryCategories, $request) {
+                $q->whereIn('category_id', $getParentCategoryCategories->pluck('id')->toArray());
+            });
+        }
         $products = $products
             ->with('info', 'info.brand', 'info.category', 'images')
             ->get();
@@ -155,6 +170,19 @@ class OrderController extends Controller
         return response([
             'products' => $products
         ]);
+    }
+
+    // berilgan $categories lardan $parentCategory ga tegishlilarini qaytaradi
+    private function getParentCategoryCategories($parentCategoryId, $categories): \Illuminate\Support\Collection
+    {
+        $parentCategory = Category::find($parentCategoryId);
+
+        $parentCategoryCategories = $this->get_children($parentCategory);
+        $parentCategoryCategories = $parentCategoryCategories->filter(function ($item) use ($categories) {
+            return in_array($item->id, $categories->pluck('id')->toArray());
+        })->values();
+
+        return $parentCategoryCategories;
     }
 
     public function one_click(Request $request)

@@ -69,7 +69,16 @@ trait CategoryTrait {
         $category_with_children = $category_with_children->orderBy('position')
             ->get();
 
-        if($without_lang == 1) $this->without_lang($category_with_children);
+        if($without_lang == 1) {
+            $this->without_lang($category_with_children);
+            if (isset($category_with_children->children)) {
+                $this->without_lang($category_with_children->children);
+
+                foreach ($category_with_children->children as $child) {
+                    if(isset($child->children)) $this->without_lang($child->children);
+                }
+            }
+        }
 
         $only_parents = $category_with_children->filter(function ($item) {
             return is_null($item->parent_id);
