@@ -11,3 +11,6 @@
 
 
 php artisan db:seed --class="Goodoneuz\PayUz\database\seeds\PayUzSeeder"
+
+[//]: # (11.10.2023)
+- composer require doctrine/dbal

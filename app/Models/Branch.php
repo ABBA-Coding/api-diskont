@@ -20,6 +20,7 @@ class Branch extends Model
 
     protected $casts = [
         'name' => 'array',
+        'phone_number' => 'array',
     ];
 
     public function region()
@@ -33,6 +34,7 @@ class Branch extends Model
     {
         return [
             'name',
+            'phone_number',
         ];
     }
 }
