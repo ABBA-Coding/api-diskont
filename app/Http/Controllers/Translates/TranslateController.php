@@ -53,7 +53,7 @@ class TranslateController extends Controller
                     'translate_group_id' => $data['translate_group_id'],
                     'key' => Str::slug($translate['key'], '-'),
                     'val' => $translate['val'],
-                    'for_search' => isset($translate['val']['ru']) ? $translate['val']['ru'] : ''
+                    'for_search' => $translate['val']['ru'] ?? ''
                 ]);
             }
 
