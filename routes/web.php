@@ -79,3 +79,16 @@ Route::any('/pay/{paysys}/{key}/{amount}',function($paysys, $key, $amount){
 //Route::get('redis', function () {
 //    return response(Cache::store('redis')->get('products/index'));
 //});
+
+Route::get('wfgwegw', function () {
+    $translates = \App\Models\Translate\Translate::whereNull('for_search')
+        ->get();
+    foreach ($translates as $translate) {
+        $forSearch = $translate->val['ru'];
+        $translate->update([
+            'for_search' => $forSearch
+        ]);
+//        dd($forSearch);
+    }
+    dd($translates->count());
+});

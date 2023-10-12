@@ -174,13 +174,14 @@ class ProductController extends Controller
             })->first()->id;
             $current_product_options_ids_with_attribute_keys[$temp] = $current_product_options_id;
         }
-        // return response($current_product_options_ids_with_attribute_keys);
+//         return response($current_product_options_ids_with_attribute_keys);
 
 
         /*
             produktning mavjud variaciyalari
         */
         $siblings = $product->info->products->where('status', 'active');
+//        return response($siblings);
         $real_combinations = [];
         $counter = 0;
         foreach($siblings as $sibling) {
@@ -190,7 +191,7 @@ class ProductController extends Controller
             $counter ++;
         }
         unset($counter);
-        // return response($real_combinations);
+//        return response($real_combinations);
 
         /*
             produktning mumkin b6lgan hamma variaciyalari
@@ -219,8 +220,7 @@ class ProductController extends Controller
 
             $counter ++;
         }
-        // return response($result_attributes);
-
+//return response($result_attributes);
         /*
             frontga kerak k6riniwga olib kelamiz
             [
@@ -246,10 +246,9 @@ class ProductController extends Controller
                 ]
             ]
         */
-
+//return response($real_combinations);
         $res = [];
         $counter = 0;
-
         for($i=0; $i<count($result_attributes); $i++) {
             $attribute_id = $result_attributes[$i]['id'];
             foreach($result_attributes[$i]['options'] as $option) {
@@ -266,25 +265,26 @@ class ProductController extends Controller
                         // return response($current_product_options_ids);
                         $res[$i]['options'][$counter]['active'] = empty(array_diff($temp_this_product_options, $current_product_options_ids)) ? true : false;
                         $res[$i]['options'][$counter]['available'] = true;
-
+//return response($res[$i]);
                         $counter ++;
                     }
                 }
             }
+//            return response($res);
 
             $counter = 0;
         }
+//        return response($res);
         unset($counter);
-        // return response($res);
 
 
 
         /*
             qolgan variaciyalarni ham q6wamiz
         */
+//        return response($result_attributes);
         if(isset($result_attributes[0])) { // oshibkadan keyin qo'shildi
             $first_attribute = $result_attributes[0];
-            $temp = [];
             $counter = count($res[0]['options']);
 
             $slugs_array = [];
@@ -295,26 +295,34 @@ class ProductController extends Controller
             }
             $slugs_array = array_unique($slugs_array);
             // return response($slugs_array);
+//            return response($res);
 
             if(count($first_attribute['options']) > count($res[0]['options'])) {
                 foreach($this->combs($result_attributes) as $variants) {
+//                    return response($this->combs($result_attributes));
                     foreach($real_combinations as $real_combination) {
-                        // return response($real_combination);
+//                         return response($real_combinations);
                         if(empty(array_diff($variants, $real_combination['options'])) && !in_array($real_combination['slug'], $slugs_array)) {
+                            $attribute = $this->getAttributeWithOptionTitle($first_attribute['title']);
                             $res[0]['title'] = $first_attribute['title'];
-                            $res[0]['options'][$counter]['title'] = AttributeOption::find($real_combination['options'][0])->name;
+//                            return response($real_combination['options']);
+                            $attributeOptionId = $this->getAttributeOptionId($attribute, $real_combination['options']);
+                            $res[0]['options'][$counter]['title'] = AttributeOption::find($attributeOptionId)->name;
                             $res[0]['options'][$counter]['slug'] = $real_combination['slug'];
                             // return response($current_product_options_ids);
                             $res[0]['options'][$counter]['active'] = false;
                             $res[0]['options'][$counter]['available'] = true;
 
+//                            return response($res[0]['options'][$counter]);
                             $counter ++;
+
                         }
                     }
                 }
             }
             unset($counter);
         }
+//        return response($res);
 
         if(count($product->attribute_options) > 0) {
             $this->without_lang($product->attribute_options);
@@ -336,14 +344,16 @@ class ProductController extends Controller
         }
         $this->parent_without_lang($product->info->category);
         $res_without_lang = [];
+
         foreach ($res as $re) {
             $lang = $request->header('lang');
             if(!$lang) $lang = $this->main_lang;
 
             $re['title'] = $re['title'][$lang];
             $options = [];
+//            return response($re);
             foreach ($re['options'] as $option) {
-                $option['title'] = isset($option['title'][$lang]) ? $option['title'][$lang] : ($option['title'][$this->main_lang] ?? '');
+                $option['title'] = $option['title'][$lang] ?? ($option['title'][$this->main_lang] ?? '');
                 $options[] = $option;
             }
             $re['options'] = $options;
@@ -442,5 +452,22 @@ class ProductController extends Controller
         $this->without_lang($branches);
 
         return $branches;
+    }
+
+    public function getAttributeWithOptionTitle($title)
+    {
+        $attribute = Attribute::where('name->ru', 'like', '%'.$title['ru'].'%')
+            ->first();
+
+        return $attribute;
+    }
+
+    public function getAttributeOptionId($attribute, $attributeOptionIds)
+    {
+        $attributeOption = AttributeOption::where('attribute_id', $attribute->id)
+            ->whereIn('id', $attributeOptionIds)
+            ->first();
+
+        return $attributeOption->id;
     }
 }
