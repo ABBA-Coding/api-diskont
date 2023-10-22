@@ -58,7 +58,7 @@ class PromotionController extends Controller
                         });
                     });
                 }
-            }], 'products.info', 'products.images')
+            }, 'products.info', 'products.images'])
             ->first();
 
         if($promotion) {
