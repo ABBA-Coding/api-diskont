@@ -209,7 +209,7 @@ class OrderController extends Controller
         $botToken = env('BOT_TOKEN');
         $chatId = env('TELEGRAM_CHAT_ID');
         $baseUrl = 'https://api.telegram.org/bot';
-        $text = $oneClickOrder->phone_number;
+        $text = '<b>+'.$oneClickOrder->phone_number.'</b>, <b>'.$oneClickOrder->name.'</b>';
 
         Http::get($baseUrl.$botToken.'/sendMessage?chat_id='.$chatId.'&text='.$text.'&parse_mode=HTML');
     }
