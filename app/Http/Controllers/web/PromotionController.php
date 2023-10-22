@@ -84,8 +84,12 @@ class PromotionController extends Controller
                 $resultCategories[] = $category;
             }
         }
+        $resultCategories1 = $resultCategories->filter(function ($item, $key) use ($resultCategories) {
+            if (in_array($item->id, $resultCategories->pluck('id')->toArray())) $resultCategories->forget($key);
+            return in_array($item->id, $resultCategories->pluck('id')->toArray());
+        });
 
-        $this->without_lang($resultCategories);
+        $this->without_lang($resultCategories1);
 
 //        $categories = $this->category_reverse($categories);
 
@@ -93,7 +97,7 @@ class PromotionController extends Controller
 
         return response([
             'promotion' => $promotion,
-            'categories' => $resultCategories,
+            'categories' => $resultCategories1,
         ]);
     }
 }
