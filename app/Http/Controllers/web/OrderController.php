@@ -164,7 +164,7 @@ class OrderController extends Controller
             ->get();
 
         foreach ($products as $product) {
-            $this->without_lang([$product->info, $product->info->category]);
+            $this->without_lang([$product, $product->info, $product->info->category]);
         }
 
         return response([

@@ -17,7 +17,8 @@ class ComparisonController extends Controller
     public function comparison(Request $request)
     {
         $request->validate([
-            'products' => 'required|array'
+            'products' => 'required|array',
+            'products.*' => 'required|integer',
         ]);
 
         // get categories
