@@ -349,11 +349,11 @@ class ProductController extends Controller
             $lang = $request->header('lang');
             if(!$lang) $lang = $this->main_lang;
 
-            $re['title'] = $re['title'][$lang];
+            $re['title'] = (isset($re['title'][$lang]) && $re['title'][$lang] != '') ? $re['title'][$lang] : ($re['title'][$this->main_lang] ?? '');
             $options = [];
-//            return response($re);
+//            return response($res);
             foreach ($re['options'] as $option) {
-                $option['title'] = $option['title'][$lang] ?? ($option['title'][$this->main_lang] ?? '');
+                $option['title'] = (isset($option['title'][$lang]) && $option['title'][$lang] != '') ? $option['title'][$lang] : ($option['title'][$this->main_lang] ?? '');
                 $options[] = $option;
             }
             $re['options'] = $options;
