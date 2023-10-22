@@ -83,7 +83,7 @@ class OrderController extends Controller
         // status new -> pending
         if($order->status == 'new') $order->update([
             'status' => 'pending',
-            'operator_id' => auth()->id()
+            'operator_id' => auth('admin')->id()
         ]);
 
         return response([
