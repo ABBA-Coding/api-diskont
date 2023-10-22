@@ -25,7 +25,7 @@ class OrderController extends Controller
     {
         $orders = Order::latest();
         if(isset($request->status) && $request->status != '') $orders = $orders->where('status', $request->status);
-        $orders = $orders->with('user', 'user_address', 'user_address.region', 'user_address.district', 'user_address.village')
+        $orders = $orders->with('user', 'user_address', 'user_address.region', 'user_address.district', 'user_address.village', 'operator')
             ->paginate($this->PAGINATE);
 
         foreach($orders as $order) {
@@ -70,7 +70,7 @@ class OrderController extends Controller
     public function show(Order $order)
     {
         $order = Order::where('id', $order->id)
-            ->with('user', 'user_address', 'user_address.region', 'user_address.district', 'user_address.village')
+            ->with('user', 'user_address', 'user_address.region', 'user_address.district', 'user_address.village', 'operator')
             ->first();
 
         $history = Order::where('id', '!=', $order->id)
@@ -83,7 +83,7 @@ class OrderController extends Controller
         // status new -> pending
         if($order->status == 'new') $order->update([
             'status' => 'pending',
-            'operator_id' => auth('admin')->id()
+            'operator_id' => auth('sanctum')->id()
         ]);
 
         return response([
