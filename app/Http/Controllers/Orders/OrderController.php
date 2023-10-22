@@ -81,7 +81,10 @@ class OrderController extends Controller
             ->paginate($this->PAGINATE);
 
         // status new -> pending
-        if($order->status == 'new') $order->update(['status' => 'pending']);
+        if($order->status == 'new') $order->update([
+            'status' => 'pending',
+            'operator_id' => auth()->id()
+        ]);
 
         return response([
             'order' => $order,
@@ -137,7 +140,7 @@ class OrderController extends Controller
                     'message' => 'Problemi so statusami'
                 ], 500);
                 break;
-                
+
         }
         $data = $request->all();
 

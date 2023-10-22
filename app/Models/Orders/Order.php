@@ -2,6 +2,7 @@
 
 namespace App\Models\Orders;
 
+use App\Models\Admin;
 use App\Models\Dicoin\DicoinHistory;
 use App\Models\User;
 use App\Models\UserAddress;
@@ -31,6 +32,7 @@ class Order extends Model
         'delivery_price',
         'req_sent',
         'c_id',
+        'operator_id',
     ];
 
     protected $casts = [
@@ -73,5 +75,10 @@ class Order extends Model
     public function user_address()
     {
         return $this->belongsTo(UserAddress::class);
+    }
+
+    public function operator()
+    {
+        return $this->belongsTo(Admin::class, 'operator_id');
     }
 }
