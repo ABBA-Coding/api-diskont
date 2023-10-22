@@ -15,7 +15,7 @@ class CharacteristicOptionController extends Controller
      */
     public function index(Request $request)
     {
-        $options = CharacteristicOption::with('characteristic')
+        $options = CharacteristicOption::with('characteristic', 'products')
             ->latest();
         if(isset($request->search) && $request->search != '') $options = $options->where('name', 'like', '%'.$request->search.'%')->orWhere('for_search', 'like', '%'.$request->search.'%');
         $options = $options->paginate(24);
