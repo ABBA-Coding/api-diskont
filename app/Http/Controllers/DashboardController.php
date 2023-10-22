@@ -11,7 +11,10 @@ class DashboardController extends Controller
 {
     public function get(Request $request)
     {
-        $allProductsCount = Product::count();
+        $activeProductsCount = Product::where('status', 'active')
+            ->count();
+        $inactiveProductsCount = Product::where('status', 'inactive')
+            ->count();
         $allUsersCount = User::count();
         $allOrdersCount = Order::count();
         $lastMonthUsersCount = User::where('created_at', '>', date('Y-m-d', strtotime('-30 days')))
@@ -21,7 +24,10 @@ class DashboardController extends Controller
 
 
         return response([
-            'products_count' => $allProductsCount,
+            'products_count' => [
+                'active' => $activeProductsCount,
+                'inactive' => $inactiveProductsCount,
+            ],
             'users_count' => $allUsersCount,
             'orders_count' => $allOrdersCount,
             'last_month_users_count' => $lastMonthUsersCount,
