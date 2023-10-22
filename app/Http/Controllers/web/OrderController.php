@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\{Category, Products\Product, Orders\Order, Orders\OneClickOrder};
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class OrderController extends Controller
 {
@@ -195,11 +196,22 @@ class OrderController extends Controller
         ]);
         $data = $request->all();
 
-        OneClickOrder::create($data);
+        $oneClickOrder = OneClickOrder::create($data);
+        $this->sendMessageToTelegram($oneClickOrder);
 
         return response([
             'message' => 'Successfully ordered'
         ]);
+    }
+
+    public function sendMessageToTelegram($oneClickOrder)
+    {
+        $botToken = env('BOT_TOKEN');
+        $chatId = env('TELEGRAM_CHAT_ID');
+        $baseUrl = 'https://api.telegram.org/bot';
+        $text = $oneClickOrder->phone_number;
+
+        Http::get($baseUrl.$botToken.'/sendMessage?chat_id='.$chatId.'&text='.$text.'&parse_mode=HTML');
     }
 
     public function get_delivery_price(Request $request): array
