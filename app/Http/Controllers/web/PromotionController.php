@@ -76,14 +76,24 @@ class PromotionController extends Controller
             });
         })->with('parent')->get();
 
-        $this->without_lang($categories);
-        $categories = $this->category_reverse($categories);
+        $resultCategories = [];
+        foreach ($categories as $category) {
+            if (isset($category->parent->parent)) {
+                $resultCategories[] = $category->parent;
+            } else {
+                $resultCategories[] = $category;
+            }
+        }
+
+        $this->without_lang($resultCategories);
+
+//        $categories = $this->category_reverse($categories);
 
         $this->without_lang($promotion->products);
 
         return response([
             'promotion' => $promotion,
-            'categories' => $categories,
+            'categories' => $resultCategories,
         ]);
     }
 }
