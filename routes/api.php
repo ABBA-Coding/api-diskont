@@ -54,6 +54,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PermissionGroupController;
+use App\Http\Controllers\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -144,5 +145,7 @@ Route::prefix('admin')->group(function() {
         Route::apiResource('translates', TranslateController::class);
         Route::apiResource('info', InfoController::class);
         Route::delete('variations/{id}', [ProductController::class, 'variation_delete']);
+
+        Route::get('dashboard', [DashboardController::class, 'get']);
     });
 });
