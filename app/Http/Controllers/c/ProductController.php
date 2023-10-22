@@ -53,9 +53,9 @@ class ProductController extends Controller
                 // obrabotka kategoriy
                 $category_parent = $item['category']['parent'];
                 $category = [
-                    // 'c_id' => $item['category']['id'],
                     'name' => [
-                        'ru' => $item['category']['name']
+                        'ru' => $item['category']['name'],
+                        'uz' => Category::where('c_id', $item['category']['id'])->first() ? (Category::where('c_id', $item['category']['id'])->first()->name['uz'] ?? '') : ''
                     ],
                     'for_search' => $item['category']['name'],
                     'parent_c_id' => $category_parent ? $category_parent['id'] : null,
@@ -64,7 +64,9 @@ class ProductController extends Controller
                     'slug' => $item['category']['id']
                 ];
                 $child = Category::updateOrCreate(
-                    ['c_id' => $item['category']['id']],
+                    [
+                        'c_id' => $item['category']['id']
+                    ],
                     $category
                 );
 
@@ -79,7 +81,8 @@ class ProductController extends Controller
                     $category = [
                         // 'c_id' => $item['category']['id'],
                         'name' => [
-                            'ru' => $category_parent['name']
+                            'ru' => $category_parent['name'],
+                            'uz' => Category::where('c_id', $category_parent['id'])->first() ? (Category::where('c_id', $category_parent['id'])->first()->name['uz'] ?? '') : ''
                         ],
                         'for_search' => $category_parent['name'],
                         'parent_c_id' => $category_parent['parent'] ? $category_parent['parent']['id'] : null,
