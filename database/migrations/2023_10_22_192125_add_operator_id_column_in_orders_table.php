@@ -14,7 +14,11 @@ class AddOperatorIdColumnInOrdersTable extends Migration
     public function up()
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->foreignId('operator_id')->nullable()->constrained();
+            $table->dropForeign('orders_operator_id_foreign');
+            $table->dropColumn('operator_id');
+        });
+        Schema::table('orders', function (Blueprint $table) {
+            $table->foreignId('operator_id')->nullable()->constrained('admins');
         });
     }
 
@@ -26,6 +30,7 @@ class AddOperatorIdColumnInOrdersTable extends Migration
     public function down()
     {
         Schema::table('orders', function (Blueprint $table) {
+            $table->dropForeign('orders_operator_id_foreign');
             $table->dropColumn('operator_id');
         });
     }
