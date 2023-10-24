@@ -25,11 +25,15 @@ class Category extends Model
         'position',
         'slug',
         'is_active',
+        'meta_keywords',
+        'meta_desc',
     ];
 
     protected $casts = [
         'name' => 'array',
         'desc' => 'array',
+        'meta_keywords' => 'array',
+        'meta_desc' => 'array',
     ];
 
     public function parent()
@@ -97,6 +101,8 @@ class Category extends Model
         return [
             'name',
             'desc',
+            'meta_keywords',
+            'meta_desc',
         ];
     }
 }

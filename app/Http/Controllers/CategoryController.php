@@ -4,15 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Traits\CategoryTrait;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use DB;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
     use CategoryTrait;
-    
+
     protected $PAGINATE = 16;
     protected $PAGE = 1;
 
@@ -33,8 +33,8 @@ class CategoryController extends Controller
         // search
         $search = null;
         if(isset($request->search) && $request->search != '') $search = $request->search;
-        
-        
+
+
         // $categories = $categories->with('attributes', 'attributes.options', 'characteristic_groups', 'characteristic_groups.characteristics', 'characteristic_groups.characteristics.options')
         //     ->paginate($this->PAGINATE);
 
@@ -121,12 +121,12 @@ class CategoryController extends Controller
     public function show(Category $category)
     {
         $category = Category::where('id', $category->id)
-            ->select('id', 'name', 'is_popular', 'desc', 'parent_id', 'img', 'icon', 'slug', 'is_active')
+            ->select('id', 'name', 'is_popular', 'desc', 'parent_id', 'img', 'icon', 'slug', 'is_active', 'meta_keywords', 'meta_desc')
             ->with('parent', 'attributes', 'attributes.options', 'characteristic_groups', 'characteristic_groups.characteristics', 'characteristic_groups.characteristics.options') // children
             ->first();
 
         $category->children = $this->get_children($category);
-        
+
         return response([
             'category' => $category
         ]);
@@ -152,6 +152,8 @@ class CategoryController extends Controller
             'img' => 'nullable|max:255',
             'is_popular' => 'required|boolean',
             'desc' => 'required|array',
+            'meta_keywords' => 'nullable|array',
+            'meta_desc' => 'nullable|array',
             // 'slug' => 'required|max:255',
             'is_active' => 'required',
         ]);
@@ -187,6 +189,8 @@ class CategoryController extends Controller
                 'is_popular' => $request->is_popular,
                 'position' => $request->position ?? 1000,
                 'desc' => $request->desc,
+                'meta_keywords' => $request->meta_keywords,
+                'meta_desc' => $request->meta_desc,
                 'is_active' => $request->is_active,
                 'icon_svg' => $request->icon_svg,
                 'icon' => isset($icon) ? $icon : $request->icon,
@@ -244,7 +248,7 @@ class CategoryController extends Controller
                 'message' => $e->getMessage()
             ], 500);
         }
-        
+
         return response([
             'message' => __('messages.successfully_deleted')
         ]);

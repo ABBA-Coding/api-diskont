@@ -11,7 +11,7 @@ trait CategoryTrait {
     {
         $result = collect();
 
-        $category_with_children = Category::select('id', 'name', 'parent_id', 'is_popular', 'desc', 'icon', 'icon_svg', 'img', 'position', 'slug', 'is_active')
+        $category_with_children = Category::select('id', 'name', 'parent_id', 'is_popular', 'desc', 'icon', 'icon_svg', 'img', 'position', 'slug', 'is_active', 'meta_keywords', 'meta_desc')
             ->where('is_active', 1)
             ->orderBy('position')
             ->get();
@@ -62,7 +62,7 @@ trait CategoryTrait {
     {
         $result = collect();
 
-        $category_with_children = Category::select('id', 'name', 'parent_id', 'is_popular', 'desc', 'icon', 'icon_svg', 'img', 'position', 'slug', 'is_active');
+        $category_with_children = Category::select('id', 'name', 'parent_id', 'is_popular', 'desc', 'icon', 'icon_svg', 'img', 'position', 'slug', 'is_active', 'meta_keywords', 'meta_desc');
 
         if($is_active) $category_with_children = $category_with_children->where('is_active', $is_active);
 
@@ -129,7 +129,7 @@ trait CategoryTrait {
     public function get_children(Category $category, $without_lang = 0, $all = 0): \Illuminate\Support\Collection
     {
         $result = collect();
-        $category_with_children = Category::select('id', 'name', 'parent_id', 'is_popular', 'desc', 'icon', 'icon_svg', 'img', 'position', 'slug', 'is_active')->get();
+        $category_with_children = Category::select('id', 'name', 'parent_id', 'is_popular', 'desc', 'icon', 'icon_svg', 'img', 'position', 'slug', 'is_active', 'meta_keywords', 'meta_desc')->get();
 
         if($without_lang == 1) $this->without_lang($category_with_children);
 

@@ -22,9 +22,9 @@ class ProductController extends Controller
             'data.*.id' => 'required',
             'data.*.name' => 'required',
             'data.*.desc' => 'required',
-            'data.*.brand' => 'required|array',
-            'data.*.brand.id' => 'required',
-            'data.*.brand.name' => 'required',
+//            'data.*.brand' => 'required|array',
+//            'data.*.brand.id' => 'required',
+//            'data.*.brand.name' => 'required',
             'data.*.category.id' => 'required',
             'data.*.category.name' => 'required',
             'data.*.category.parent' => 'nullable|array',
@@ -38,17 +38,17 @@ class ProductController extends Controller
             foreach ($data['data'] as $item) {
 
                 // obrabotka brenda
-                $brand = [
-//                    'c_id' => $item['brand']['id'],
-                    'name' => $item['brand']['name'],
-                    'logo' => null,
-                    'slug' => Str::slug($item['brand']['name']),
-                    'is_top' => 0
-                ];
-                $saved_brand = Brand::updateOrCreate(
-                    ['c_id' => $item['brand']['id']],
-                    $brand
-                );
+//                $brand = [
+////                    'c_id' => $item['brand']['id'],
+//                    'name' => $item['brand']['name'],
+//                    'logo' => null,
+//                    'slug' => Str::slug($item['brand']['name']),
+//                    'is_top' => 0
+//                ];
+//                $saved_brand = Brand::updateOrCreate(
+//                    ['c_id' => $item['brand']['id']],
+//                    $brand
+//                );
 
                 // obrabotka kategoriy
                 $category_parent = $item['category']['parent'];
@@ -134,10 +134,11 @@ class ProductController extends Controller
 
                     // formatirovat product_info->name (category + brand + product_info->name)
                     $categoryName = $first->name['ru'];
-                    $brandName = $saved_brand->name;
+//                    $brandName = $saved_brand->name;
                     $productName = $item['name'];
 
-                    $result = $brandName . ' ' . $categoryName . ' ' . $productName;
+//                    $result = $brandName . ' ' . $categoryName . ' ' . $productName;
+                    $result = $categoryName . ' ' . $productName;
 
 
                     $product_info = [
@@ -148,7 +149,7 @@ class ProductController extends Controller
                             'ru' => $item['desc'],
                         ],
                         'for_search' => $item['name'].' '.$item['desc'],
-                        'brand_id' => $saved_brand->id,
+//                        'brand_id' => $saved_brand->id,
                         'category_id' => $first->id,
                         'default_product_id' => $saved_product->id,
                     ];
@@ -171,10 +172,11 @@ class ProductController extends Controller
 
                     // formatirovat product_info->name (category + brand + product_info->name)
                     $categoryName = $first->name['ru'];
-                    $brandName = $saved_brand->name;
+//                    $brandName = $saved_brand->name;
                     $productName = $item['name'];
 
-                    $result = $brandName . ' ' . $categoryName . ' ' . $productName;
+//                    $result = $brandName . ' ' . $categoryName . ' ' . $productName;
+                    $result = $categoryName . ' ' . $productName;
 
 
                     $product_info = [
@@ -185,7 +187,7 @@ class ProductController extends Controller
                             'ru' => $item['desc'],
                         ],
                         'for_search' => $item['name'].' '.$item['desc'],
-                        'brand_id' => $saved_brand->id,
+//                        'brand_id' => $saved_brand->id,
                         'category_id' => $first->id,
                         'default_product_id' => $saved_product->id,
                     ];
