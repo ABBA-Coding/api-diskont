@@ -1,8 +1,9 @@
 # category_characteristic_groups iwlatilmaaybti, categoryga characteristicni 6zi ulangan
 
 [//]: # (install steps)
-- install php8.1
-- composer update
+- install php8.1 or or higher
+- install composer
+- run command gcomposer update
 - create database
 - created file .env, set database data
 - php artisan key:generate
