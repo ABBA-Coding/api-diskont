@@ -34,7 +34,7 @@ class CreateOrdersTable extends Migration
             /*
              * pending - v ojidanii tovara(masalan tovar hali skladda yo'q, klient kutvotti)
              */
-            $table->enum('status', ['new', 'canceled', 'accepted', 'done', 'returned', 'pending']);
+            $table->enum('status', ['new', 'canceled', 'accepted', 'done', 'returned', 'pending', 'on_the_way']);
 
             $table->boolean('req_sent')->default(0); // otpravlen li zapros na sklad dlya snyatie produkcii
             $table->string('c_id')->nullable();
