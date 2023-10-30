@@ -41,6 +41,11 @@ class CreateOrdersTable extends Migration
             $table->string('c_id')->nullable();
 
             $table->integer('delivery_price')->default(0);
+
+            $table->string('courier_name')->nullable();
+            $table->string('courier_phone_number')->nullable();
+            $table->text('add_info')->nullable();
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }
