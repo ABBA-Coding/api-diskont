@@ -100,6 +100,7 @@ class OrderController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Order $order)
+
     {
         $request->validate([
             'status' => 'required'

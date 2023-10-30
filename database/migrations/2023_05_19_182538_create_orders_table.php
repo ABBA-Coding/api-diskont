@@ -15,6 +15,7 @@ class CreateOrdersTable extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('operator_id')->nullable()->constrained('admins');
             $table->bigInteger('user_id');
             $table->enum('delivery_method', ['pickup', 'courier']);
             $table->text('name');
