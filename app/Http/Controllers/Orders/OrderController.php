@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Orders;
 
+use Illuminate\Support\Facades\DB;
 use App\Models\{
     Products\Product,
     Orders\Order,
@@ -10,7 +11,6 @@ use App\Models\{
 };
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Http;
-use DB;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller

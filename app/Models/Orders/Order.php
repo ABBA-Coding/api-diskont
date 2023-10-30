@@ -33,6 +33,10 @@ class Order extends Model
         'req_sent',
         'c_id',
         'operator_id',
+        'courier_name',
+        'courier_phone_number',
+        'add_info',
+        'notes',
     ];
 
     protected $casts = [
