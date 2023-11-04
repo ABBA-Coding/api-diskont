@@ -22,7 +22,7 @@ class BannerController extends Controller
         if(isset($request->limit) && $request->limit != '' && $request->limit < 41) $this->set_paginate($request->limit);
 
         $banners = Banner::latest()
-            ->select('id', 'img', 'link', 'type');
+            ->select('id', 'img', 'm_img', 'link', 'type');
 
         if(isset($request->type) && $request->type != '') {
             $banners = $banners->where('type', $request->type);
