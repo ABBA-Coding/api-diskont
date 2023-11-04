@@ -12,12 +12,14 @@ class Banner extends Model
     protected $fillable = [
         'showcase_id',
         'img',
+        'm_img',
         'link',
         'type',
     ];
 
     protected $casts = [
         'img' => 'array',
+        'm_img' => 'array',
         'link' => 'array'
     ];
 
@@ -25,6 +27,9 @@ class Banner extends Model
         'sm_img',
         'md_img',
         'lg_img',
+        'sm_m_img',
+        'md_m_img',
+        'lg_m_img',
     ];
 
     public function getLgImgAttribute()
@@ -59,6 +64,46 @@ class Banner extends Model
         if(is_string($this->img)) return $this->img ? url('/uploads/banners/600') . '/' . $this->img : null;
 
         $img = $this->img;
+
+        foreach($img as $key => $val) {
+            $img[$key] = url('/uploads/banners/600') . '/' . $img[$key];
+        }
+
+        return $img;
+    }
+
+    public function getLgMImgAttribute()
+    {
+        if(!$this->m_img) return null;
+        if(is_string($this->m_img)) return $this->m_img ? url('/uploads/banners') . '/' . $this->m_img : null;
+
+        $img = $this->m_img;
+
+        foreach($img as $key => $val) {
+            $img[$key] = url('/uploads/banners') . '/' . $img[$key];
+        }
+
+        return $img;
+    }
+    public function getSmMImgAttribute()
+    {
+        if(!$this->m_img) return null;
+        if(is_string($this->m_img)) return $this->m_img ? url('/uploads/banners/200') . '/' . $this->m_img : null;
+
+        $img = $this->m_img;
+
+        foreach($img as $key => $val) {
+            $img[$key] = url('/uploads/banners/200') . '/' . $img[$key];
+        }
+
+        return $img;
+    }
+    public function getMdMImgAttribute()
+    {
+        if(!$this->m_img) return null;
+        if(is_string($this->m_img)) return $this->m_img ? url('/uploads/banners/600') . '/' . $this->m_img : null;
+
+        $img = $this->m_img;
 
         foreach($img as $key => $val) {
             $img[$key] = url('/uploads/banners/600') . '/' . $img[$key];
