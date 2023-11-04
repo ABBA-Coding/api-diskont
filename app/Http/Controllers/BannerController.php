@@ -101,10 +101,12 @@ class BannerController extends Controller
                 Storage::disk('public')->move('/uploads/temp/200/' . $explode_logo[count($explode_logo) - 1], '/uploads/banners/200/' . $explode_logo[count($explode_logo) - 1]);
                 Storage::disk('public')->move('/uploads/temp/600/' . $explode_logo[count($explode_logo) - 1], '/uploads/banners/600/' . $explode_logo[count($explode_logo) - 1]);
                 $img[$key] = $explode_logo[count($explode_logo) - 1];
+            } else {
+                $img[$key] = $banner->img[$key] ?? null;
             }
         }
 
-        $img = isset($img[$this->main_lang]) ? $img : $banner->img;
+//        $img = isset($img[$this->main_lang]) ? $img : $banner->img;
 
         $banner->update([
             'img' => $img,
