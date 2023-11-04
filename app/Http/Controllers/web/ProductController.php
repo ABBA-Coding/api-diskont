@@ -107,6 +107,15 @@ class ProductController extends Controller
             }
         }
 
+        // get similar
+        $simProduct = Product::where('slug', $request->input('similar'))
+            ->first();
+        if (isset($simProduct->info->category)) {
+            $products = $products->whereHas('info', function ($q) use ($simProduct) {
+                $q->where('category_id', $simProduct->info->category->id);
+            });
+        }
+
         // get products
         $products = $products->with('info', 'info.brand', 'images', 'attribute_options', 'characteristic_options', 'promotions')
             ->paginate($this->PAGINATE);
