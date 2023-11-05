@@ -154,29 +154,30 @@ class CategoryController extends Controller
             'desc' => 'required|array',
             'meta_keywords' => 'nullable|array',
             'meta_desc' => 'nullable|array',
-            // 'slug' => 'required|max:255',
+//             'slug' => 'required|max:255',
+             'slug' => ['required', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', 'unique:categories,slug,'.$category->id],
             'is_active' => 'required',
         ]);
 
-        if($request->icon) {
-            if(Storage::disk('public')->exists('/uploads/temp/' . explode('/', $request->icon)[count(explode('/', $request->icon)) - 1])) {
-                $explode_icon = explode('/', $request->icon);
+        if($request->input('icon')) {
+            if(Storage::disk('public')->exists('/uploads/temp/' . explode('/', $request->input('icon'))[count(explode('/', $request->input('icon'))) - 1])) {
+                $explode_icon = explode('/', $request->input('icon'));
                 Storage::disk('public')->move('/uploads/temp/' . $explode_icon[count($explode_icon) - 1], '/uploads/categories/icons/' . $explode_icon[count($explode_icon) - 1]);
                 Storage::disk('public')->move('/uploads/temp/200/' . $explode_icon[count($explode_icon) - 1], '/uploads/categories/icons/200/' . $explode_icon[count($explode_icon) - 1]);
                 Storage::disk('public')->move('/uploads/temp/600/' . $explode_icon[count($explode_icon) - 1], '/uploads/categories/icons/600/' . $explode_icon[count($explode_icon) - 1]);
                 $icon = $explode_icon[count($explode_icon) - 1];
-            } else if(Storage::disk('public')->exists('/uploads/categories/icons/' . explode('/', $request->icon)[count(explode('/', $request->icon)) - 1])) {
+            } else if(Storage::disk('public')->exists('/uploads/categories/icons/' . explode('/', $request->input('icon'))[count(explode('/', $request->input('icon'))) - 1])) {
                 $icon = $category->icon;
             }
         }
-        if($request->img) {
-            if(Storage::disk('public')->exists('/uploads/temp/' . explode('/', $request->img)[count(explode('/', $request->img)) - 1])) {
-                $explode_img = explode('/', $request->img);
+        if($request->input('img')) {
+            if(Storage::disk('public')->exists('/uploads/temp/' . explode('/', $request->input('img'))[count(explode('/', $request->input('img'))) - 1])) {
+                $explode_img = explode('/', $request->input('img'));
                 Storage::disk('public')->move('/uploads/temp/' . $explode_img[count($explode_img) - 1], '/uploads/categories/images/' . $explode_img[count($explode_img) - 1]);
                 Storage::disk('public')->move('/uploads/temp/200/' . $explode_img[count($explode_img) - 1], '/uploads/categories/images/200/' . $explode_img[count($explode_img) - 1]);
                 Storage::disk('public')->move('/uploads/temp/600/' . $explode_img[count($explode_img) - 1], '/uploads/categories/images/600/' . $explode_img[count($explode_img) - 1]);
                 $img = $explode_img[count($explode_img) - 1];
-            } else if(Storage::disk('public')->exists('/uploads/categories/images/' . explode('/', $request->img)[count(explode('/', $request->img)) - 1])) {
+            } else if(Storage::disk('public')->exists('/uploads/categories/images/' . explode('/', $request->input('img'))[count(explode('/', $request->input('img'))) - 1])) {
                 $img = $category->img;
             }
         }
@@ -184,23 +185,24 @@ class CategoryController extends Controller
         DB::beginTransaction();
         try {
             $category->update([
-                'name' => $request->name,
-                'parent_id' => $request->parent_id,
-                'is_popular' => $request->is_popular,
+                'name' => $request->input('name'),
+                'parent_id' => $request->input('parent_id'),
+                'is_popular' => $request->input('is_popular'),
                 'position' => $request->position ?? 1000,
-                'desc' => $request->desc,
-                'meta_keywords' => $request->meta_keywords,
-                'meta_desc' => $request->meta_desc,
-                'is_active' => $request->is_active,
-                'icon_svg' => $request->icon_svg,
-                'icon' => isset($icon) ? $icon : $request->icon,
-                'img' => isset($img) ? $img : $request->img,
+                'desc' => $request->input('desc'),
+                'meta_keywords' => $request->input('meta_keywords'),
+                'meta_desc' => $request->input('meta_desc'),
+                'is_active' => $request->input('is_active'),
+                'icon_svg' => $request->input('icon_svg'),
+                'icon' => $icon ?? $request->input('icon'),
+                'img' => $img ?? $request->input('img'),
                 'for_search' => $this->for_search($request, ['name', 'desc']),
-                'slug' => $this->to_slug($request, Category::class, 'name', $this->main_lang, $category->id),
+                'slug' => $request->input('slug')
+//                'slug' => $this->to_slug($request, Category::class, 'name', $this->main_lang, $category->id),
             ]);
 
             $category->attributes()->sync($request->input('attributes'));
-            $category->characteristic_groups()->sync($request->group_characteristics);
+            $category->characteristic_groups()->sync($request->input('group_characteristics'));
 
             DB::commit();
         } catch (\Exception $e) {
