@@ -25,6 +25,7 @@ class ProfileController extends Controller
             // 'address' => 'nullable',
             'email' => 'nullable|max:255',
             'postcode' => 'nullable|max:255',
+            'subscriber' => 'nullable|boolean',
         ]);
 
         if(!auth('sanctum')->user()) return response([
@@ -45,6 +46,7 @@ class ProfileController extends Controller
             // 'district_id' => $request->district_id,
             'postcode' => $request->postcode,
             'email' => $request->email,
+            'subscriber' => $request->input('subscriber') ?? null
         ]);
 
         return response([
@@ -91,7 +93,7 @@ class ProfileController extends Controller
             ->paginate(16);
 
         $user->comments = $comments;
-            
+
         foreach ($addresses as $address) {
             $this->without_lang([$address->region]);
             $this->without_lang([$address->district]);

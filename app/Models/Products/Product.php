@@ -139,7 +139,7 @@ class Product extends Model
 
     public function promotions()
     {
-        return $this->belongsToMany(Promotion::class);
+        return $this->belongsToMany(Promotion::class, 'product_promotion', 'product_id', 'promotion_id');
     }
 
     public function discounts()

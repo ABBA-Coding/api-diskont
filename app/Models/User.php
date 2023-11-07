@@ -28,7 +28,8 @@ class User extends Authenticatable
         'district_id',
         'address',
         'postcode',
-        'password_updated'
+        'password_updated',
+        'subscriber',
     ];
 
     /**
