@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use DB;
 use App\Models\Showcase;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ShowcaseController extends Controller
 {
@@ -57,7 +57,7 @@ class ShowcaseController extends Controller
     {
         $request->validate([
             'name' => 'required',
-            'products' => 'required|array'
+            'products' => 'array'
         ]);
         $data = $request->all();
 
@@ -70,7 +70,7 @@ class ShowcaseController extends Controller
         try {
             $showcase->update([
                 'name' => $data['name'],
-                'for_search' => isset($data['name']['ru']) ? $data['name']['ru'] : ''
+                'for_search' => $data['name']['ru'] ?? ''
             ]);
 
             $sync_products = [];
