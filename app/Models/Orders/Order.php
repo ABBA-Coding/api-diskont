@@ -45,8 +45,18 @@ class Order extends Model
 
     protected $appends = [
     	'products_info',
-        'price_with_dicoin'
+        'price_with_dicoin',
+        'payment_link'
     ];
+
+    public function getPaymentLinkAttribute(): string
+    {
+        $link = '';
+
+        if (in_array($this->payment_method, ['payme', 'click'])) $link = url('/').'/pay/'.$this->payment_method.'/'.$this->id.'/'.$this->amount;
+
+        return $link;
+    }
 
     public function getPriceWithDicoinAttribute()
     {
