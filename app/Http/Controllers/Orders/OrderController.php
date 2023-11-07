@@ -210,7 +210,7 @@ class OrderController extends Controller
         $orders = Order::all();
 
         $counts = [];
-        foreach (['new', 'canceled', 'accepted', 'done', 'returned', 'pending'] as $status) {
+        foreach (['new', 'canceled', 'accepted', 'done', 'returned', 'pending', 'on_the_way'] as $status) {
             $counts[$status] = count($orders->where('status', $status));
         }
 
