@@ -8,8 +8,10 @@ use App\Models\Products\Product;
 use App\Models\Comment;
 use App\Models\Dicoin\DicoinHistory;
 use App\Http\Controllers\Controller;
-use Hash;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class ProfileController extends Controller
 {
@@ -17,13 +19,16 @@ class ProfileController extends Controller
     {
         $request->validate([
             'name' => 'required|max:255',
-            'current_password' => 'sometimes|min:6|max:255',
-            'password' => 'required|confirmed|min:6|max:255',
-            'phone_number' => 'required|min:998000000001|max:999999999998|numeric',
+            'surname' => 'nullable|max:255',
+            'current_password' => [Rule::requiredIf(function () use ($request) {
+                return auth('sanctum')->user()->password_updated && $request->input('password') !== null;
+            }), 'min:6', 'max:255'],
+            'password' => 'nullable|confirmed|min:6|max:255',
+//            'phone_number' => 'required|min:998000000001|max:999999999998|numeric',
             // 'region_id' => 'nullable|integer',
             // 'district_id' => 'nullable|integer',
             // 'address' => 'nullable',
-            'email' => 'nullable|max:255',
+            'email' => 'nullable|max:255|email',
             'postcode' => 'nullable|max:255',
             'subscriber' => 'nullable|boolean',
         ]);
@@ -32,25 +37,40 @@ class ProfileController extends Controller
             'message' => 'Unauthorized'
         ], 401);
 
-         if(auth('sanctum')->user()->password_updated && Hash::check(trim($request->current_password), auth('sanctum')->user()->password)) return response([
+         if($request->input('current_password') !== null && !(auth('sanctum')->user()->password_updated && Hash::check(trim($request->input('current_password')), auth('sanctum')->user()->password))) return response([
              'message' => 'Nepravilniy parol'
          ], 400);
 
-        auth('sanctum')->user()->update([
-            'name' => $request->name,
-            'surname' => $request->last_name,
-            'password' => $request->password ? Hash::make($request->password) : auth('sanctum')->user()->password,
-            'password_updated' => 1,
-            // 'address' => $request->address,
-            // 'region_id' => $request->region_id,
-            // 'district_id' => $request->district_id,
-            'postcode' => $request->postcode,
-            'email' => $request->email,
-            'subscriber' => $request->input('subscriber') ?? null
-        ]);
+         DB::beginTransaction();
+         try {
+             auth('sanctum')->user()->update([
+                 'name' => $request->input('name'),
+                 'surname' => $request->input('last_name'),
+                 'password' => $request->input('password') ? Hash::make($request->input('password')) : auth('sanctum')->user()->password,
+                 'password_updated' => 1,
+                 // 'address' => $request->address,
+                 // 'region_id' => $request->region_id,
+                 // 'district_id' => $request->district_id,
+                 'postcode' => $request->input('postcode'),
+                 'email' => $request->input('email'),
+                 'subscriber' => $request->input('subscriber') ?? null
+             ]);
+
+             auth('sanctum')->user()->tokens()->delete();
+
+             DB::commit();
+         } catch (\Exception $e) {
+             DB::rollBack();
+
+            return response([
+                'message' => $e->getMessage()
+            ], 500);
+         }
+
 
         return response([
             'user' => auth('sanctum')->user(),
+            'new_token' => auth('sanctum')->user()->createToken('auth-token', ['client'])->plainTextToken,
             'message' => 'Saved'
         ]);
     }
