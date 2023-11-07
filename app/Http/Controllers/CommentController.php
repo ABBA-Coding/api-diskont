@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Comment;
-use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CommentController extends Controller
 {
@@ -17,7 +17,7 @@ class CommentController extends Controller
     public function index()
     {
         $comments = Comment::latest()
-            ->select('id', 'user_id', 'product_info_id', 'comment', 'stars')
+            ->select('id', 'user_id', 'product_info_id', 'comment', 'stars', 'is_active')
             ->with('user', 'product_info')
             // ->get();
             ->paginate($this->PAGINATE);
@@ -85,7 +85,36 @@ class CommentController extends Controller
      */
     public function update(Request $request, Comment $comment)
     {
-        //
+        $request->validate([
+            'user_id' => 'required|integer',
+            'product_id' => 'required|integer',
+            'comment' => 'required|max:1000',
+            'stars' => 'required|integer|in:1,2,3,4,5',
+            'is_active' => 'nullable|boolean'
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $comment->update([
+                'user_id' => $request->input('user_id'),
+                'product_info_id' => $request->input('product_id'),
+                'comment' => $request->input('comment'),
+                'stars' => $request->input('stars'),
+                'is_active' => $request->is_active ?? ($comment->is_active ?? null),
+            ]);
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response([
+                'message' => $e->getMessage()
+            ], 500);
+        }
+
+        return response([
+            'comment' => $comment
+        ]);
     }
 
     /**
@@ -108,7 +137,7 @@ class CommentController extends Controller
                 'message' => $e->getMessage()
             ], 500);
         }
-        
+
         return response([
             'message' => __('messages.successfully_deleted')
         ]);

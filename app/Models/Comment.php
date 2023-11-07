@@ -15,6 +15,7 @@ class Comment extends Model
         'product_info_id',
         'comment',
         'stars',
+        'is_active',
     ];
 
     public function product_info()

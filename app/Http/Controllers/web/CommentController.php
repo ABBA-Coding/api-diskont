@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\web;
 
 use App\Models\Comment;
-use DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CommentController extends Controller
 {
@@ -18,7 +18,7 @@ class CommentController extends Controller
         ]);
 
         /*
-         * 
+         *
          */
         if(!auth('sanctum')->user()) {
             return response([
