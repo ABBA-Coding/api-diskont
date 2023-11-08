@@ -212,12 +212,15 @@ class OrderController extends Controller
         $chatId = env('TELEGRAM_CHAT_ID');
         $baseUrl = 'https://api.telegram.org/bot';
 
-        $typeText = '🛵Онлайн заказ';
-        $productsCount = 0;
-        foreach ($oneClickOrder->products as $product) {
-            $productsCount += $product['count'];
+        if ($type == 'order') {
+            $typeText = '🛵Онлайн заказ';
+            $productsCount = 0;
+            foreach ($oneClickOrder->products as $product) {
+                $productsCount += $product['count'];
+            }
+            $text = '%23OnlineOrder'.PHP_EOL.$typeText.' №'.$oneClickOrder->id.PHP_EOL.PHP_EOL.'<b>ФИО: </b>'.$oneClickOrder->name.' '.$oneClickOrder->surname.';'.PHP_EOL.'<b>Номер телефона:</b> '.$oneClickOrder->phone_number.';'.PHP_EOL.'<b>Кол-во: </b>'.$productsCount.';'.PHP_EOL.'<b>Сумма: </b>'.$oneClickOrder->amount.';'.PHP_EOL.'<b>Оплата: </b>'.($oneClickOrder->payment_method == 'cash' ? 'Наличные' : 'Online').'.'.PHP_EOL.PHP_EOL.date('H:i d.m.Y');
         }
-        $text = '%23OnlineOrder'.PHP_EOL.$typeText.' №'.$oneClickOrder->id.PHP_EOL.PHP_EOL.'<b>ФИО: </b>'.$oneClickOrder->name.' '.$oneClickOrder->surname.';'.PHP_EOL.'<b>Номер телефона:</b> '.$oneClickOrder->phone_number.';'.PHP_EOL.'<b>Кол-во: </b>'.$productsCount.';'.PHP_EOL.'<b>Сумма: </b>'.$oneClickOrder->amount.';'.PHP_EOL.'<b>Оплата: </b>'.($oneClickOrder->payment_method == 'cash' ? 'Наличные' : 'Online').'.'.PHP_EOL.PHP_EOL.date('H:i d.m.Y');
+
         if ($type == 'one_click') {
             $typeText = '🎯<u>Купить в один клик</u>';
             $text = '%23OneClick'.PHP_EOL.$typeText.' №'.$oneClickOrder->id.PHP_EOL.PHP_EOL.'<b>ФИО: </b>'.$oneClickOrder->name.';'.PHP_EOL.'<b>Номер телефона:</b> '.$oneClickOrder->phone_number.';'.PHP_EOL.'<b>Продукт:</b>'.($oneClickOrder->product->name['ru'] ?? '--').';'.PHP_EOL.'<b>Кол-во: </b>'.$oneClickOrder->count.'.'.PHP_EOL.PHP_EOL.date('H:i d.m.Y');
