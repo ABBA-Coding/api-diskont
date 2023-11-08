@@ -64,7 +64,8 @@ class ProductController extends Controller
 
         // filter with stock
         if (isset($data['stock']) && $data['stock'] != '') {
-            $products = $products->where('stock', '>', 0);
+            if ($data['stock'] == 'yes') $products = $products->where('stock', '>', 0);
+            $products = $products->where('stock', '<=', 0);
         }
 
         $products = $products->paginate($this->PAGINATE);
