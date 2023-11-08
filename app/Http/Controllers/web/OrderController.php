@@ -113,6 +113,8 @@ class OrderController extends Controller
         try {
             $order = Order::create($data);
 
+            $this->sendMessageToTelegram($order, 'order');
+
             if($data['dicoin']) $dicoin_history->update(['order_id' => $order->id]);
 
             DB::commit();
@@ -197,20 +199,29 @@ class OrderController extends Controller
         $data = $request->all();
 
         $oneClickOrder = OneClickOrder::create($data);
-        $this->sendMessageToTelegram($oneClickOrder);
+        $this->sendMessageToTelegram($oneClickOrder, 'one_click');
 
         return response([
             'message' => 'Successfully ordered'
         ]);
     }
 
-    public function sendMessageToTelegram($oneClickOrder)
+    public function sendMessageToTelegram($oneClickOrder, $type)
     {
         $botToken = env('BOT_TOKEN');
         $chatId = env('TELEGRAM_CHAT_ID');
         $baseUrl = 'https://api.telegram.org/bot';
 
-        $text = '<b>Номер телефона:</b> '.$oneClickOrder->phone_number.';'.PHP_EOL.'<b>ФИО: </b>'.$oneClickOrder->name.';'.PHP_EOL.'<b>Продукт:</b>'.($oneClickOrder->product->name['ru'] ?? '--').';'.PHP_EOL.'<b>Кол-во: </b>'.$oneClickOrder->count;
+        $typeText = '🛵Онлайн заказ';
+        $productsCount = 0;
+        foreach ($oneClickOrder->products as $product) {
+            $productsCount += $product['count'];
+        }
+        $text = '%23OnlineOrder'.PHP_EOL.$typeText.' №'.$oneClickOrder->id.PHP_EOL.PHP_EOL.'<b>ФИО: </b>'.$oneClickOrder->name.' '.$oneClickOrder->surname.';'.PHP_EOL.'<b>Номер телефона:</b> '.$oneClickOrder->phone_number.';'.PHP_EOL.'<b>Кол-во: </b>'.$productsCount.';'.PHP_EOL.'<b>Сумма: </b>'.$oneClickOrder->amount.';'.PHP_EOL.'<b>Оплата: </b>'.($oneClickOrder->payment_method == 'cash' ? 'Наличные' : 'Online').'.'.PHP_EOL.PHP_EOL.date('H:i d.m.Y');
+        if ($type == 'one_click') {
+            $typeText = '🎯<u>Купить в один клик</u>';
+            $text = '%23OneClick'.PHP_EOL.$typeText.' №'.$oneClickOrder->id.PHP_EOL.PHP_EOL.'<b>ФИО: </b>'.$oneClickOrder->name.';'.PHP_EOL.'<b>Номер телефона:</b> '.$oneClickOrder->phone_number.';'.PHP_EOL.'<b>Продукт:</b>'.($oneClickOrder->product->name['ru'] ?? '--').';'.PHP_EOL.'<b>Кол-во: </b>'.$oneClickOrder->count.'.'.PHP_EOL.PHP_EOL.date('H:i d.m.Y');
+        }
 
         Http::get($baseUrl.$botToken.'/sendMessage?chat_id='.$chatId.'&text='.$text.'&parse_mode=HTML');
     }
