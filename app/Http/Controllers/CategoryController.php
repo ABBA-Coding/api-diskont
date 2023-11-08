@@ -121,7 +121,7 @@ class CategoryController extends Controller
     public function show(Category $category)
     {
         $category = Category::where('id', $category->id)
-            ->select('id', 'name', 'is_popular', 'desc', 'parent_id', 'img', 'icon', 'slug', 'is_active', 'meta_keywords', 'meta_desc')
+            ->select('id', 'name', 'is_popular', 'desc', 'position', 'parent_id', 'img', 'icon', 'slug', 'is_active', 'meta_keywords', 'meta_desc')
             ->with('parent', 'attributes', 'attributes.options', 'characteristic_groups', 'characteristic_groups.characteristics', 'characteristic_groups.characteristics.options') // children
             ->first();
 
