@@ -62,10 +62,12 @@ class DashboardController extends Controller
         $result = [];
 
         $difference = strtotime($end) - strtotime($begin);
+        $days = $difference/60/60/24;
         if ($difference/60/60/24 > 30) {
             $end = date('Y-m-d', strtotime('+30 days', strtotime($begin)));
+            $days = 30;
         }
-        for ($i=0; $i<30; $i++) {
+        for ($i=0; $i<$days; $i++) {
             $orders = Order::whereDate('created_at', date('Y-m-d', strtotime('+'.$i.' days', strtotime($begin))))
                 ->get();
             $result[] = [
