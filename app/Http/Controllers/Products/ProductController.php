@@ -43,6 +43,30 @@ class ProductController extends Controller
         }
         if(isset($data['status']) && $data['status'] != '') $products = $products->where('status', trim($data['status']));
 
+        // filter with category
+        if (isset($data['category']) && $data['category'] != '') {
+            $category = Category::find($data['category']);
+            $categoryIds = [];
+            $categoryIds[] = $data['category'];
+            foreach ($this->get_children($category) as $item) {
+                if (isset($item->children[0])) {
+                    foreach ($item->children as $child) {
+                        $categoryIds[] = $child->id;
+                    }
+                }
+                $categoryIds[] = $item->id;
+            }
+
+            $products = $products->whereHas('info', function ($q) use ($categoryIds) {
+                $q->whereIn('category_id', $categoryIds);
+            });
+        }
+
+        // filter with stock
+        if (isset($data['stock']) && $data['stock'] != '') {
+            $products = $products->where('stock', '>', 0);
+        }
+
         $products = $products->paginate($this->PAGINATE);
 
         // if (!Cache::store('redis')->get('products/index')) {
