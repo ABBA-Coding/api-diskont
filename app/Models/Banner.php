@@ -72,9 +72,10 @@ class Banner extends Model
         return $img;
     }
 
+    // mobile banners image variations
     public function getLgMImgAttribute()
     {
-        if(!$this->m_img) return null;
+        if(!$this->m_img || !isset($this->m_img['ru'])) return null;
         if(is_string($this->m_img)) return $this->m_img ? url('/uploads/banners') . '/' . $this->m_img : null;
 
         $img = $this->m_img;
@@ -87,7 +88,7 @@ class Banner extends Model
     }
     public function getSmMImgAttribute()
     {
-        if(!$this->m_img) return null;
+        if(!$this->m_img || !isset($this->m_img['ru'])) return null;
         if(is_string($this->m_img)) return $this->m_img ? url('/uploads/banners/200') . '/' . $this->m_img : null;
 
         $img = $this->m_img;
@@ -100,7 +101,7 @@ class Banner extends Model
     }
     public function getMdMImgAttribute()
     {
-        if(!$this->m_img) return null;
+        if(!$this->m_img || !isset($this->m_img['ru'])) return null;
         if(is_string($this->m_img)) return $this->m_img ? url('/uploads/banners/600') . '/' . $this->m_img : null;
 
         $img = $this->m_img;
