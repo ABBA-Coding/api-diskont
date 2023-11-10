@@ -14,12 +14,19 @@ class CommentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         $comments = Comment::latest()
-            ->select('id', 'user_id', 'product_info_id', 'comment', 'stars', 'is_active')
-            ->with('user', 'product_info')
-            // ->get();
+            ->select('id', 'user_id', 'product_info_id', 'comment', 'stars', 'is_active');
+
+        if ($request->input('search') !== null && $request->input('search') != '') $comments = $comments->whereHas('product_info', function ($q) use ($request) {
+            $q->where(function ($q) use ($request) {
+                $q->where('for_search', 'like', '%'.$request->input('search').'%')
+                    ->orWhere('name', 'like', '%'.$request->input('search').'%');
+            });
+        });
+
+        $comments = $comments->with('user', 'product_info')
             ->paginate($this->PAGINATE);
 
         return response([
