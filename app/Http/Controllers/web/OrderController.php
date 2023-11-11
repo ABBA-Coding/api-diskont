@@ -197,6 +197,7 @@ class OrderController extends Controller
             'count' => 'required|integer'
         ]);
         $data = $request->all();
+        $data['status'] = 'pending';
 
         $oneClickOrder = OneClickOrder::create($data);
         $this->sendMessageToTelegram($oneClickOrder, 'one_click');

@@ -57,7 +57,15 @@ class OneClickOrderController extends Controller
      */
     public function update(Request $request, OneClickOrder $oneClickOrder)
     {
-        //
+        $request->validate([
+            'status' => 'required|in:pending,accepted,canceled'
+        ]);
+
+        $oneClickOrder->update($request->all());
+
+        return response([
+            'message' => 'Successfully updated'
+        ]);
     }
 
     /**
