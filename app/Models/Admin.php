@@ -27,4 +27,9 @@ class Admin extends Authenticatable
     {
         return $this->belongsTo(Role::class);
     }
+
+    public function newsletters(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(NewsLetter::class);
+    }
 }

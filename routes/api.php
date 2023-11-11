@@ -55,6 +55,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PermissionGroupController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\NewsLetterController;
 
 /*
 |--------------------------------------------------------------------------
@@ -147,5 +148,8 @@ Route::prefix('admin')->group(function() {
         Route::delete('variations/{id}', [ProductController::class, 'variation_delete']);
 
         Route::get('dashboard', [DashboardController::class, 'get']);
+
+        Route::post('newsletters-send', [NewsLetterController::class, 'send']);
+        Route::resource('newsletters', NewsLetterController::class);
     });
 });
